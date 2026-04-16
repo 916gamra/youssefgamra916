@@ -1,25 +1,55 @@
+// src/core/db.ts
 import Dexie, { type Table } from 'dexie';
 
-export interface SparePart {
-  id?: number;
-  partNumber: string;
+// --- 1. Domain Interfaces (PDR Engine) ---
+
+export interface PdrFamily {
+  id: string; // UUID
   name: string;
-  description: string;
-  quantity: number;
+  description?: string;
+  createdAt: string;
+}
+
+export interface PdrTemplate {
+  id: string; // UUID
+  familyId: string; // Foreign Key to PdrFamily
+  name: string;
+  skuBase: string; // e.g., 'RLM-6200'
+  description?: string;
+  createdAt: string;
+}
+
+export interface PdrBlueprint {
+  id: string; // UUID
+  templateId: string; // Foreign Key to PdrTemplate
+  reference: string; // Exact Part Number e.g., '6205-2RS'
+  unit: string; // 'Pcs', 'Kg', 'Liters'
   minThreshold: number;
-  location: string;
-  updatedAt: Date;
+  createdAt: string;
+}
+
+// --- 2. Domain Interfaces (Stock Engine) ---
+
+export interface StockItem {
+  id: string; // UUID
+  blueprintId: string; // Foreign Key to PdrBlueprint
+  warehouseId: string;
+  quantityCurrent: number;
+  locationDetails?: string; // e.g., 'Aisle 3, Shelf B'
+  updatedAt: string;
 }
 
 export interface StockMovement {
-  id?: number;
-  partId: number;
-  type: 'IN' | 'OUT';
+  id: string; // UUID
+  stockId: string; // Foreign Key to StockItem
+  type: 'IN' | 'OUT' | 'ADJUST';
   quantity: number;
-  reason: string;
-  date: Date;
+  performedBy: string; // User ID or Name
+  notes?: string;
+  timestamp: string;
 }
 
+// Users (Preserving your existing User schema)
 export interface User {
   id?: number;
   name: string;
@@ -30,26 +60,34 @@ export interface User {
   isPrimary?: boolean;
 }
 
-export class CIOBDatabase extends Dexie {
-  spareParts!: Table<SparePart, number>;
-  stockMovements!: Table<StockMovement, number>;
+// --- 3. The Database Engine ---
+
+export class GmaoDatabase extends Dexie {
+  // PDR Library Tables
+  pdrFamilies!: Table<PdrFamily, string>;
+  pdrTemplates!: Table<PdrTemplate, string>;
+  pdrBlueprints!: Table<PdrBlueprint, string>;
+  
+  // Stock Engine Tables
+  inventory!: Table<StockItem, string>;
+  movements!: Table<StockMovement, string>;
+  
+  // System Tables
   users!: Table<User, number>;
 
   constructor() {
     super('CIOB_GMAO_DB');
-    this.version(1).stores({
-      spareParts: '++id, partNumber, name, quantity, location'
-    });
-    this.version(2).stores({
-      spareParts: '++id, partNumber, name, quantity, location',
-      stockMovements: '++id, partId, type, date'
-    });
-    this.version(3).stores({
-      spareParts: '++id, partNumber, name, quantity, location',
-      stockMovements: '++id, partId, type, date',
+    
+    // Schema Version 4 (Upgrading to Relational PDR Engine)
+    this.version(4).stores({
+      pdrFamilies: 'id, name',
+      pdrTemplates: 'id, familyId, name, skuBase',
+      pdrBlueprints: 'id, templateId, reference',
+      inventory: 'id, blueprintId, warehouseId',
+      movements: 'id, stockId, type, timestamp',
       users: '++id, name, role, isPrimary'
     });
   }
 }
 
-export const db = new CIOBDatabase();
+export const db = new GmaoDatabase();
