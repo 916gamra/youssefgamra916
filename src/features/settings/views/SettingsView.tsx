@@ -1,25 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { GlassCard } from '@/shared/components/GlassCard';
-import { Database, Download, Upload, Trash2, Shield, Bell, Monitor, User as UserIcon, LogOut, Users, Plus, Edit2, X } from 'lucide-react';
+import { Database, Download, Upload, Trash2, Shield, Bell, Monitor, User as UserIcon, LogOut, Users, Plus, Edit2, X, RefreshCw, Loader2, Save } from 'lucide-react';
 import { db, User } from '@/core/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import * as Dialog from '@radix-ui/react-dialog';
+import { seedDatabase } from '@/core/seed';
+import { useDataVault } from '../hooks/useDataVault';
 
 export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?: User | null }) {
   const [activeSection, setActiveSection] = useState<'appearance' | 'data' | 'users'>('appearance');
   const [isClearing, setIsClearing] = useState(false);
   const [clearSuccess, setClearSuccess] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(false);
+  const [seedSuccess, setSeedSuccess] = useState(false);
   
   const users = useLiveQuery(() => db.users.toArray());
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
+  const { exportBackup, importBackup, isExporting, isImporting } = useDataVault();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleClearDatabase = async () => {
     setIsClearing(true);
     try {
-      await db.transaction('rw', db.spareParts, db.stockMovements, async () => {
-        await db.spareParts.clear();
-        await db.stockMovements.clear();
+      await db.transaction('rw', [db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, db.inventory, db.movements], async () => {
+        await db.pdrFamilies.clear();
+        await db.pdrTemplates.clear();
+        await db.pdrBlueprints.clear();
+        await db.inventory.clear();
+        await db.movements.clear();
       });
       setClearSuccess(true);
       setTimeout(() => setClearSuccess(false), 3000);
@@ -30,29 +40,34 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
     }
   };
 
+  const handleSeedDatabase = async () => {
+    setIsSeeding(true);
+    const success = await seedDatabase();
+    if (success) {
+      setSeedSuccess(true);
+      setTimeout(() => setSeedSuccess(false), 3000);
+    }
+    setIsSeeding(false);
+  };
+
   const handleExportData = async () => {
     try {
-      const parts = await db.spareParts.toArray();
-      const movements = await db.stockMovements.toArray();
-      
-      const data = {
-        version: '1.0',
-        timestamp: new Date().toISOString(),
-        spareParts: parts,
-        stockMovements: movements
-      };
-      
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `ciob-gmao-backup-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      await exportBackup();
     } catch (error) {
       console.error("Failed to export data", error);
+    }
+  };
+
+  const handleImportData = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      await importBackup(file);
+      window.location.reload(); // Refresh to ensure state captures new data
+    } catch (error) {
+      console.error("Failed to import backup");
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -183,15 +198,67 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
+                    <h3 className="text-[15px] font-medium text-[var(--accent)]">Seed Dummy Data</h3>
+                    <p className="text-[13px] text-[var(--text-dim)] mt-1">Populate the database with hierarchical PDR mock data for testing.</p>
+                  </div>
+                  <button 
+                    onClick={handleSeedDatabase}
+                    disabled={isSeeding}
+                    className="flex items-center gap-2 bg-[var(--accent)] hover:bg-blue-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors shrink-0"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isSeeding ? 'animate-spin' : ''}`} />
+                    {isSeeding ? 'Seeding...' : 'Seed DB'}
+                  </button>
+                </div>
+                
+                {seedSuccess && (
+                  <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-medium">
+                    Database seeded successfully. Check PDR Dashboard.
+                  </div>
+                )}
+
+                <div className="h-px w-full bg-[var(--glass-border)]" />
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
                     <h3 className="text-[15px] font-medium text-[var(--text-bright)]">Export Database</h3>
-                    <p className="text-[13px] text-[var(--text-dim)] mt-1">Download a JSON backup of all spare parts and stock movements.</p>
+                    <p className="text-[13px] text-[var(--text-dim)] mt-1">Download a JSON backup of all spare parts, stock movements, and structure.</p>
                   </div>
                   <button 
                     onClick={handleExportData}
-                    className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-[var(--glass-border)] text-[var(--text-bright)] px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors shrink-0"
+                    disabled={isExporting || isImporting}
+                    className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-[var(--glass-border)] text-[var(--text-bright)] px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors shrink-0 disabled:opacity-50"
                   >
-                    <Download className="w-4 h-4" />
-                    Export JSON
+                    {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    {isExporting ? 'Exporting...' : 'Export JSON'}
+                  </button>
+                </div>
+
+                <div className="h-px w-full bg-[var(--glass-border)]" />
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-red-500/5 border border-red-500/10">
+                  <div>
+                    <h3 className="text-[15px] font-medium text-amber-500 flex items-center gap-2">
+                      <Shield className="w-4 h-4" /> Restore from Vault (Backup)
+                    </h3>
+                    <p className="text-[13px] text-[var(--text-dim)] mt-1">
+                      Upload a `.json` backup file. <strong className="text-red-400">WARNING: This replaces the entire local database.</strong>
+                    </p>
+                  </div>
+                  <input 
+                    type="file" 
+                    accept=".json" 
+                    className="hidden" 
+                    ref={fileInputRef} 
+                    onChange={handleImportData} 
+                  />
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isExporting || isImporting}
+                    className="flex items-center gap-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-500 px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors shrink-0 disabled:opacity-50"
+                  >
+                    {isImporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    {isImporting ? 'Restoring...' : 'Restore JSON'}
                   </button>
                 </div>
 

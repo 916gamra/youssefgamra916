@@ -1,25 +1,33 @@
 import React from 'react';
 import { useTabStore } from './store';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, LayoutDashboard, Package, Settings, Wrench, Menu, LogOut, ShoppingCart, Terminal } from 'lucide-react';
+import { X, LayoutDashboard, Package, Settings, Wrench, Menu, LogOut, ShoppingCart, Terminal, Factory, ClipboardCheck, PieChart } from 'lucide-react';
 import { cn } from '@/shared/utils';
 
 // Placeholder components for tabs
-import { PDRDashboard } from '@/features/pdr-engine/views/PDRDashboard';
-import { InventoryList } from '@/features/pdr-engine/views/InventoryList';
+import { StockDashboardPage } from '@/features/pdr-engine/views/StockDashboardPage';
+import { PdrLibraryPage } from '@/features/pdr-engine/views/PdrLibraryPage';
 import { PartDetail } from '@/features/pdr-engine/views/PartDetail';
 import { SettingsView } from '@/features/settings/views/SettingsView';
 import { ProcurementView } from '@/features/procurement/views/ProcurementView';
 import { TerminalView } from '@/features/terminal/views/TerminalView';
+import { OrganizationView } from '@/features/organization/views/OrganizationView';
+import { MachineRegistryView } from '@/features/organization/views/MachineRegistryView';
+import { RequisitionHubView } from '@/features/requisition/views/RequisitionHubView';
+import { AnalyticsDashboardPage } from '@/features/analytics/views/AnalyticsDashboardPage';
 import type { User } from '@/core/db';
 
 const COMPONENT_MAP: Record<string, React.FC<any>> = {
-  'pdr-dashboard': PDRDashboard,
-  'inventory-list': InventoryList,
+  'pdr-dashboard': StockDashboardPage,
+  'inventory-list': PdrLibraryPage,
   'part-detail': PartDetail,
   'settings': SettingsView,
   'procurement': ProcurementView,
-  'terminal': TerminalView
+  'terminal': TerminalView,
+  'organization': OrganizationView,
+  'machine-registry': MachineRegistryView,
+  'requisition-hub': RequisitionHubView,
+  'analytics-dashboard': AnalyticsDashboardPage
 };
 
 export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
@@ -28,7 +36,7 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
   // Initial tab
   React.useEffect(() => {
     if (tabs.length === 0) {
-      openTab({ id: 'dashboard', title: 'PDR Dashboard', component: 'pdr-dashboard' });
+      openTab({ id: 'analytics-dashboard', title: 'The Oracle', component: 'analytics-dashboard' });
     }
   }, [tabs.length, openTab]);
 
@@ -36,18 +44,24 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
     <div className="flex flex-col h-screen w-full overflow-hidden font-sans selection:bg-blue-500/30">
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-[72px] border-r border-[var(--glass-border)] flex flex-col items-center pt-5 gap-6 bg-black/20 shrink-0">
+        <aside className="w-[72px] border-r border-[var(--glass-border)] flex flex-col items-center pt-5 gap-6 bg-black/20 shrink-0 overflow-y-auto custom-scrollbar pb-6">
+          <SidebarItem 
+            icon={<PieChart />} 
+            isActive={activeTabId === 'analytics-dashboard'} 
+            onClick={() => openTab({ id: 'analytics-dashboard', title: 'The Oracle', component: 'analytics-dashboard' })}
+            title="The Oracle"
+          />
           <SidebarItem 
             icon={<LayoutDashboard />} 
             isActive={activeTabId === 'dashboard'} 
-            onClick={() => openTab({ id: 'dashboard', title: 'PDR Dashboard', component: 'pdr-dashboard' })}
-            title="Dashboard"
+            onClick={() => openTab({ id: 'dashboard', title: 'Stock Dashboard', component: 'pdr-dashboard' })}
+            title="Stock Radar"
           />
           <SidebarItem 
             icon={<Package />} 
             isActive={activeTabId === 'inventory'} 
-            onClick={() => openTab({ id: 'inventory', title: 'Spare Parts', component: 'inventory-list' })}
-            title="Inventory"
+            onClick={() => openTab({ id: 'inventory', title: 'PDR Library', component: 'inventory-list' })}
+            title="PDR Library"
           />
           <SidebarItem 
             icon={<ShoppingCart />} 
@@ -57,9 +71,21 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
           />
           <SidebarItem 
             icon={<Wrench />} 
-            isActive={activeTabId === 'maintenance'} 
-            onClick={() => openTab({ id: 'maintenance', title: 'Work Orders', component: 'settings' })}
-            title="Maintenance"
+            isActive={activeTabId === 'organization'} 
+            onClick={() => openTab({ id: 'organization', title: 'Organization', component: 'organization' })}
+            title="Sectors & Staff"
+          />
+          <SidebarItem 
+            icon={<Factory />} 
+            isActive={activeTabId === 'machine-registry'} 
+            onClick={() => openTab({ id: 'machine-registry', title: 'Machine Registry', component: 'machine-registry' })}
+            title="Machine Registry"
+          />
+          <SidebarItem 
+            icon={<ClipboardCheck />} 
+            isActive={activeTabId === 'requisition-hub'} 
+            onClick={() => openTab({ id: 'requisition-hub', title: 'Requisition Hub', component: 'requisition-hub' })}
+            title="Requisition Hub"
           />
           {user?.isPrimary && (
             <SidebarItem 
