@@ -1,5 +1,6 @@
 // src/core/db.ts
 import Dexie, { type Table } from 'dexie';
+import type { ExcelTemplate, ExcelBackup } from './excel/types';
 
 // --- 1. Domain Interfaces (PDR Engine) ---
 
@@ -111,6 +112,49 @@ export interface PartRequisitionLine {
   quantity: number;
 }
 
+// --- 5. Domain Interfaces (Preventive Maintenance Engine) ---
+
+export interface PmChecklist {
+  id: string; // UUID
+  name: string;
+  description?: string;
+  targetMachineFamily?: string; // Optional: restrict this checklist to a specific family of machines
+  createdAt: string;
+}
+
+export interface PmTask {
+  id: string; // UUID
+  checklistId: string; // Foreign Key to PmChecklist
+  order: number; // For sorting tasks logically
+  taskDescription: string;
+  isCritical: boolean; // Must pass or work order fails
+  requiredPartTemplateId?: string; // Optional: link to a PDR Template if parts are usually consumed
+}
+
+export interface PmSchedule {
+  id: string; // UUID
+  machineId: string; // Foreign Key to Machine
+  checklistId: string; // Foreign Key to PmChecklist
+  frequencyDays: number; // e.g., 30 for monthly, 7 for weekly
+  lastPerformedAt?: string;
+  nextDueDate: string;
+  isActive: boolean;
+}
+
+export type WorkOrderStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'MISSED';
+
+export interface PmWorkOrder {
+  id: string; // UUID
+  scheduleId?: string; // If generated from a schedule
+  machineId: string; 
+  checklistId: string;
+  technicianId?: string; // Assigned to or claimed by
+  status: WorkOrderStatus;
+  scheduledDate: string;
+  completedDate?: string;
+  notes?: string;
+}
+
 // Users (Preserving your existing User schema)
 export interface User {
   id?: number;
@@ -120,6 +164,7 @@ export interface User {
   color: string;
   pin: string;
   isPrimary?: boolean;
+  allowedPortals?: string[];
 }
 
 // --- 3. The Database Engine ---
@@ -145,14 +190,24 @@ export class GmaoDatabase extends Dexie {
   partRequisitions!: Table<PartRequisition, string>;
   partRequisitionLines!: Table<PartRequisitionLine, string>;
 
+  // Preventive Maintenance Tables
+  pmChecklists!: Table<PmChecklist, string>;
+  pmTasks!: Table<PmTask, string>;
+  pmSchedules!: Table<PmSchedule, string>;
+  pmWorkOrders!: Table<PmWorkOrder, string>;
+
   // System Tables
   users!: Table<User, number>;
+  
+  // Excel Integration Tables
+  excelTemplates!: Table<ExcelTemplate, string>;
+  excelBackups!: Table<ExcelBackup, string>;
 
   constructor() {
     super('CIOB_GMAO_DB');
     
-    // Schema Version 7 (Pivot to Requisition ERP)
-    this.version(7).stores({
+    // Schema Version 9 (Added Excel tables)
+    this.version(9).stores({
       pdrFamilies: 'id, name',
       pdrTemplates: 'id, familyId, name, skuBase',
       pdrBlueprints: 'id, templateId, reference',
@@ -164,11 +219,15 @@ export class GmaoDatabase extends Dexie {
       technicians: 'id, name, sectorId',
       machines: 'id, name, sectorId',
       partRequisitions: 'id, technicianId, machineId, status, requestDate',
-      partRequisitionLines: 'id, requisitionId, blueprintId',
-      users: '++id, name, role, isPrimary'
+      pmChecklists: 'id, name',
+      pmTasks: 'id, checklistId, order',
+      pmSchedules: 'id, machineId, checklistId, nextDueDate, isActive',
+      pmWorkOrders: 'id, machineId, technicianId, status, scheduledDate',
+      users: '++id, name, role, isPrimary',
+      excelTemplates: 'id, portalId, name',
+      excelBackups: 'id, portalId, timestamp'
     });
   }
 }
-
 
 export const db = new GmaoDatabase();

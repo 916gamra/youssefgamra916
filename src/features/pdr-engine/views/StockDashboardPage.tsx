@@ -7,6 +7,7 @@ import { GlassCard } from '@/shared/components/GlassCard';
 import { Box, AlertTriangle, AlertOctagon, ArrowUpRight, ArrowDownRight, Package, MapPin, Activity, ListFilter, Plus, Zap, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/shared/utils';
 import { StockTransactionModal } from './StockTransactionModal';
+import { AddInventoryModal } from './AddInventoryModal';
 
 export function StockDashboardPage({ tabId }: { tabId: string }) {
   const { inventory, movements, lowStockItems, outOfStockItems, isLoading } = useStockEngine();
@@ -14,6 +15,7 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
   const { openTab } = useTabStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [preselectedStockId, setPreselectedStockId] = useState<string | undefined>();
   const [actionMsg, setActionMsg] = useState<string | null>(null);
 
@@ -73,7 +75,7 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
         <div>
           <h1 className="text-3xl font-semibold text-[var(--text-bright)] tracking-tight mb-2">Stock Live Control Room</h1>
-          <p className="text-[var(--text-dim)] text-lg">Real-time inventory radar and movement telemetry.</p>
+          <p className="text-[var(--text-dim)] text-lg">Real-time inventory radar mapping blueprints to physical locations.</p>
         </div>
         <div className="flex items-center gap-3">
           <AnimatePresence>
@@ -90,6 +92,14 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
               </motion.button>
             )}
           </AnimatePresence>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-xl font-medium transition-all shadow-[0_0_15px_rgba(34,211,238,0.15)] shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            Track Blueprint
+          </button>
 
           <button
             onClick={() => { setPreselectedStockId(undefined); setIsModalOpen(true); }}
@@ -336,6 +346,10 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
         onClose={() => setIsModalOpen(false)} 
         inventory={inventory}
         preselectedStockId={preselectedStockId}
+      />
+      <AddInventoryModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
       />
     </motion.div>
   );

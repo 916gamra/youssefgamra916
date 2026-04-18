@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -21,14 +21,19 @@
     background-color: var(--bg-base);
     color: var(--text-bright);
     background-image: radial-gradient(circle at 50% -20%, #1e293b 0%, var(--bg-base) 70%);
-    @apply antialiased;
+    @apply antialiased selection:bg-blue-500/30 selection:text-white;
+  }
+
+  h1, h2, h3, h4, h5, h6, .heading-font {
+    font-family: "Space Grotesk", "Inter", sans-serif;
+    letter-spacing: -0.02em;
   }
 }
 
-/* Custom Scrollbar for the OS feel */
+/* Luxury Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -36,10 +41,22 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-white/10 rounded-full border-2 border-zinc-900;
+  @apply bg-white/10 rounded-full;
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-white/20;
+}
+
+/* Glass panel utility */
+.glass-panel {
+  @apply bg-black/40 backdrop-blur-2xl border border-white/5;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.glass-panel-heavy {
+  @apply bg-black/60 backdrop-blur-3xl border border-white/10;
+  box-shadow: 0 4px 60px rgba(0, 0, 0, 0.3);
 }
 

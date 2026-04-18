@@ -1,0 +1,137 @@
+import { useEffect, useRef } from 'react';
+import { useAuthStore } from '@/app/store/useAuthStore';
+import { useTabStore } from '@/app/store';
+import { toast } from 'sonner';
+
+/**
+ * Cognition Engine (The Self-Awareness Module)
+ * Gives the application "consciousness" of its state across tabs, user presence, and terminal lifecycle.
+ */
+export function useSystemCognition() {
+  const { isAuthenticated, logout, checkSession } = useAuthStore();
+  const { clearTabs } = useTabStore();
+  
+  const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const broadcastChannelRef = useRef<BroadcastChannel | null>(null);
+
+  // --- 1. IDLE DETECTION (Auto-Lock) ---
+  const resetIdleTimer = () => {
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    
+    // If not authenticated, don't run the timer
+    if (!useAuthStore.getState().isAuthenticated) return;
+
+    // 15 Minutes Idle Timeout
+    idleTimerRef.current = setTimeout(() => {
+      logout();
+      clearTabs();
+      toast.error('Terminal Locked', {
+        description: 'You have been logged out due to inactivity (15 minutes).',
+        duration: 5000,
+        icon: '🔒'
+      });
+      // Tell other tabs to lock down too
+      if (broadcastChannelRef.current) {
+        broadcastChannelRef.current.postMessage({ type: 'IDLE_TIMEOUT' });
+      }
+    }, 15 * 60 * 1000); 
+  };
+
+  useEffect(() => {
+    // --- 2. MULTI-TERMINAL HIVE MIND (Cross-Tab Sync) ---
+    broadcastChannelRef.current = new BroadcastChannel('ciob-os-consciousness');
+
+    broadcastChannelRef.current.onmessage = (event) => {
+      const { type } = event.data;
+
+      if (type === 'LOGOUT') {
+        // Someone clicked logout in another tab
+        useAuthStore.getState().logout();
+        useTabStore.getState().clearTabs();
+        toast.info('Terminal Synchronized', {
+          description: 'Session terminated from another terminal.',
+          icon: '🔄'
+        });
+      } else if (type === 'LOGIN') {
+        // Someone logged in from another tab
+        checkSession().then((isValid) => {
+          if (isValid) {
+            toast.success('Terminal Synchronized', {
+              description: 'Authentication propagated from another terminal.',
+              icon: '🔄'
+            });
+          }
+        });
+      } else if (type === 'IDLE_TIMEOUT') {
+        useAuthStore.getState().logout();
+        useTabStore.getState().clearTabs();
+      }
+    };
+
+    return () => {
+      broadcastChannelRef.current?.close();
+    };
+  }, [checkSession]);
+
+  useEffect(() => {
+    // Tell other tabs we logged in or out
+    if (broadcastChannelRef.current) {
+      if (isAuthenticated) {
+        broadcastChannelRef.current.postMessage({ type: 'LOGIN' });
+        resetIdleTimer(); // Start tracking presence
+      } else {
+        broadcastChannelRef.current.postMessage({ type: 'LOGOUT' });
+        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      }
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    // Detect human presence
+    const userActivityEvents = ['mousemove', 'keydown', 'mousedown', 'touchstart', 'scroll'];
+    
+    const handleActivity = () => {
+      resetIdleTimer();
+    };
+
+    userActivityEvents.forEach(event => {
+      window.addEventListener(event, handleActivity, { passive: true });
+    });
+
+    return () => {
+      userActivityEvents.forEach(event => {
+        window.removeEventListener(event, handleActivity);
+      });
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    };
+  }, []);
+
+  // --- 4. NETWORK AWARENESS (Environment Consciousness) ---
+  useEffect(() => {
+    const handleOffline = () => {
+      toast.warning('Signal Lost: Entering Offline Mode', {
+        description: 'You can continue working. Data is safely stored locally and will sync when connection returns.',
+        icon: '📡',
+        duration: Infinity, // Stays until closed or online
+        id: 'network-status'
+      });
+    };
+
+    const handleOnline = () => {
+      toast.success('Connection Restored', {
+        description: 'You are back online. Synchronizing data...',
+        icon: '🌐',
+        id: 'network-status', // Overwrites the offline toast
+        duration: 3000
+      });
+    };
+
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
+
+    return () => {
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
+}

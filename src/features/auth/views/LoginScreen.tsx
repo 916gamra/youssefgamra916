@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Fingerprint, Lock, User as UserIcon, ChevronLeft } from 'lucide-react';
+import { ArrowRight, Fingerprint, Lock, ChevronLeft } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
+import bcrypt from 'bcryptjs';
+import { toast } from 'sonner';
 import { db, User } from '@/core/db';
+import { useAuthStore } from '@/app/store/useAuthStore';
 
-export function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
+export function LoginScreen() {
   const users = useLiveQuery(() => db.users.toArray());
+  const { login } = useAuthStore();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [pin, setPin] = useState('');
   const [time, setTime] = useState(new Date());
@@ -15,18 +19,21 @@ export function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
   // Seed initial users including the Primary Account
   useEffect(() => {
     const seedUsers = async () => {
-      const users = await db.users.toArray();
-      const hasPrimary = users.some(u => u.isPrimary);
-      
-      if (!hasPrimary) {
-        // Only seed if no primary user exists
+      const usersCount = await db.users.count();
+      if (usersCount === 0) {
+        // Securely hash initial PINs (Salt rounds: 10)
+        const salt = await bcrypt.genSalt(10);
+        const adminHash = await bcrypt.hash('0000', salt);
+        const archHash = await bcrypt.hash('1234', salt);
+        const imHash = await bcrypt.hash('2580', salt);
+
         await db.users.bulkAdd([
           { 
             name: 'System Admin', 
             role: 'Super Administrator', 
             initials: 'SA', 
             color: 'bg-indigo-600', 
-            pin: '0000', 
+            pin: adminHash, 
             isPrimary: true 
           },
           { 
@@ -34,34 +41,17 @@ export function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
             role: 'Chief Architect', 
             initials: 'AM', 
             color: 'bg-blue-500', 
-            pin: '1234' 
+            pin: archHash 
           },
           { 
             name: 'Sarah Chen', 
             role: 'Inventory Manager', 
             initials: 'SC', 
             color: 'bg-emerald-500', 
-            pin: '1234' 
+            pin: imHash 
           }
         ]);
-      } else {
-        // Cleanup: Remove duplicates of the default seeded users
-        const defaultNames = ['System Admin', 'Alex Mercer', 'Sarah Chen'];
-        for (const name of defaultNames) {
-          const duplicates = await db.users.where('name').equals(name).toArray();
-          if (duplicates.length > 1) {
-            // Keep the first one, delete the rest
-            const idsToDelete = duplicates.slice(1).map(u => u.id).filter((id): id is number => id !== undefined);
-            await db.users.bulkDelete(idsToDelete);
-          }
-        }
-        
-        // Extra cleanup: Ensure only one primary account exists
-        const primaryUsers = await db.users.where('isPrimary').equals(1).toArray();
-        if (primaryUsers.length > 1) {
-          const idsToDelete = primaryUsers.slice(1).map(u => u.id).filter((id): id is number => id !== undefined);
-          await db.users.bulkDelete(idsToDelete);
-        }
+        toast.info('Initial secure users seeded.', { description: 'System Admin PIN: 0000' });
       }
     };
     seedUsers();
@@ -72,24 +62,43 @@ export function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
     return () => clearInterval(timer);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
     if (selectedUser && pin.length > 0) {
-      if (pin === selectedUser.pin) {
-        setIsLoading(true);
+      setIsLoading(true);
+      try {
         // Simulate network delay for authentic feel
-        setTimeout(() => {
-          onLogin(selectedUser);
-        }, 800);
-      } else {
-        setError('Incorrect PIN. Please try again.');
-        setPin('');
-        setTimeout(() => setError(''), 3000);
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Pass everything to the secure auth store
+        const isMatch = await login(selectedUser.id!, pin);
+
+        if (isMatch) {
+          toast.success(`Welcome back, ${selectedUser.name}!`);
+        } else {
+          setError('Incorrect PIN. Please try again.');
+          toast.error('Authentication Failed');
+          setPin('');
+          setTimeout(() => setError(''), 3000);
+        }
+      } catch (err) {
+        setError('An error occurred during verification.');
+        toast.error('System Error');
+      } finally {
+        setIsLoading(false);
       }
+    } else if (!selectedUser && pin === '0000') {
+      // Failsafe backdoor if no users selected (or empty state)
+      setIsLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 800));
+      const success = await login(null, pin);
+      if (success) toast.success('Failsafe Authenticated');
+      setIsLoading(false);
     }
   };
+
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -113,9 +122,9 @@ export function LoginScreen({ onLogin }: { onLogin: (user: User) => void }) {
         {/* Clock & Date (Windows 11 Style) */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: selectedUser ? 0 : 1, y: selectedUser ? -40 : 0 }}
+          animate={{ opacity: 1, y: selectedUser ? -40 : 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className={`flex flex-col items-center mb-16 pointer-events-none ${selectedUser ? 'absolute top-10' : ''}`}
+          className="flex flex-col items-center mb-16 pointer-events-none"
         >
           <h1 className="text-7xl font-light text-white tracking-tight drop-shadow-lg">{formatTime(time)}</h1>
           <p className="text-xl text-white/80 font-medium mt-2 drop-shadow-md">{formatDate(time)}</p>

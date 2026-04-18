@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as Tabs from '@radix-ui/react-tabs';
 import { Search, Folder, Layers, Hash, AlertCircle } from 'lucide-react';
 import { usePdrLibrary } from '../hooks/usePdrLibrary';
 import { PdrCard } from '../components/PdrCard';
 import { db } from '@/core/db';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 export function PdrLibraryPage({ tabId }: { tabId: string }) {
   const { families, templates, blueprints, templateCounts, blueprintCounts, isLoading } = usePdrLibrary();
@@ -22,6 +23,15 @@ export function PdrLibraryPage({ tabId }: { tabId: string }) {
   const filteredBlueprints = useMemo(() => {
     return blueprints.filter(b => b.reference.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [blueprints, searchTerm]);
+
+  const parentRef = useRef<HTMLDivElement>(null);
+  
+  const rowVirtualizer = useVirtualizer({
+    count: filteredBlueprints.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 90, // approximate height of list item in vertical mode
+    overscan: 5,
+  });
 
   if (isLoading) {
     return <div className="p-8 text-[var(--text-dim)]">Loading PDR Library...</div>;
@@ -148,46 +158,64 @@ export function PdrLibraryPage({ tabId }: { tabId: string }) {
                 )}
               </Tabs.Content>
 
-              <Tabs.Content value="blueprints" className="outline-none">
-                {filteredBlueprints.length === 0 ? (
-                  <div className="py-12 text-center text-[var(--text-dim)] bg-white/5 backdrop-blur-md border border-[var(--glass-border)] rounded-2xl">No blueprints found.</div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    {filteredBlueprints.map(blueprint => {
-                      const parentTemplate = templates.find(t => t.id === blueprint.templateId);
-                      return (
-                        <PdrCard key={blueprint.id} className="flex flex-col relative overflow-hidden group">
-                          {/* Low Threshold Warning Indicator (Simulation) */}
-                          <div className="absolute top-0 right-0 -mr-4 -mt-4 w-12 h-12 rotate-45 flex items-end justify-center pb-1 shadow-md bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
-                             {/* In a real scenario we'd check actual stock. This is purely visual mapping for blueprint minThreshold */}
-                             {blueprint.minThreshold > 10 ? <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> : <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
-                          </div>
-
-                          <div className="mb-4">
-                            <h3 className="text-xl font-mono font-semibold text-[var(--text-bright)] tracking-tight mb-2 flex items-center gap-2">
-                              {blueprint.reference}
-                            </h3>
-                            <span className="text-[11px] text-[var(--text-dim)] flex items-center gap-1.5">
-                              <Layers className="w-3 h-3" />
-                              {parentTemplate?.name || 'Unknown Template'}
-                            </span>
-                          </div>
-
-                          <div className="mt-auto grid grid-cols-2 gap-2 pt-3 border-t border-[var(--glass-border)]">
-                            <div>
-                              <span className="block text-[10px] text-[var(--text-dim)] uppercase mb-0.5">Unit</span>
-                              <span className="text-[13px] font-medium text-[var(--text-bright)]">{blueprint.unit}</span>
+              <Tabs.Content value="blueprints" className="outline-none h-[600px] overflow-hidden flex flex-col">
+                <div className="flex-1 overflow-auto custom-scrollbar pr-2" ref={parentRef}>
+                  {filteredBlueprints.length === 0 ? (
+                    <div className="py-12 text-center text-[var(--text-dim)] bg-white/5 backdrop-blur-md border border-[var(--glass-border)] rounded-2xl">No blueprints found.</div>
+                  ) : (
+                    <div 
+                      style={{ 
+                        height: `${rowVirtualizer.getTotalSize()}px`,
+                        width: '100%',
+                        position: 'relative'
+                      }}
+                    >
+                       {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                          // We are rendering rows of 4 items each, or 1 item if we simplify, but let's do a simple vertical list for the demo of virtualizer
+                          const blueprint = filteredBlueprints[virtualRow.index];
+                          const parentTemplate = templates.find(t => t.id === blueprint.templateId);
+                          
+                          return (
+                            <div 
+                              key={virtualRow.key}
+                              data-index={virtualRow.index}
+                              ref={rowVirtualizer.measureElement}
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                transform: `translateY(${virtualRow.start}px)`
+                              }}
+                              className="pb-4"
+                            >
+                                <PdrCard className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 hover:border-cyan-500/30 transition-all p-4 bg-black/40">
+                                   <div className="flex items-center gap-4">
+                                     <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-inner">
+                                        <Hash className="w-5 h-5 text-cyan-400" />
+                                     </div>
+                                     <div>
+                                        <h3 className="text-lg font-mono font-bold text-white tracking-tight">{blueprint.reference}</h3>
+                                        <span className="text-[11px] uppercase tracking-widest text-white/50">{parentTemplate?.name || 'Unknown Template'}</span>
+                                     </div>
+                                   </div>
+                                   <div className="flex gap-8 items-center pr-4">
+                                      <div className="text-right">
+                                        <span className="block text-[10px] text-white/40 uppercase mb-0.5">Unit</span>
+                                        <span className="text-[13px] font-medium text-white/80">{blueprint.unit}</span>
+                                      </div>
+                                      <div className="text-right">
+                                        <span className="block text-[10px] text-white/40 uppercase mb-0.5">Min Threshold</span>
+                                        <span className="text-[13px] font-mono font-bold text-emerald-400">{blueprint.minThreshold}</span>
+                                      </div>
+                                   </div>
+                                </PdrCard>
                             </div>
-                            <div>
-                              <span className="block text-[10px] text-[var(--text-dim)] uppercase mb-0.5">Min Threshold</span>
-                              <span className="text-[13px] font-mono text-[var(--accent)]">{blueprint.minThreshold}</span>
-                            </div>
-                          </div>
-                        </PdrCard>
-                      );
-                    })}
-                  </div>
-                )}
+                          );
+                       })}
+                    </div>
+                  )}
+                </div>
               </Tabs.Content>
             </motion.div>
           </AnimatePresence>
