@@ -11,11 +11,13 @@ import { DesktopLayout } from '@/app/DesktopLayout';
 import { LoginScreen } from '@/features/auth/views/LoginScreen';
 import { useAuthStore } from '@/app/store/useAuthStore';
 import { useSystemCognition } from '@/core/useSystemCognition';
+import { seedUsers } from '@/core/seed';
 
 const queryClient = new QueryClient();
 
 export default function App() {
-  const [isBooting, setIsBooting] = useState(true);
+  const [isSplashScreenDone, setIsSplashScreenDone] = useState(false);
+  const [isSessionVerified, setIsSessionVerified] = useState(false);
   const { isAuthenticated, currentUser, logout, checkSession } = useAuthStore();
   
   // Initialize System Consciousness
@@ -24,17 +26,26 @@ export default function App() {
   useEffect(() => {
     // Check if there is an active session before removing the splash screen
     const verify = async () => {
-       await checkSession();
+       try {
+         await seedUsers(); // Ensure base users exist
+         await checkSession();
+       } finally {
+         setIsSessionVerified(true);
+       }
     };
     verify();
   }, [checkSession]);
+
+  const isBooting = !isSplashScreenDone || !isSessionVerified;
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Global Toast Notifications */}
       <Toaster position="top-right" theme="dark" richColors />
 
-      {isBooting && <SplashScreen onComplete={() => setIsBooting(false)} />}
+      {isBooting && (
+        <SplashScreen onComplete={() => setIsSplashScreenDone(true)} />
+      )}
       
       {!isBooting && !isAuthenticated && <LoginScreen />}
       

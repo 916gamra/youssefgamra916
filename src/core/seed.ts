@@ -1,8 +1,62 @@
 // src/core/seed.ts
+import bcrypt from 'bcryptjs';
 import { db } from './db';
+import { toast } from 'sonner';
 
 // وظيفة مساعدة لتوليد معرفات بسيطة (لتجنب تعقيدات مكتبات خارجية الآن)
 const generateId = () => crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15);
+
+/**
+ * بذر المستخدمين الأوليين (Users) بشكل آمن ومعاملاتي
+ */
+export async function seedUsers() {
+  try {
+    const usersCount = await db.users.count();
+    if (usersCount === 0) {
+      console.log('[System Seed] No users found. Initializing secure seed...');
+      
+      const salt = await bcrypt.genSalt(10);
+      const adminHash = await bcrypt.hash('0000', salt);
+      const archHash = await bcrypt.hash('1234', salt);
+      const imHash = await bcrypt.hash('2580', salt);
+
+      await db.users.bulkAdd([
+        { 
+          name: 'System Admin', 
+          role: 'Super Administrator', 
+          initials: 'SA', 
+          color: 'bg-indigo-600', 
+          pin: adminHash, 
+          isPrimary: true,
+          allowedPortals: ['PDR', 'ShieldOps', 'Factory', 'Analytics', 'SETTINGS']
+        },
+        { 
+          name: 'Alex Mercer', 
+          role: 'Chief Architect', 
+          initials: 'AM', 
+          color: 'bg-blue-500', 
+          pin: archHash,
+          allowedPortals: ['PDR', 'ShieldOps', 'Analytics']
+        },
+        { 
+          name: 'Sarah Chen', 
+          role: 'Inventory Manager', 
+          initials: 'SC', 
+          color: 'bg-emerald-500', 
+          pin: imHash,
+          allowedPortals: ['PDR', 'Analytics']
+        }
+      ]);
+
+      toast.info('Initial secure users seeded.', { description: 'System Admin PIN: 0000' });
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('[System Seed] Failed to seed users:', error);
+    return false;
+  }
+}
 
 export async function seedDatabase() {
   try {

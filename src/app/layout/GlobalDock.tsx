@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useOsStore } from '../store/useOsStore';
 import { useTabStore } from '../store';
@@ -10,6 +10,30 @@ export function GlobalDock({ user, onLogout }: { user: User | null, onLogout: ()
   const { activePortal, setPortal } = useOsStore();
   const { clearTabs } = useTabStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close on Escape or Click Outside
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMenuOpen(false);
+    };
+    
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   // Return to launchpad action
   const handleGoHome = () => {
@@ -29,7 +53,7 @@ export function GlobalDock({ user, onLogout }: { user: User | null, onLogout: ()
   };
 
   return (
-    <div className="fixed top-6 right-6 z-[9999] flex flex-col items-end gap-2">
+    <div ref={menuRef} className="fixed top-6 right-6 z-[9999] flex flex-col items-end gap-2">
       {/* The Dock Core Action Bar */}
       <motion.div 
         initial={{ y: -50, opacity: 0 }}

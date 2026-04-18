@@ -115,18 +115,31 @@ const item = {
 
 export function LaunchpadView({ user }: { user: User | null }) {
   const setPortal = useOsStore(state => state.setPortal);
+  const [time, setTime] = React.useState(new Date());
+
+  React.useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  };
 
   // Fallback default permissions based on role if allowedPortals isn't set
   let visibleApps = APPS;
   if (user) {
+    const userPortals = user.allowedPortals || ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS'];
     if (user.isPrimary) {
-      // Founders/Primary users always see everything regardless of locally saved schema limits
+      // Founders/Primary users always see everything
       visibleApps = APPS;
     } else if (user.role === 'Admin' || user.role === 'Manager' || user.role === 'Super Administrator') {
-      const userPortals = (user as any).allowedPortals || ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS'];
       visibleApps = APPS.filter(app => userPortals.includes(app.id));
     } else {
-      const userPortals = (user as any).allowedPortals || ['PDR', 'PREVENTIVE'];
       visibleApps = APPS.filter(app => userPortals.includes(app.id));
     }
   }
@@ -141,12 +154,19 @@ export function LaunchpadView({ user }: { user: User | null }) {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10" />
       </div>
 
-      <div className="relative z-10 w-full max-w-6xl px-6">
-        <div className="text-center mb-16">
+      {/* Clock & Date Header (Consistency with Login) */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="absolute top-8 flex flex-col items-center pointer-events-none w-full"
+      >
+        <h2 className="text-5xl font-light text-white tracking-widest leading-none mb-1 opacity-90">{formatTime(time)}</h2>
+        <p className="text-[10px] text-zinc-500 uppercase tracking-[0.4em] font-bold">{formatDate(time)}</p>
+      </motion.div>
+
+      <div className="relative z-10 w-full max-w-6xl px-6 pt-24 md:pt-32">
+        <div className="text-center mb-12 md:mb-16">
           <motion.div initial={{ opacity: 0, y: -20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.8, ease: "easeOut" }}>
-            <div className="w-24 h-24 rounded-[2.5rem] bg-gradient-to-b from-white/10 to-transparent border border-white/10 flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(255,255,255,0.05)] backdrop-blur-2xl">
-              <LayoutGrid className="w-10 h-10 text-[var(--text-bright)]" />
-            </div>
             <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 mb-6 drop-shadow-sm">
               TITANIC OS
             </h1>

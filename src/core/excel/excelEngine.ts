@@ -223,9 +223,10 @@ export class ExcelEngine {
     for (let i = 0; i < sheet.columns.length; i++) {
       const column = sheet.columns[i];
       const columnLetter = String.fromCharCode(65 + i);
+      const ws = worksheet as any;
 
       if (column.enum) {
-        worksheet.dataValidations.add(`${columnLetter}2:${columnLetter}1000`, {
+        ws.dataValidations.add(`${columnLetter}2:${columnLetter}1000`, {
           type: 'list',
           allowBlank: true,
           formulae: [`"${column.enum.join(',')}"`],
@@ -236,7 +237,7 @@ export class ExcelEngine {
       }
 
       if (column.validation?.min !== undefined || column.validation?.max !== undefined) {
-        worksheet.dataValidations.add(`${columnLetter}2:${columnLetter}1000`, {
+        ws.dataValidations.add(`${columnLetter}2:${columnLetter}1000`, {
           type: 'decimal',
           operator: 'between',
           allowBlank: true,

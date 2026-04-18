@@ -1,9 +1,10 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { useOsStore } from './store/useOsStore';
 import { LaunchpadView } from './layout/LaunchpadView';
 import { GlobalDock } from './layout/GlobalDock';
 import type { User } from '@/core/db';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Timer } from 'lucide-react';
+import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 
 // Lazy loading the micro-frontends
 const PdrLayout = React.lazy(() => import('@/features/pdr-engine/layout/PdrLayout').then(m => ({ default: m.PdrLayout })));
@@ -25,6 +26,22 @@ function PortalFallback() {
 
 export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
   const { activePortal } = useOsStore();
+  const [sessionTime, setSessionTime] = useState(0);
+
+  // Track session duration
+  useEffect(() => {
+    const start = Date.now();
+    const interval = setInterval(() => {
+      setSessionTime(Math.floor((Date.now() - start) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatSessionTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden font-sans selection:bg-blue-500/30">
@@ -32,19 +49,21 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
       <GlobalDock user={user} onLogout={onLogout} />
 
       <div className="flex flex-1 overflow-hidden relative">
-        {activePortal === 'HOME' ? (
-          <LaunchpadView user={user} />
-        ) : (
-          <Suspense fallback={<PortalFallback />}>
-            {/* Dynamic Portal Content (Self-contained sidebars) */}
-            {activePortal === 'PDR' && <PdrLayout user={user} onLogout={onLogout} />}
-            {activePortal === 'ORGANIZATION' && <MasterDataLayout user={user} onLogout={onLogout} />}
-            {activePortal === 'FACTORY' && <FactoryLayout user={user} onLogout={onLogout} />}
-            {activePortal === 'ANALYTICS' && <AnalyticsLayout user={user} onLogout={onLogout} />}
-            {activePortal === 'PREVENTIVE' && <PreventiveLayout user={user} onLogout={onLogout} />}
-            {activePortal === 'SETTINGS' && <SystemSettingsLayout user={user} onLogout={onLogout} />}
-          </Suspense>
-        )}
+        <ErrorBoundary>
+          {activePortal === 'HOME' ? (
+            <LaunchpadView user={user} />
+          ) : (
+            <Suspense fallback={<PortalFallback />}>
+              {/* Dynamic Portal Content (Self-contained sidebars) */}
+              {activePortal === 'PDR' && <PdrLayout user={user} onLogout={onLogout} />}
+              {activePortal === 'ORGANIZATION' && <MasterDataLayout user={user} onLogout={onLogout} />}
+              {activePortal === 'FACTORY' && <FactoryLayout user={user} onLogout={onLogout} />}
+              {activePortal === 'ANALYTICS' && <AnalyticsLayout user={user} onLogout={onLogout} />}
+              {activePortal === 'PREVENTIVE' && <PreventiveLayout user={user} onLogout={onLogout} />}
+              {activePortal === 'SETTINGS' && <SystemSettingsLayout user={user} onLogout={onLogout} />}
+            </Suspense>
+          )}
+        </ErrorBoundary>
       </div>
       
       {/* OS Footer */}
@@ -53,7 +72,10 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse"></span>
           SYS.PORTAL: {activePortal}
         </span>
-        <span className="opacity-50">LATENCY: 12ms</span>
+        <span className="flex items-center gap-2 opacity-80">
+          <Timer className="w-3 h-3" />
+          SESSION: {formatSessionTime(sessionTime)}
+        </span>
         <span className="text-white/60 font-semibold">USER: {user ? user.name : 'GUEST'}</span>
         <span className="ml-auto opacity-50">SYNC: SECURE</span>
         <span className="text-white/30 truncate">V17.0.5 - GRAND MASTER EDITION</span>

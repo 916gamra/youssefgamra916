@@ -128,12 +128,14 @@ export function useProcurementEngine() {
    */
   const receiveOrder = async (orderId: string, performedBy: string = 'Procurement Auto-Fulfillment'): Promise<void> => {
     return measureOperation('Procurement.ReceiveOrder', async () => {
+      let lineCount = 0;
       await db.transaction('rw', db.purchaseOrders, db.purchaseOrderLines, db.inventory, db.movements, async () => {
         const order = await db.purchaseOrders.get(orderId);
         if (!order) throw new Error('Order not found');
         if (order.status === 'DELIVERED') throw new Error('Order already delivered');
 
         const lines = await db.purchaseOrderLines.where('orderId').equals(orderId).toArray();
+        lineCount = lines.length;
 
         for (const line of lines) {
           let invItem = await db.inventory.where('blueprintId').equals(line.blueprintId).first();
@@ -168,7 +170,7 @@ export function useProcurementEngine() {
 
         await db.purchaseOrders.update(orderId, { status: 'DELIVERED' });
       });
-      logger.info({ orderId, lineCount: lines?.length || 0 }, 'Order received and stock updated');
+      logger.info({ orderId, lineCount }, 'Order received and stock updated');
     });
   };
 

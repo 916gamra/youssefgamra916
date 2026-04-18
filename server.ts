@@ -40,8 +40,17 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[System Core] API & App Server running on http://localhost:${PORT}`);
+  const APP_PORT = parseInt(process.env.PORT || '3000', 10);
+
+  const server = app.listen(APP_PORT, '0.0.0.0', () => {
+    console.log(`[System Core] API & App Server running on http://localhost:${APP_PORT}`);
+  });
+
+  server.on('error', (e: any) => {
+    if (e.code === 'EADDRINUSE') {
+      console.warn(`[System Core] Port ${APP_PORT} busy, trying ${APP_PORT + 1}...`);
+      server.listen(APP_PORT + 1);
+    }
   });
 }
 

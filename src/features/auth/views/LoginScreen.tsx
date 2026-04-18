@@ -16,47 +16,6 @@ export function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Seed initial users including the Primary Account
-  useEffect(() => {
-    const seedUsers = async () => {
-      const usersCount = await db.users.count();
-      if (usersCount === 0) {
-        // Securely hash initial PINs (Salt rounds: 10)
-        const salt = await bcrypt.genSalt(10);
-        const adminHash = await bcrypt.hash('0000', salt);
-        const archHash = await bcrypt.hash('1234', salt);
-        const imHash = await bcrypt.hash('2580', salt);
-
-        await db.users.bulkAdd([
-          { 
-            name: 'System Admin', 
-            role: 'Super Administrator', 
-            initials: 'SA', 
-            color: 'bg-indigo-600', 
-            pin: adminHash, 
-            isPrimary: true 
-          },
-          { 
-            name: 'Alex Mercer', 
-            role: 'Chief Architect', 
-            initials: 'AM', 
-            color: 'bg-blue-500', 
-            pin: archHash 
-          },
-          { 
-            name: 'Sarah Chen', 
-            role: 'Inventory Manager', 
-            initials: 'SC', 
-            color: 'bg-emerald-500', 
-            pin: imHash 
-          }
-        ]);
-        toast.info('Initial secure users seeded.', { description: 'System Admin PIN: 0000' });
-      }
-    };
-    seedUsers();
-  }, []);
-
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);

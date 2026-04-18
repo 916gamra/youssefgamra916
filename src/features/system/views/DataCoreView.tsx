@@ -15,9 +15,12 @@ export function DataCoreView() {
       setIsExporting(true);
       
       // Export Dexie DB to Blob
-      const blob = await db.export({ prettyJson: true, progressCallback: ({totalRows, completedRows}) => {
-         // optional progress indicator
-      }});
+      const blob = await db.export({ 
+        prettyJson: true, 
+        progressCallback: () => {
+          return true; // Continue export
+        }
+      });
 
       // Trigger download
       const url = URL.createObjectURL(blob);

@@ -3,8 +3,8 @@ import { LayoutDashboard, Package, ShoppingCart, ClipboardCheck } from 'lucide-r
 import { useTabStore } from '@/app/store';
 import { PortalCanvas } from '@/app/layout/PortalCanvas';
 import { PortalSidebar } from '@/app/layout/PortalSidebar';
+import { PortalSidebarItem } from '@/shared/components/PortalSidebarItem';
 import type { User } from '@/core/db';
-import { cn } from '@/shared/utils';
 
 import { StockDashboardPage } from '../views/StockDashboardPage';
 import { PdrLibraryPage } from '../views/PdrLibraryPage';
@@ -22,23 +22,6 @@ const PDR_COMPONENTS = {
   'requisition-hub': RequisitionHubView,
   'excel-hub': ExcelHubView,
 };
-
-function SidebarItem({ icon, isActive, onClick, title }: { icon: React.ReactNode, isActive: boolean, onClick: () => void, title?: string }) {
-  return (
-    <button 
-      onClick={onClick}
-      title={title}
-      className={cn(
-        "w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-2xl transition-all duration-300 border",
-        isActive 
-          ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.15)]" 
-          : "bg-transparent text-[var(--text-dim)] border-transparent hover:bg-white/5 hover:text-white"
-      )}
-    >
-      {React.cloneElement(icon as React.ReactElement, { className: "w-6 h-6" })}
-    </button>
-  );
-}
 
 export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
   const { tabs, activeTabId, openTab } = useTabStore();
@@ -58,31 +41,31 @@ export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () 
         borderClass="border-cyan-500/30"
         textClass="text-cyan-400"
       >
-        <SidebarItem 
+        <PortalSidebarItem 
           icon={<LayoutDashboard />} 
           isActive={activeTabId === 'dashboard'} 
           onClick={() => openTab({ id: 'dashboard', title: 'Stock Radar', component: 'pdr-dashboard' })}
           title="Stock Radar"
         />
-        <SidebarItem 
+        <PortalSidebarItem 
           icon={<Package />} 
           isActive={activeTabId === 'inventory'} 
           onClick={() => openTab({ id: 'inventory', title: 'PDR Library', component: 'inventory-list' })}
           title="PDR Library"
         />
-        <SidebarItem 
+        <PortalSidebarItem 
           icon={<ShoppingCart />} 
           isActive={activeTabId === 'procurement'} 
           onClick={() => openTab({ id: 'procurement', title: 'Procurement v4', component: 'procurement' })}
           title="Procurement"
         />
-        <SidebarItem 
+        <PortalSidebarItem 
           icon={<ClipboardCheck />} 
           isActive={activeTabId === 'requisition-hub'} 
           onClick={() => openTab({ id: 'requisition-hub', title: 'Requisition Hub', component: 'requisition-hub' })}
           title="Requisition Hub"
         />
-        <SidebarItem 
+        <PortalSidebarItem 
           icon={<FileSpreadsheet />} 
           isActive={activeTabId === 'excel-hub'} 
           onClick={() => openTab({ id: 'excel-hub', title: 'Excel Hub', component: 'excel-hub' })}
