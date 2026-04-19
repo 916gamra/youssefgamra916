@@ -122,34 +122,34 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
+      exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="max-w-6xl mx-auto space-y-6 pb-12"
+      className="max-w-6xl mx-auto space-y-8 pb-12 px-4"
     >
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
         <div>
-          <h1 className="text-3xl font-semibold text-[var(--text-bright)] tracking-tight mb-2">PDR Engine Library</h1>
-          <p className="text-[var(--text-dim)] text-lg">Browse and master the hierarchical structure of spare parts.</p>
+          <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 uppercase">PDR Engine Library</h1>
+          <p className="text-slate-400 text-lg font-medium opacity-80">Catalog management for spare parts hierarchy and industrial assets.</p>
         </div>
         
-        <div className="flex flex-col md:flex-row gap-4 items-end z-10 w-full md:w-auto">
+        <div className="flex flex-col md:flex-row gap-3 items-center z-10 w-full md:w-auto">
           <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-dim)]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input 
               type="text" 
-              placeholder="Search registry..." 
+              placeholder="Search database..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/5 backdrop-blur-md border border-[var(--glass-border)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--text-bright)] focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-[var(--text-dim)]"
+              className="titan-input pl-10 h-10 w-full text-sm"
             />
           </div>
           <button 
             onClick={openAddModal}
-            className="w-full md:w-auto whitespace-nowrap bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-medium transition-all shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+            className="w-full md:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4" />
             {getAddButtonTitle()}
           </button>
         </div>
@@ -294,26 +294,26 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
                               }}
                               className="pb-4"
                             >
-                                <PdrCard onClick={() => openPartDetail(blueprint.id, blueprint.reference)} className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 hover:border-cyan-500/30 transition-all p-4 bg-black/40 group/card cursor-pointer">
+                                <PdrCard onClick={() => openPartDetail(blueprint.id, blueprint.reference)} className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 hover:border-blue-500/20 transition-all p-5 bg-black/5 hover:bg-black/10 cursor-pointer rounded-2xl">
                                    <div className="flex items-center gap-4">
-                                     <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-inner group-hover/card:scale-110 transition-transform">
-                                        <Hash className="w-5 h-5 text-cyan-400" />
+                                     <div className="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shadow-inner group-hover:scale-105 transition-transform">
+                                        <Hash className="w-5 h-5 text-blue-400" />
                                      </div>
                                      <div>
-                                        <h3 className="text-lg font-mono font-bold text-white tracking-tight group-hover/card:text-cyan-400 transition-colors">{blueprint.reference}</h3>
-                                        <span className="text-[11px] uppercase tracking-widest text-white/50">{parentTemplate?.name || 'Unknown Template'}</span>
+                                        <h3 className="text-base font-mono font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors uppercase">{blueprint.reference}</h3>
+                                        <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{parentTemplate?.name || 'Item'}</span>
                                      </div>
                                    </div>
                                    <div className="flex gap-8 items-center pr-12 relative">
                                       <div className="text-right">
-                                        <span className="block text-[10px] text-white/40 uppercase mb-0.5">Unit</span>
-                                        <span className="text-[13px] font-medium text-white/80">{blueprint.unit}</span>
+                                        <span className="block text-[9px] text-slate-600 font-bold uppercase tracking-widest mb-0.5">Unit</span>
+                                        <span className="text-xs font-bold text-slate-200">{blueprint.unit}</span>
                                       </div>
                                       <div className="text-right flex-shrink-0 min-w[80px]">
-                                        <span className="block text-[10px] text-white/40 uppercase mb-0.5">Min Threshold</span>
-                                        <span className="text-[13px] font-mono font-bold text-emerald-400">{blueprint.minThreshold}</span>
+                                        <span className="block text-[9px] text-slate-600 font-bold uppercase tracking-widest mb-0.5">Threshold</span>
+                                        <span className="text-xs font-mono font-bold text-emerald-500">{blueprint.minThreshold}</span>
                                       </div>
-                                      <button onClick={(e) => handleDelete('blueprint', blueprint.id, e)} className="absolute right-0 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all">
+                                      <button onClick={(e) => handleDelete('blueprint', blueprint.id, e)} className="absolute right-0 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">
                                         <Trash2 className="w-4 h-4" />
                                       </button>
                                    </div>

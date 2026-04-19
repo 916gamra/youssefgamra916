@@ -53,28 +53,27 @@ export function ProcurementView() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <Loader2 className="w-12 h-12 text-blue-500 animate-spin opacity-50" />
-        <p className="text-sm font-bold uppercase tracking-[0.3em] text-[var(--text-dim)] animate-pulse">Syncing Procurement Engine...</p>
+        <Loader2 className="w-10 h-10 text-blue-500 animate-spin opacity-50" />
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Syncing Procurement Data...</p>
       </div>
     );
   }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12 relative px-4">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 pt-4">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
         <div>
-          <h1 className="text-4xl font-black text-[var(--text-bright)] tracking-tighter mb-2 flex items-center gap-4 italic uppercase">
-            <ShoppingCart className="w-10 h-10 text-blue-400 drop-shadow-[0_0_15px_rgba(96,165,250,0.5)]" /> 
-            Procurement Pipeline
+          <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
+            <ShoppingCart className="w-8 h-8 text-blue-500" /> Procurement Pipeline
           </h1>
-          <p className="text-[var(--text-dim)] text-xl font-medium italic opacity-80">Orchestrating the supply chain state machine.</p>
+          <p className="text-slate-400 text-lg font-medium opacity-80">Supply chain management and purchase order tracking.</p>
         </div>
         
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
-          <StatCompact icon={<Clock className="text-yellow-400" />} label="Active" value={orderedCount.toString()} />
-          <StatCompact icon={<TrendingUp className="text-emerald-400" />} label="Growth" value="+12%" />
-          <StatCompact icon={<CheckCircle2 className="text-blue-400" />} label="Synced" value={fulfilledCount.toString()} />
-          <StatCompact icon={<DollarSign className="text-fuchsia-400" />} label="Spend" value={`${(totalSpend/1000).toFixed(1)}k`} />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
+          <StatCompact icon={<Clock className="w-4 h-4 text-amber-500" />} label="Active" value={orderedCount.toString()} />
+          <StatCompact icon={<TrendingUp className="w-4 h-4 text-blue-500" />} label="Growth" value="+12%" />
+          <StatCompact icon={<CheckCircle2 className="w-4 h-4 text-emerald-500" />} label="Synced" value={fulfilledCount.toString()} />
+          <StatCompact icon={<DollarSign className="w-4 h-4 text-slate-400" />} label="Spend" value={`${(totalSpend/1000).toFixed(1)}k`} />
         </div>
       </header>
 
@@ -85,23 +84,23 @@ export function ProcurementView() {
               <Zap className="w-6 h-6 text-blue-400" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-white italic uppercase tracking-tight">Active Injunctions</h2>
-              <p className="text-xs font-bold text-[var(--text-dim)] uppercase tracking-widest">Real-time procurement tracking</p>
+              <h2 className="text-lg font-bold text-white uppercase tracking-tight">Purchase Orders</h2>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Real-time procurement tracking</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-dim)] group-focus-within:text-blue-400 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
               <input 
                 type="text" 
-                placeholder="Search Orders or Vendors..." 
+                placeholder="Find orders or vendors..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-black/40 border border-white/10 rounded-2xl pl-11 pr-5 py-3 text-sm text-[var(--text-bright)] focus:outline-none focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/10 transition-all w-80 shadow-inner italic font-medium"
+                className="titan-input pl-11 w-80 shadow-none"
               />
             </div>
-            <button className="p-3 rounded-2xl bg-white/5 border border-white/10 text-[var(--text-dim)] hover:text-white hover:bg-white/10 transition-all">
+            <button className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all">
               <Filter className="w-5 h-5" />
             </button>
           </div>
@@ -110,17 +109,17 @@ export function ProcurementView() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-white/[0.02]">
-                <th className="px-8 py-5 font-black text-[var(--text-dim)] text-[10px] uppercase tracking-[0.2em]">Hash / ID</th>
-                <th className="px-8 py-5 font-black text-[var(--text-dim)] text-[10px] uppercase tracking-[0.2em]">Vendor Entity</th>
-                <th className="px-8 py-5 font-black text-[var(--text-dim)] text-[10px] uppercase tracking-[0.2em]">Timestamp</th>
-                <th className="px-8 py-5 font-black text-[var(--text-dim)] text-[10px] uppercase tracking-[0.2em]">BOM Lines</th>
-                <th className="px-8 py-5 font-black text-[var(--text-dim)] text-[10px] uppercase tracking-[0.2em]">State</th>
-                <th className="px-8 py-5 font-black text-[var(--text-dim)] text-[10px] uppercase tracking-[0.2em] text-right">Value (USD)</th>
-                <th className="px-8 py-5 font-black text-[var(--text-dim)] text-[10px] uppercase tracking-[0.2em] text-right">Command</th>
+              <tr className="bg-[#1a1c23]/50">
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest">Order ID</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest">Vendor</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest">Date</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest">BOM Lines</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest">Status</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest text-right">Value</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 bg-black/10">
+            <tbody className="divide-y divide-white/[0.03] bg-black/5">
               <AnimatePresence mode="popLayout">
                 {filteredOrders.map((order, idx) => {
                   const style = getStatusStyle(order.status);
@@ -129,34 +128,34 @@ export function ProcurementView() {
                   return (
                     <motion.tr 
                       key={order.id} 
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="group hover:bg-white/[0.03] transition-colors border-b border-white/5 last:border-0"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.02 }}
+                      className="group hover:bg-white/[0.02] transition-colors border-b border-white/[0.03] last:border-0"
                     >
-                      <td className="px-8 py-6 text-xs font-mono font-black text-blue-400 group-hover:text-blue-300 transition-colors">
+                      <td className="px-8 py-6 text-xs font-mono font-bold text-blue-500">
                         #{order.id.substring(0, 8).toUpperCase()}
                       </td>
                       <td className="px-8 py-6">
                         <div className="flex flex-col">
-                          <span className="text-sm font-bold text-white italic uppercase tracking-tight">{order.supplierName}</span>
+                          <span className="text-sm font-semibold text-white tracking-tight">{order.supplierName}</span>
                           {order.supplierName === 'SYSTEM_AUTO_GENERATED' && (
-                            <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mt-0.5">Automated Sync</span>
+                            <span className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mt-0.5">Automated System</span>
                           ) }
                         </div>
                       </td>
-                      <td className="px-8 py-6 text-xs font-semibold text-[var(--text-dim)]">{new Date(order.orderDate).toLocaleDateString()}</td>
+                      <td className="px-8 py-6 text-xs font-medium text-slate-400">{new Date(order.orderDate).toLocaleDateString()}</td>
                       <td className="px-8 py-6">
-                        <span className="px-2 py-1 rounded bg-white/5 text-[10px] font-black text-white/40 uppercase tracking-widest border border-white/10">
-                          {order.lines.length} Elements
+                        <span className="px-2 py-1 rounded bg-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-widest border border-white/10">
+                          {order.lines.length} Items
                         </span>
                       </td>
                       <td className="px-8 py-6">
                         <motion.div 
                           layout
                           className={cn(
-                            "inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.15em] border transition-all shadow-sm",
-                            order.status === 'ORDERED' && "animate-pulse shadow-[0_0_15px_rgba(251,191,36,0.1)]"
+                            "inline-flex items-center gap-2 px-3 py-1 rounded-md text-[9px] font-bold uppercase tracking-widest border transition-all shadow-sm",
+                            order.status === 'ORDERED' && "shadow-blue-500/5"
                           )}
                           style={{ backgroundColor: style.bg, borderColor: style.border, color: style.color }}
                         >
@@ -164,7 +163,7 @@ export function ProcurementView() {
                           {style.label}
                         </motion.div>
                       </td>
-                      <td className="px-8 py-6 text-sm font-mono font-bold text-white text-right">
+                      <td className="px-8 py-6 text-sm font-mono font-medium text-white text-right">
                         ${order.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </td>
                       <td className="px-8 py-6 text-right">
@@ -173,7 +172,7 @@ export function ProcurementView() {
                             <button
                               onClick={() => handleAction(order.id, 'CONFIRM')}
                               disabled={isProcessing}
-                              className="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl bg-blue-600 hover:bg-blue-500 text-white shadow-[0_10px_20px_rgba(37,99,235,0.2)] hover:shadow-[0_15px_30px_rgba(37,99,235,0.4)] transition-all flex items-center gap-2 disabled:opacity-50"
+                              className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-xl bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
                             >
                               {isProcessing ? <Loader2 className="w-3 h-3 animate-spin"/> : <ArrowRightCircle className="w-3 h-3"/>}
                               Transmit
@@ -184,10 +183,10 @@ export function ProcurementView() {
                             <button
                               onClick={() => handleAction(order.id, 'FULFILL')}
                               disabled={isProcessing}
-                              className="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_10px_20px_rgba(16,185,129,0.2)] hover:shadow-[0_15px_30px_rgba(16,185,129,0.4)] transition-all flex items-center gap-2 disabled:opacity-50"
+                              className="px-4 py-2 text-[10px] font-bold uppercase tracking-widest rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2 disabled:opacity-50"
                             >
                               {isProcessing ? <Loader2 className="w-3 h-3 animate-spin"/> : <PackagePlus className="w-3 h-3"/>}
-                              Fulfill
+                              Receive
                             </button>
                           )}
 
@@ -207,7 +206,7 @@ export function ProcurementView() {
                   <td colSpan={7} className="py-24 text-center">
                     <div className="flex flex-col items-center opacity-20">
                       <AlertCircle className="w-16 h-16 mb-4 text-white" />
-                      <p className="text-xl font-black italic uppercase tracking-[0.2em] text-white">No active purchase orders found</p>
+                      <p className="text-lg font-bold uppercase tracking-widest text-white">No active purchase orders found</p>
                     </div>
                   </td>
                 </tr>
@@ -222,13 +221,13 @@ export function ProcurementView() {
 
 function StatCompact({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-white/[0.01] border border-white/5 rounded-2xl hover:bg-white/[0.03] transition-colors group">
-      <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center group-hover:border-white/10 transition-all shadow-inner">
+    <div className="flex items-center gap-3 px-4 py-2.5 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-colors group">
+      <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center shrink-0">
         {icon}
       </div>
       <div className="flex flex-col">
-        <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-dim)]">{label}</span>
-        <span className="text-lg font-black text-white italic -mt-1">{value}</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{label}</span>
+        <span className="text-base font-bold text-white -mt-0.5">{value}</span>
       </div>
     </div>
   );
