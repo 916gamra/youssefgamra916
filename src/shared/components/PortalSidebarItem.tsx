@@ -18,13 +18,19 @@ export function PortalSidebarItem({ icon, isActive, onClick, title }: PortalSide
       onClick={onClick}
       title={title}
       className={cn(
-        "w-12 h-12 flex-shrink-0 flex items-center justify-center rounded-2xl transition-all duration-300 border",
+        "w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-[1.25rem] transition-all duration-500 border relative group",
         isActive 
-          ? "bg-current/10 border-current shadow-[0_0_15px_rgba(34,211,238,0.15)] filter brightness-110" 
-          : "bg-transparent text-[var(--text-dim)] border-transparent hover:bg-white/5 hover:text-white"
+          ? "bg-current/15 border-current shadow-[0_0_20px_rgba(34,211,238,0.2)]" 
+          : "bg-transparent text-[#8b9bb4]/40 border-transparent hover:bg-white/5 hover:text-white/80 hover:scale-105"
       )}
     >
-      {React.cloneElement(icon as React.ReactElement, { className: "w-6 h-6" })}
+      {React.cloneElement(icon as React.ReactElement, { 
+        className: cn(
+          "w-6 h-6 transition-transform duration-500", 
+          isActive && "scale-110 drop-shadow-[0_0_8px_currentColor]"
+        ) 
+      })}
     </button>
   );
 }
+

@@ -1,5 +1,6 @@
 // src/core/db.ts
 import Dexie, { type Table } from 'dexie';
+import 'dexie-export-import';
 import type { ExcelTemplate, ExcelBackup } from './excel/types';
 
 // --- 1. Domain Interfaces (PDR Engine) ---
@@ -165,6 +166,22 @@ export interface User {
   pin: string;
   isPrimary?: boolean;
   allowedPortals?: string[];
+  lastActiveAt?: string;
+}
+
+export type AuditLogSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
+
+export interface AuditLog {
+  id: string; // UUID
+  userId: string | number;
+  userName: string;
+  action: string; // 'CREATE', 'DELETE', 'UPDATE', 'LOGIN', 'EXPORT', 'BACKUP'
+  entityType: string; // 'PDR_BLUEPRINT', 'STOCK_ITEM', 'USER', etc.
+  entityId: string;
+  details: string; // JSON string or plain text
+  timestamp: string;
+  severity: AuditLogSeverity;
+  deviceInfo?: string;
 }
 
 // --- 3. The Database Engine ---
@@ -198,6 +215,7 @@ export class GmaoDatabase extends Dexie {
 
   // System Tables
   users!: Table<User, number>;
+  auditLogs!: Table<AuditLog, string>;
   
   // Excel Integration Tables
   excelTemplates!: Table<ExcelTemplate, string>;
@@ -206,8 +224,8 @@ export class GmaoDatabase extends Dexie {
   constructor() {
     super('CIOB_GMAO_DB');
     
-    // Schema Version 9 (Added Excel tables)
-    this.version(9).stores({
+    // Schema Version 10 (Added Audit Logs & User Activity)
+    this.version(10).stores({
       pdrFamilies: 'id, name',
       pdrTemplates: 'id, familyId, name, skuBase',
       pdrBlueprints: 'id, templateId, reference',
@@ -219,11 +237,13 @@ export class GmaoDatabase extends Dexie {
       technicians: 'id, name, sectorId',
       machines: 'id, name, sectorId',
       partRequisitions: 'id, technicianId, machineId, status, requestDate',
+      partRequisitionLines: 'id, requisitionId, blueprintId',
       pmChecklists: 'id, name',
       pmTasks: 'id, checklistId, order',
       pmSchedules: 'id, machineId, checklistId, nextDueDate, isActive',
       pmWorkOrders: 'id, machineId, technicianId, status, scheduledDate',
       users: '++id, name, role, isPrimary',
+      auditLogs: 'id, userId, action, entityType, timestamp, severity',
       excelTemplates: 'id, portalId, name',
       excelBackups: 'id, portalId, timestamp'
     });

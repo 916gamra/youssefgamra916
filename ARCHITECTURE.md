@@ -16,6 +16,12 @@ Instead, we built a strict 3-Tier model:
   
 Only a **Blueprint** can have physical `Stock Items` in a warehouse. You don't buy a "Family", you buy a "Blueprint". This guarantees absolute precision in inventory valuation and requisition.
 
+## The Security Kernel (Permission Matrix)
+We transitioned from hardcoded role checks to a centralized clearance utility (`/src/core/permissions.ts`).
+- **Identity-First**: Every portal access request is validated against the user's `role`, `isPrimary` status, and `allowedPortals` whitelist.
+- **Fail-Safe Isolation**: If a user somehow bypasses the UI and attempts to mount a restricted Portal component, the `DesktopLayout` kernel catch-block will forcibly unmount the component and redirect them to the Home portal.
+- **DNA Protection**: Account modifications for the "Primary Founder" are blocked at the code level, preventing accidental self-deletion or unauthorized lockout.
+
 ## Handling 100,000+ Rows in the Browser
 Because the app is **Offline-First**, the client holds massive amounts of data inside IndexedDB.
 If you render 10,000 blueprints into the DOM, the user's browser will crash.

@@ -1,35 +1,40 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { CalendarClock, Plus, Trash2, Power, Briefcase, Zap, AlertTriangle } from 'lucide-react';
+import { CalendarClock, Plus, Trash2, Power, Briefcase, Zap, AlertTriangle, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
-import { db } from '@/core/db';
+import { db, User } from '@/core/db';
 import { PmScheduleSchema, PmWorkOrderSchema } from '../schema/preventive.schema';
 import { cn } from '@/shared/utils';
+import { useAuditTrail } from '../../system/hooks/useAuditTrail';
 
-export function SchedulesView() {
+interface SchedulesViewProps {
+  user: User | null;
+}
+
+export function SchedulesView({ user }: SchedulesViewProps) {
   const machines = useLiveQuery(() => db.machines.toArray());
   const checklists = useLiveQuery(() => db.pmChecklists.toArray());
   const schedules = useLiveQuery(() => db.pmSchedules.toArray());
+  const { logEvent } = useAuditTrail();
 
   const [isCreating, setIsCreating] = useState(false);
   const [machineId, setMachineId] = useState('');
   const [checklistId, setChecklistId] = useState('');
   const [frequencyDays, setFrequencyDays] = useState<number>(30);
   
-  // Format today's date for default input value
   const todayDateStr = new Date().toISOString().split('T')[0];
   const [nextDueDate, setNextDueDate] = useState<string>(todayDateStr);
 
   const handleCreateSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
     try {
       if (!machineId || !checklistId) {
         toast.error('Please select both a machine and a protocol.');
         return;
       }
 
-      // Convert date string back to ISO for storage
       const isoDate = new Date(nextDueDate).toISOString();
 
       const newSchedule = PmScheduleSchema.parse({
@@ -42,6 +47,21 @@ export function SchedulesView() {
       });
 
       await db.pmSchedules.add(newSchedule);
+      
+      await logEvent({
+        userId: user.id || 0,
+        userName: user.name,
+        action: 'CREATE',
+        entityType: 'PM_SCHEDULE',
+        entityId: newSchedule.id,
+        details: { 
+          machineName: machines?.find(m => m.id === machineId)?.name,
+          checklistName: checklists?.find(c => c.id === checklistId)?.name,
+          frequency: frequencyDays
+        },
+        severity: 'INFO'
+      });
+
       toast.success('Maintenance schedule established');
       setIsCreating(false);
       setMachineId('');
@@ -55,9 +75,22 @@ export function SchedulesView() {
 
   const handleDeleteSchedule = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!user) return;
     if (!window.confirm('Delete this maintenance schedule? Future work orders will stop generating.')) return;
     try {
+      const schedule = schedules?.find(s => s.id === id);
       await db.pmSchedules.delete(id);
+      
+      await logEvent({
+        userId: user.id || 0,
+        userName: user.name,
+        action: 'DELETE',
+        entityType: 'PM_SCHEDULE',
+        entityId: id,
+        details: { machineId: schedule?.machineId, checklistId: schedule?.checklistId },
+        severity: 'WARNING'
+      });
+
       toast.success('Schedule deleted successfully');
     } catch (err) {
       toast.error('Failed to delete schedule');
@@ -66,32 +99,42 @@ export function SchedulesView() {
 
   const handleToggleStatus = async (id: string, currentStatus: boolean, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!user) return;
     try {
       await db.pmSchedules.update(id, { isActive: !currentStatus });
+      
+      await logEvent({
+        userId: user.id || 0,
+        userName: user.name,
+        action: 'UPDATE',
+        entityType: 'PM_SCHEDULE',
+        entityId: id,
+        details: { isActive: !currentStatus },
+        severity: 'INFO'
+      });
+
       toast.info(`Schedule ${!currentStatus ? 'Activated' : 'Paused'}`);
     } catch (err) {
       toast.error('Failed to update status');
     }
   };
 
-  // Generate a work order instantly from schedule and push the next due date forward
   const handleTriggerWorkOrder = async (schedule: any, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!user) return;
     try {
       await db.transaction('rw', db.pmSchedules, db.pmWorkOrders, async () => {
-        // 1. Create a Work Order
         const newOrder = PmWorkOrderSchema.parse({
           id: crypto.randomUUID(),
           scheduleId: schedule.id,
           machineId: schedule.machineId,
           checklistId: schedule.checklistId,
           status: 'PENDING',
-          scheduledDate: schedule.nextDueDate // Order is generated for the current due date
+          scheduledDate: schedule.nextDueDate 
         });
         
         await db.pmWorkOrders.add(newOrder);
 
-        // 2. Advance the schedule's next due date
         const currentDue = new Date(schedule.nextDueDate);
         currentDue.setDate(currentDue.getDate() + schedule.frequencyDays);
         
@@ -99,6 +142,16 @@ export function SchedulesView() {
           lastPerformedAt: new Date().toISOString(),
           nextDueDate: currentDue.toISOString()
         });
+      });
+
+      await logEvent({
+        userId: user.id || 0,
+        userName: user.name,
+        action: 'CREATE',
+        entityType: 'PM_WORK_ORDER',
+        entityId: schedule.id,
+        details: 'Manual work order trigger from schedule',
+        severity: 'INFO'
       });
 
       toast.success('Work Order generated & Next Due Date advanced!', { icon: <Zap className="text-amber-400" /> });
@@ -114,34 +167,35 @@ export function SchedulesView() {
   const isDataReady = (machines?.length ?? 0) > 0 && (checklists?.length ?? 0) > 0;
 
   return (
-    <div className="w-full h-full p-6 lg:p-8 flex flex-col overflow-hidden">
+    <div className="w-full h-full p-6 lg:p-8 flex flex-col overflow-hidden bg-[#0a0a0f]">
       
       {/* Header */}
-      <div className="flex justify-between items-end mb-8 shrink-0">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-emerald-400 tracking-tight flex items-center gap-3">
-            <CalendarClock className="w-8 h-8" />
-            Maintenance Schedules
+          <h1 className="text-3xl font-black text-white tracking-tighter flex items-center gap-3">
+            <CalendarClock className="w-8 h-8 text-emerald-500 drop-shadow-[0_0_10px_#10b98144]" />
+            PM SCHEDULER
           </h1>
-          <p className="text-[var(--text-dim)] uppercase tracking-widest text-sm mt-2 font-medium">
+          <p className="text-[#8b9bb4] uppercase tracking-[0.2em] text-[10px] mt-2 font-bold flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_#10b981]"></span>
             Automated Protocol Deployment Engine
           </p>
         </div>
         <button 
           onClick={() => setIsCreating(!isCreating)}
           disabled={!isDataReady}
-          className="px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-black font-bold uppercase tracking-widest text-sm rounded-xl flex items-center gap-2 transition-all disabled:opacity-50"
+          className="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold uppercase tracking-widest text-xs rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/10 active:scale-95"
         >
-          <Plus className="w-4 h-4" /> New Schedule
+          <Plus className="w-4 h-4" /> Initialize Link
         </button>
       </div>
 
       {!isDataReady && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 mb-6 flex items-start gap-4">
-          <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0" />
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 mb-8 flex items-start gap-4 backdrop-blur-md">
+          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-amber-400 font-bold">Preparation Required</h3>
-            <p className="text-amber-400/70 text-sm mt-1">To create a schedule, you must first register at least one Machine in the Master Data module and create at least one Preventive Protocol (Checklist).</p>
+            <h3 className="text-white text-sm font-bold uppercase tracking-widest">Configuration Required</h3>
+            <p className="text-[#8b9bb4] text-xs mt-1 italic">To establish a maintenance link, register at least one Machine and one Protocol Checklist.</p>
           </div>
         </div>
       )}
@@ -150,32 +204,33 @@ export function SchedulesView() {
       <AnimatePresence>
         {isCreating && isDataReady && (
           <motion.div 
-            initial={{ opacity: 0, y: -20, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ opacity: 0, y: -20, height: 0 }}
+            initial={{ opacity: 0, scale: 0.98, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: -10 }}
             className="mb-8"
           >
-            <form onSubmit={handleCreateSchedule} className="bg-black/60 border border-emerald-500/30 p-6 rounded-3xl backdrop-blur-md shadow-2xl flex flex-col md:flex-row gap-6">
+            <form onSubmit={handleCreateSchedule} className="titan-card p-6 border-emerald-500/30 flex flex-col md:flex-row gap-8 bg-emerald-500/5 relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
               
-              <div className="flex-1 space-y-4">
+              <div className="flex-1 space-y-5">
                 <div>
-                  <label className="block text-xs font-bold text-emerald-400/70 mb-2 uppercase tracking-wider">Target Machine</label>
+                  <label className="titan-label text-[10px] mb-2">Target Asset / Machine</label>
                   <select 
                     value={machineId} onChange={e => setMachineId(e.target.value)} required
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none appearance-none"
+                    className="w-full titan-input py-2.5 text-sm"
                   >
-                    <option value="" disabled>Select a machine...</option>
+                    <option value="" disabled>Select target system...</option>
                     {machines?.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-xs font-bold text-emerald-400/70 mb-2 uppercase tracking-wider">Protocol (Checklist)</label>
+                  <label className="titan-label text-[10px] mb-2">Deployed Protocol</label>
                   <select 
                     value={checklistId} onChange={e => setChecklistId(e.target.value)} required
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none appearance-none"
+                    className="w-full titan-input py-2.5 text-sm"
                   >
-                    <option value="" disabled>Select a protocol...</option>
+                    <option value="" disabled>Select checklist blueprint...</option>
                     {checklists?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
@@ -183,29 +238,31 @@ export function SchedulesView() {
 
               <div className="w-px h-auto bg-white/5 mx-2 hidden md:block" />
 
-              <div className="flex-1 space-y-4">
+              <div className="flex-1 space-y-5">
                 <div>
-                  <label className="block text-xs font-bold text-emerald-400/70 mb-2 uppercase tracking-wider">Frequency (Days)</label>
+                  <label className="titan-label text-[10px] mb-2">Deployment Cycle (Days)</label>
                   <input 
                     type="number" min="1" max="3650" required
                     value={frequencyDays} onChange={e => setFrequencyDays(parseInt(e.target.value))}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full titan-input py-2.5 text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-emerald-400/70 mb-2 uppercase tracking-wider">First Due Date</label>
+                  <label className="titan-label text-[10px] mb-2">First Invariant Date</label>
                   <input 
                     type="date" required
                     value={nextDueDate} onChange={e => setNextDueDate(e.target.value)}
-                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none [color-scheme:dark]"
+                    className="w-full titan-input py-2.5 text-sm [color-scheme:dark]"
                   />
                 </div>
               </div>
 
-              <div className="flex flex-col justify-end gap-3 pt-4 md:pt-0">
-                <button type="button" onClick={() => setIsCreating(false)} className="px-6 py-3 text-xs font-medium text-white/50 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">Cancel</button>
-                <button type="submit" className="px-6 py-3 text-sm font-bold text-black bg-emerald-500 rounded-xl hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all">Establish Link</button>
+              <div className="flex flex-col justify-end gap-3 pt-4 md:pt-0 min-w-[200px]">
+                <button type="button" onClick={() => setIsCreating(false)} className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-[#8b9bb4] hover:text-white bg-white/5 rounded-xl border border-white/5 transition-all">Cancel</button>
+                <button type="submit" className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-black bg-emerald-500 rounded-xl hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-2">
+                   Establish Mission <ChevronRight className="w-3 h-3" />
+                </button>
               </div>
 
             </form>
@@ -214,14 +271,16 @@ export function SchedulesView() {
       </AnimatePresence>
 
       {/* Schedules Grid */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2">
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-12">
         {schedules?.length === 0 && !isCreating ? (
-           <div className="w-full h-64 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-3xl bg-white/5">
-              <CalendarClock className="w-16 h-16 text-white/20 mb-4" />
-              <p className="text-white/40 uppercase tracking-widest font-medium">No Schedules Configured</p>
+           <div className="w-full h-80 flex flex-col items-center justify-center titan-card border-dashed bg-white/[0.01]">
+              <div className="w-24 h-24 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6">
+                <CalendarClock className="w-10 h-10 text-white/20" />
+              </div>
+              <p className="text-[#8b9bb4] text-xs font-bold uppercase tracking-[0.3em] opacity-40">No Maintenance Bonds Configured</p>
            </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {schedules?.map(schedule => {
               const machineName = getMachineName(schedule.machineId);
               const checklistName = getChecklistName(schedule.checklistId);
@@ -229,81 +288,97 @@ export function SchedulesView() {
               const isOverdue = dueDate < new Date() && schedule.isActive;
 
               return (
-                <div 
+                <motion.div 
+                  layout
                   key={schedule.id}
                   className={cn(
-                    "relative p-6 rounded-3xl border backdrop-blur-md flex flex-col h-[280px] transition-all group overflow-hidden",
+                    "titan-card relative p-0 overflow-hidden flex flex-col group transition-all duration-500 h-[300px]",
                     schedule.isActive 
-                      ? isOverdue ? "bg-red-500/5 border-red-500/30" : "bg-emerald-500/5 border-emerald-500/20 hover:border-emerald-500/50"
-                      : "bg-white/5 border-white/10 opacity-70 grayscale"
+                      ? isOverdue ? "border-rose-500/40 bg-rose-500/[0.03] shadow-[0_0_25px_rgba(244,63,94,0.05)]" : "border-emerald-500/20 hover:border-emerald-500/50 bg-white/[0.01] hover:bg-emerald-500/[0.02]"
+                      : "opacity-60 grayscale border-white/5 bg-black/40"
                   )}
                 >
-                  {/* Overdue Glow Effect */}
-                  {isOverdue && schedule.isActive && (
-                     <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/20 blur-[50px] rounded-full pointer-events-none" />
-                  )}
+                  <div className={cn(
+                    "h-1.5 w-full",
+                    schedule.isActive ? (isOverdue ? "bg-rose-500" : "bg-emerald-500") : "bg-white/10"
+                  )} />
 
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center border", 
-                        schedule.isActive ? (isOverdue ? "bg-red-500/20 border-red-500/50 text-red-400" : "bg-emerald-500/20 border-emerald-500/50 text-emerald-400") : "bg-white/10 border-white/20 text-white/50"
-                      )}>
-                        <Briefcase className="w-5 h-5" />
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 group-hover:scale-110",
+                          schedule.isActive 
+                            ? (isOverdue ? "bg-rose-500/10 border-rose-500/30 text-rose-400" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500") 
+                            : "bg-white/5 border-white/10 text-white/20 shadow-inner"
+                        )}>
+                          <Briefcase className="w-6 h-6" />
+                        </div>
+                        <div>
+                          {isOverdue && schedule.isActive && (
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500 flex items-center gap-1 mb-1">
+                              <AlertTriangle className="w-3 h-3 animate-pulse" /> Urgent Invariant Breach
+                            </span>
+                          )}
+                          <h3 className="font-black text-white text-lg leading-tight tracking-tight drop-shadow-md">{machineName}</h3>
+                        </div>
                       </div>
-                      <div>
-                        {isOverdue && schedule.isActive && <span className="text-[10px] font-bold uppercase tracking-widest text-red-500 flex items-center gap-1 mb-0.5"><AlertTriangle className="w-3 h-3" /> Overdue</span>}
-                        <h3 className="font-bold text-white text-lg leading-tight line-clamp-1">{machineName}</h3>
+                      
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={(e) => handleToggleStatus(schedule.id, schedule.isActive, e)}
+                          title={schedule.isActive ? "Pause System" : "Activate System"}
+                          className="p-2.5 bg-black/40 hover:bg-white/10 rounded-xl text-white/30 hover:text-white border border-white/5 transition-all active:scale-95 shadow-inner"
+                        >
+                          <Power className={cn("w-4 h-4", schedule.isActive ? "text-emerald-400 drop-shadow-[0_0_5px_#10b981]" : "text-white/20")} />
+                        </button>
+                        <button 
+                          onClick={(e) => handleDeleteSchedule(schedule.id, e)}
+                          title="Purge Link"
+                          className="p-2.5 bg-rose-500/10 hover:bg-rose-500/20 rounded-xl text-rose-400 border border-rose-500/10 transition-all active:scale-95 shadow-inner"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
-                    
-                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+
+                    <div className="space-y-4 mb-auto">
+                      <div className="bg-black/20 p-3 rounded-xl border border-white/5">
+                        <p className="text-[10px] uppercase tracking-widest text-[#8b9bb4] font-bold mb-1 ml-1 opacity-60">Deployment Protocol</p>
+                        <p className="text-xs font-bold text-white/90 line-clamp-1 italic ml-1">{checklistName}</p>
+                      </div>
+                      
+                      <div className="flex gap-6 px-1">
+                        <div className="flex-1">
+                          <p className="text-[9px] uppercase tracking-widest text-[#8b9bb4] font-black mb-1 opacity-50">Interval</p>
+                          <p className="text-sm font-black text-white italic">{schedule.frequencyDays}d</p>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-[9px] uppercase tracking-widest text-[#8b9bb4] font-black mb-1 opacity-50">Telemetry Due</p>
+                          <p className={cn("text-sm font-black italic", isOverdue && schedule.isActive ? "text-rose-400" : "text-emerald-400")}>
+                            {dueDate.toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-white/5">
                       <button 
-                        onClick={(e) => handleToggleStatus(schedule.id, schedule.isActive, e)}
-                        title={schedule.isActive ? "Pause Schedule" : "Activate Schedule"}
-                        className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/50 hover:text-white transition-colors"
+                        onClick={(e) => handleTriggerWorkOrder(schedule, e)}
+                        disabled={!schedule.isActive}
+                        className={cn(
+                          "w-full py-3.5 font-black text-[10px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2 transition-all duration-500 border relative group/btn",
+                          isOverdue && schedule.isActive 
+                            ? "bg-rose-500 text-black shadow-[0_0_20px_rgba(244,63,94,0.3)] border-rose-400" 
+                            : "bg-emerald-500/10 hover:bg-emerald-500 text-white hover:text-black border-emerald-500/20 hover:border-emerald-500 shadow-inner"
+                        )}
                       >
-                        <Power className={cn("w-4 h-4", schedule.isActive ? "text-emerald-400" : "text-white/40")} />
-                      </button>
-                      <button 
-                        onClick={(e) => handleDeleteSchedule(schedule.id, e)}
-                        title="Delete Schedule"
-                        className="p-2 bg-red-500/10 hover:bg-red-500/20 rounded-lg text-red-400 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
+                        <Zap className="w-4 h-4" />
+                        {isOverdue && schedule.isActive ? "Execute Urgent Deployment" : "Manual Pulse Deployment"}
                       </button>
                     </div>
                   </div>
-
-                  <div className="space-y-4 mb-auto">
-                    <div>
-                      <p className="text-[10px] uppercase tracking-widest text-[#888] font-semibold mb-1">Protocol / Checklist</p>
-                      <p className="text-sm font-medium text-white/80 line-clamp-1">{checklistName}</p>
-                    </div>
-                    
-                    <div className="flex gap-6">
-                      <div>
-                        <p className="text-[10px] uppercase tracking-widest text-[#888] font-semibold mb-1">Frequency</p>
-                        <p className="text-sm font-bold text-white/80">{schedule.frequencyDays} Days</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] uppercase tracking-widest text-[#888] font-semibold mb-1">Next Due</p>
-                        <p className={cn("text-sm font-bold", isOverdue && schedule.isActive ? "text-red-400" : "text-emerald-400")}>
-                          {dueDate.toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-white/5">
-                    <button 
-                      onClick={(e) => handleTriggerWorkOrder(schedule, e)}
-                      disabled={!schedule.isActive}
-                      className="w-full py-3 bg-white/5 hover:bg-amber-500/20 hover:text-amber-400 border border-transparent hover:border-amber-500/50 text-white/60 font-bold text-xs uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:hover:bg-white/5 disabled:hover:text-white/60 disabled:hover:border-transparent group/btn"
-                    >
-                      <Zap className="w-4 h-4 group-hover/btn:fill-amber-400/20" /> Generate Work Order
-                    </button>
-                  </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
@@ -313,3 +388,4 @@ export function SchedulesView() {
     </div>
   );
 }
+

@@ -176,7 +176,7 @@ export class ExcelEngine {
   static async writeExcelFile(
     template: ExcelTemplate,
     fileName: string
-  ): Promise<Buffer> {
+  ): Promise<ArrayBuffer> {
     try {
       const workbook = new ExcelJS.Workbook();
 
@@ -212,7 +212,8 @@ export class ExcelEngine {
         this.addDataValidation(worksheet, sheet);
       }
 
-      return await workbook.xlsx.writeBuffer() as Buffer;
+      const buffer = await workbook.xlsx.writeBuffer();
+      return buffer as unknown as ArrayBuffer;
     } catch (error) {
       logger.error({ error }, 'Failed to write Excel file');
       throw new Error('Failed to write Excel file');

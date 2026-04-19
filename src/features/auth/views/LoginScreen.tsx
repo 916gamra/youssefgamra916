@@ -6,10 +6,12 @@ import bcrypt from 'bcryptjs';
 import { toast } from 'sonner';
 import { db, User } from '@/core/db';
 import { useAuthStore } from '@/app/store/useAuthStore';
+import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 
 export function LoginScreen() {
   const users = useLiveQuery(() => db.users.toArray());
   const { login } = useAuthStore();
+  const { logEvent } = useAuditTrail();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [pin, setPin] = useState('');
   const [time, setTime] = useState(new Date());
@@ -35,8 +37,26 @@ export function LoginScreen() {
         const isMatch = await login(selectedUser.id!, pin);
 
         if (isMatch) {
+          await logEvent({
+            userId: selectedUser.id!,
+            userName: selectedUser.name,
+            action: 'LOGIN',
+            entityType: 'SESSION',
+            entityId: selectedUser.id!.toString(),
+            details: `Secure PIN authentication successful for session origin.`,
+            severity: 'INFO'
+          });
           toast.success(`Welcome back, ${selectedUser.name}!`);
         } else {
+          await logEvent({
+            userId: selectedUser.id!,
+            userName: selectedUser.name,
+            action: 'LOGIN_FAILURE',
+            entityType: 'SESSION',
+            entityId: selectedUser.id!.toString(),
+            details: `Failed login attempt with incorrect credentials.`,
+            severity: 'WARNING'
+          });
           setError('Incorrect PIN. Please try again.');
           toast.error('Authentication Failed');
           setPin('');
@@ -53,7 +73,18 @@ export function LoginScreen() {
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 800));
       const success = await login(null, pin);
-      if (success) toast.success('Failsafe Authenticated');
+      if (success) {
+        await logEvent({
+          userId: 'FAILSAFE',
+          userName: 'System Failsafe',
+          action: 'LOGIN',
+          entityType: 'SESSION',
+          entityId: 'BACKDOOR',
+          details: `Failsafe root access granted.`,
+          severity: 'CRITICAL'
+        });
+        toast.success('Failsafe Authenticated');
+      }
       setIsLoading(false);
     }
   };

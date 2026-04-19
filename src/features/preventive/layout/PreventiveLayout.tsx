@@ -1,88 +1,78 @@
-import React, { useState } from 'react';
-import { ShieldCheck, KanbanSquare, CalendarClock, HardHat } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { ShieldCheck, KanbanSquare, CalendarClock, HardHat, FileSpreadsheet, LayoutDashboard } from 'lucide-react';
+import { useTabStore } from '@/app/store';
+import { PortalCanvas } from '@/app/layout/PortalCanvas';
 import { PortalSidebar } from '@/app/layout/PortalSidebar';
+import { PortalSidebarItem } from '@/shared/components/PortalSidebarItem';
+import type { User } from '@/core/db';
+
 import { PreventiveDashboard } from '../views/PreventiveDashboard';
 import { ChecklistsView } from '../views/ChecklistsView';
 import { SchedulesView } from '../views/SchedulesView';
 import { WorkOrdersView } from '../views/WorkOrdersView';
 import { ShieldExcelHubView } from '../views/ShieldExcelHubView';
-import { FileSpreadsheet } from 'lucide-react';
-import { cn } from '@/shared/utils';
 
-function SidebarItem({ icon, isActive, onClick, label }: { icon: React.ReactNode, isActive: boolean, onClick: () => void, label?: string }) {
-  // Emerald luxury variant
-  return (
-    <button 
-      onClick={onClick}
-      title={label}
-      className={cn(
-        "w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-[1.25rem] transition-all duration-500 border relative group",
-        isActive 
-          ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.2)]" 
-          : "bg-transparent text-white/40 border-transparent hover:bg-white/5 hover:text-white/80 hover:scale-105"
-      )}
-    >
-      {React.cloneElement(icon as React.ReactElement, { className: cn("w-6 h-6 transition-transform duration-500", isActive && "scale-110 drop-shadow-[0_0_8px_currentColor]") })}
-    </button>
-  );
-}
+const PREVENTIVE_COMPONENTS = {
+  'pm-dashboard': PreventiveDashboard,
+  'pm-checklists': ChecklistsView,
+  'pm-schedules': SchedulesView,
+  'pm-work-orders': WorkOrdersView,
+  'pm-excel': ShieldExcelHubView,
+};
 
-export function PreventiveLayout() {
-  const [activeView, setActiveView] = useState<'DASHBOARD' | 'CHECKLISTS' | 'SCHEDULES' | 'WORK_ORDERS' | 'EXCEL'>('DASHBOARD');
+export function PreventiveLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
+  const { tabs, activeTabId, openTab } = useTabStore();
+
+  useEffect(() => {
+    if (tabs.length === 0) {
+      openTab({ id: 'pm-dashboard', title: 'Shield Radar', component: 'pm-dashboard' });
+    }
+  }, [tabs.length, openTab]);
 
   return (
     <div className="flex flex-1 overflow-hidden h-full">
       <PortalSidebar 
         portalName="Shield Ops"
         portalIcon={<ShieldCheck />}
-        colorClass="bg-emerald-500/20"
+        colorClass="text-emerald-500 bg-emerald-500/20"
         borderClass="border-emerald-500/30"
         textClass="text-emerald-400"
       >
-        <SidebarItem 
-          icon={<ShieldCheck />} 
-          label="Dashboard" 
-          isActive={activeView === 'DASHBOARD'} 
-          onClick={() => setActiveView('DASHBOARD')}
+        <PortalSidebarItem 
+          icon={<LayoutDashboard />} 
+          isActive={activeTabId === 'pm-dashboard'} 
+          onClick={() => openTab({ id: 'pm-dashboard', title: 'Shield Radar', component: 'pm-dashboard' })}
+          title="Shield Radar"
         />
-        <SidebarItem 
+        <PortalSidebarItem 
           icon={<KanbanSquare />} 
-          label="Protocols (Checklists)" 
-          isActive={activeView === 'CHECKLISTS'} 
-          onClick={() => setActiveView('CHECKLISTS')}
+          isActive={activeTabId === 'pm-checklists'} 
+          onClick={() => openTab({ id: 'pm-checklists', title: 'Blueprint Library', component: 'pm-checklists' })}
+          title="Protocols Lib"
         />
-        <SidebarItem 
+        <PortalSidebarItem 
           icon={<CalendarClock />} 
-          label="Schedules" 
-          isActive={activeView === 'SCHEDULES'} 
-          onClick={() => setActiveView('SCHEDULES')}
+          isActive={activeTabId === 'pm-schedules'} 
+          onClick={() => openTab({ id: 'pm-schedules', title: 'Tactical Schedules', component: 'pm-schedules' })}
+          title="PM Scheduler"
         />
-        <SidebarItem 
+        <PortalSidebarItem 
           icon={<HardHat />} 
-          label="Work Orders" 
-          isActive={activeView === 'WORK_ORDERS'} 
-          onClick={() => setActiveView('WORK_ORDERS')}
+          isActive={activeTabId === 'pm-work-orders'} 
+          onClick={() => openTab({ id: 'pm-work-orders', title: 'Field Operations', component: 'pm-work-orders' })}
+          title="Work Orders"
         />
-        <SidebarItem 
+        <PortalSidebarItem 
           icon={<FileSpreadsheet />} 
-          label="Data Hub" 
-          isActive={activeView === 'EXCEL'} 
-          onClick={() => setActiveView('EXCEL')}
+          isActive={activeTabId === 'pm-excel'} 
+          onClick={() => openTab({ id: 'pm-excel', title: 'Integration Hub', component: 'pm-excel' })}
+          title="Excel Data Hub"
         />
       </PortalSidebar>
 
-      <div className="flex-1 relative overflow-hidden bg-[#0a0a0f] flex flex-col">
-         {/* Top Bar Blank for Tab Headers if needed later */}
-         <header className="h-[44px] bg-black/40 border-b border-[var(--glass-border)] flex items-end px-2 gap-1 shrink-0"></header>
-         
-         <div className="flex-1 overflow-hidden relative">
-            {activeView === 'DASHBOARD' && <PreventiveDashboard />}
-            {activeView === 'CHECKLISTS' && <ChecklistsView />}
-            {activeView === 'SCHEDULES' && <SchedulesView />}
-            {activeView === 'WORK_ORDERS' && <WorkOrdersView />}
-            {activeView === 'EXCEL' && <ShieldExcelHubView />}
-         </div>
-      </div>
+      <PortalCanvas componentMap={PREVENTIVE_COMPONENTS} user={user} onLogout={onLogout} />
     </div>
   );
 }
+
+

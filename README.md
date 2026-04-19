@@ -1,10 +1,8 @@
 # 🚢 CIOB GMAO v17.0 (TITANIC OS)
-**Next-Generation Hybrid Maintenance & Procurement Management System**
+**Next-Generation Industrial Operating System**
 
 ![Version](https://img.shields.io/badge/version-17.0-cyan.svg)
-![React](https://img.shields.io/badge/React-19.0-blue.svg)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue.svg)
-![Vite](https://img.shields.io/badge/Vite-6.0-purple.svg)
+![Aesthetic](https://img.shields.io/badge/aesthetic-Titan-rose.svg)
 
 > *"An enterprise-grade, offline-first application designed to bridge the gap between industrial harshness and luxurious software engineering."*
 
@@ -23,7 +21,7 @@
 TITANIC OS was built with several core philosophical pillars meant to sustain it for the next 10 years without requiring a complete rewrite:
 
 1. **The "Offline-First" Resilience:** Factories and industrial plants often suffer from poor connectivity. The app uses **IndexedDB (Dexie.js)** as an edge-layer cache. Technicians can execute work orders, and managers can approve parts instantly offline. Data syncs with the central server transparently when a connection is restored.
-2. **Glassmorphism & Windows-like UI:** Industrial tools shouldn't be ugly. By employing a frosted glass aesthetic combined with a taskbar-like "Portal" system, we provide a familiar OS-level experience. This decreases the learning curve and increases user satisfaction.
+2. **The Titan Design System:** Industrial tools shouldn't be ugly. By employing an aggressive industrial aesthetic with carbon-black surfaces and neon functional accents, we provide a high-clarity interface. This decreases fatigue and increases precision in harsh environments.
 3. **Strict Domain-Driven Design (DDD):** Features are heavily isolated into "Engines" (PDR Engine, ShieldOps, Factory Admin). If one module needs to be replaced, it doesn't break the others.
 4. **Data Ironclad (Validation at the Gates):** Utilizing **Zod**, no rogue data can enter the system. Whether it's an API payload or an Excel import, the data must comply with the mathematical schema or it is rejected entirely.
 
@@ -50,7 +48,9 @@ The application acts as an operating system housing different sub-applications (
 * **📦 PDR Engine (Partes de Rechange):** The Spare Parts master system. 
   - *Data Model:* `Family -> Template -> Blueprint -> Inventory Item`. This hierarchy ensures no duplicate SKUs.
 * **🛡 Shield Ops (Preventive Maintenance):** 
-  - Manages `Checklists`, `Schedules`, and `Work Orders`. Operates on a temporal engine that generates tasks based on frequency limits.
+  - The tactical center for machine health.
+  - Manages `Checklists`, `Schedules`, and `Work Orders` in real-time.
+  - Features a temporal logic engine for predictive scheduling based on frequency constraints.
 * **🏭 Factory Admin (Organization):**
   - Manages the topological map of the factory (`Sectors -> Machines`).
   - Manages human resources (`Technicians`) and maps them to sectors.

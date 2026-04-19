@@ -1,16 +1,23 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as Tabs from '@radix-ui/react-tabs';
-import { Search, Folder, Layers, Hash, AlertCircle } from 'lucide-react';
+import { Search, Folder, Layers, Hash, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { usePdrLibrary } from '../hooks/usePdrLibrary';
 import { PdrCard } from '../components/PdrCard';
 import { db } from '@/core/db';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { PdrModals, ModalType } from '../components/PdrModals';
+import { toast } from 'sonner';
+import { useTabStore } from '@/app/store';
+import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 
-export function PdrLibraryPage({ tabId }: { tabId: string }) {
+export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
   const { families, templates, blueprints, templateCounts, blueprintCounts, isLoading } = usePdrLibrary();
   const [activeTab, setActiveTab] = useState('families');
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const { openTab } = useTabStore();
+  const { logEvent } = useAuditTrail();
 
   const filteredFamilies = useMemo(() => {
     return families.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -33,9 +40,85 @@ export function PdrLibraryPage({ tabId }: { tabId: string }) {
     overscan: 5,
   });
 
+  const handleDelete = async (type: ModalType, id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm('Are you certain you want to delete this entity? This may break relationships with other records.')) {
+      return;
+    }
+    
+    try {
+      if (type === 'family') {
+        const item = families.find(f => f.id === id);
+        await db.pdrFamilies.delete(id);
+        await logEvent({
+          userId: user?.id || 'GUEST',
+          userName: user?.name || 'Guest User',
+          action: 'DELETE',
+          entityType: 'PDR_FAMILY',
+          entityId: id,
+          details: `Deleted PDR Family: ${item?.name || id}`,
+          severity: 'WARNING'
+        });
+      } else if (type === 'template') {
+        const item = templates.find(t => t.id === id);
+        await db.pdrTemplates.delete(id);
+        await logEvent({
+          userId: user?.id || 'GUEST',
+          userName: user?.name || 'Guest User',
+          action: 'DELETE',
+          entityType: 'PDR_TEMPLATE',
+          entityId: id,
+          details: `Deleted PDR Template: ${item?.name || id}`,
+          severity: 'WARNING'
+        });
+      } else if (type === 'blueprint') {
+        const item = blueprints.find(b => b.id === id);
+        await db.pdrBlueprints.delete(id);
+        await logEvent({
+          userId: user?.id || 'GUEST',
+          userName: user?.name || 'Guest User',
+          action: 'DELETE',
+          entityType: 'PDR_BLUEPRINT',
+          entityId: id,
+          details: `Deleted PDR Blueprint: ${item?.reference || id}`,
+          severity: 'WARNING'
+        });
+      }
+      toast.success('Record purged successfully.');
+    } catch (error) {
+      console.error(error);
+      toast.error('Deletion failed.');
+    }
+  };
+
   if (isLoading) {
     return <div className="p-8 text-[var(--text-dim)]">Loading PDR Library...</div>;
   }
+
+  const getAddButtonTitle = () => {
+    switch (activeTab) {
+      case 'families': return 'New Family';
+      case 'templates': return 'New Template';
+      case 'blueprints': return 'New Blueprint';
+      default: return 'New Item';
+    }
+  };
+
+  const openAddModal = () => {
+    switch (activeTab) {
+      case 'families': setActiveModal('family'); break;
+      case 'templates': setActiveModal('template'); break;
+      case 'blueprints': setActiveModal('blueprint'); break;
+    }
+  };
+
+  const openPartDetail = (blueprintId: string, reference: string) => {
+    openTab({
+      id: `part-detail:${blueprintId}`,
+      title: `Part: ${reference}`,
+      component: 'part-detail'
+    });
+  };
 
   return (
     <motion.div 
@@ -48,20 +131,37 @@ export function PdrLibraryPage({ tabId }: { tabId: string }) {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
         <div>
           <h1 className="text-3xl font-semibold text-[var(--text-bright)] tracking-tight mb-2">PDR Engine Library</h1>
-          <p className="text-[var(--text-dim)] text-lg">Browse the hierarchical structure of spare parts.</p>
+          <p className="text-[var(--text-dim)] text-lg">Browse and master the hierarchical structure of spare parts.</p>
         </div>
         
-        <div className="relative w-full md:w-80 z-10">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-dim)]" />
-          <input 
-            type="text" 
-            placeholder="Search registry..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white/5 backdrop-blur-md border border-[var(--glass-border)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[var(--text-bright)] focus:outline-none focus:border-[var(--accent)] transition-all placeholder:text-[var(--text-dim)]"
-          />
+        <div className="flex flex-col md:flex-row gap-4 items-end z-10 w-full md:w-auto">
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-dim)]" />
+            <input 
+              type="text" 
+              placeholder="Search registry..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-white/5 backdrop-blur-md border border-[var(--glass-border)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] rounded-xl pl-10 pr-4 py-3 text-sm text-[var(--text-bright)] focus:outline-none focus:border-cyan-500/50 transition-all placeholder:text-[var(--text-dim)]"
+            />
+          </div>
+          <button 
+            onClick={openAddModal}
+            className="w-full md:w-auto whitespace-nowrap bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-medium transition-all shadow-[0_0_15px_rgba(6,182,212,0.1)] hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]"
+          >
+            <Plus className="w-5 h-5" />
+            {getAddButtonTitle()}
+          </button>
         </div>
       </header>
+
+      <PdrModals 
+        activeModal={activeModal} 
+        onClose={() => setActiveModal(null)} 
+        families={families} 
+        templates={templates} 
+        user={user}
+      />
 
       <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="flex flex-col gap-6">
         <Tabs.List className="flex items-center p-1.5 bg-black/20 backdrop-blur-md rounded-xl border border-[var(--glass-border)] w-max">
@@ -106,8 +206,11 @@ export function PdrLibraryPage({ tabId }: { tabId: string }) {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {filteredFamilies.map(family => (
-                      <PdrCard key={family.id} className="flex flex-col h-full">
-                        <div className="flex items-start justify-between mb-3">
+                      <PdrCard key={family.id} className="flex flex-col h-full group/card relative">
+                        <button onClick={(e) => handleDelete('family', family.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <div className="flex items-start justify-between mb-3 pr-8">
                           <h3 className="text-lg font-semibold text-[var(--text-bright)]">{family.name}</h3>
                           <div className="px-2.5 py-1 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] text-xs font-semibold flex items-center gap-1.5">
                             <Layers className="w-3.5 h-3.5" />
@@ -131,8 +234,11 @@ export function PdrLibraryPage({ tabId }: { tabId: string }) {
                     {filteredTemplates.map(template => {
                       const parentFamily = families.find(f => f.id === template.familyId);
                       return (
-                        <PdrCard key={template.id} className="flex flex-col h-full">
-                          <div className="mb-4">
+                        <PdrCard key={template.id} className="flex flex-col h-full group/card relative">
+                          <button onClick={(e) => handleDelete('template', template.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                          <div className="mb-4 pr-8">
                             <span className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-wider flex items-center gap-1.5 mb-1">
                               <Folder className="w-3 h-3" />
                               {parentFamily?.name || 'Unknown Family'}
@@ -171,7 +277,6 @@ export function PdrLibraryPage({ tabId }: { tabId: string }) {
                       }}
                     >
                        {rowVirtualizer.getVirtualItems().map(virtualRow => {
-                          // We are rendering rows of 4 items each, or 1 item if we simplify, but let's do a simple vertical list for the demo of virtualizer
                           const blueprint = filteredBlueprints[virtualRow.index];
                           const parentTemplate = templates.find(t => t.id === blueprint.templateId);
                           
@@ -189,25 +294,28 @@ export function PdrLibraryPage({ tabId }: { tabId: string }) {
                               }}
                               className="pb-4"
                             >
-                                <PdrCard className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 hover:border-cyan-500/30 transition-all p-4 bg-black/40">
+                                <PdrCard onClick={() => openPartDetail(blueprint.id, blueprint.reference)} className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 hover:border-cyan-500/30 transition-all p-4 bg-black/40 group/card cursor-pointer">
                                    <div className="flex items-center gap-4">
-                                     <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-inner">
+                                     <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-inner group-hover/card:scale-110 transition-transform">
                                         <Hash className="w-5 h-5 text-cyan-400" />
                                      </div>
                                      <div>
-                                        <h3 className="text-lg font-mono font-bold text-white tracking-tight">{blueprint.reference}</h3>
+                                        <h3 className="text-lg font-mono font-bold text-white tracking-tight group-hover/card:text-cyan-400 transition-colors">{blueprint.reference}</h3>
                                         <span className="text-[11px] uppercase tracking-widest text-white/50">{parentTemplate?.name || 'Unknown Template'}</span>
                                      </div>
                                    </div>
-                                   <div className="flex gap-8 items-center pr-4">
+                                   <div className="flex gap-8 items-center pr-12 relative">
                                       <div className="text-right">
                                         <span className="block text-[10px] text-white/40 uppercase mb-0.5">Unit</span>
                                         <span className="text-[13px] font-medium text-white/80">{blueprint.unit}</span>
                                       </div>
-                                      <div className="text-right">
+                                      <div className="text-right flex-shrink-0 min-w[80px]">
                                         <span className="block text-[10px] text-white/40 uppercase mb-0.5">Min Threshold</span>
                                         <span className="text-[13px] font-mono font-bold text-emerald-400">{blueprint.minThreshold}</span>
                                       </div>
+                                      <button onClick={(e) => handleDelete('blueprint', blueprint.id, e)} className="absolute right-0 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all">
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
                                    </div>
                                 </PdrCard>
                             </div>

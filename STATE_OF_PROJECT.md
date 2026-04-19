@@ -1,144 +1,97 @@
-# State of the Project: GMAO / PDR Engine
-**Date:** April 15, 2026
-**Target Audience:** Enterprise Architecture Team
+# State of the Project: TITANIC OS (GMAO / PDR Engine)
+**Date:** April 19, 2026
+**Target Audience:** Engineering & Security Teams
 
-This document provides a comprehensive, deeply technical analysis of the current state of the GMAO (Gestion de Maintenance Assistée par Ordinateur) / PDR (Pièces de Rechange) Engine. It outlines the architectural decisions, tech stack, data schemas, and current development progress.
+This document provides a comprehensive technical analysis of TITANIC OS as of April 19, 2026. It reflects the recent UI/UX unification to the "Titan" aesthetic, the completion of the Preventive Maintenance (PM) module, and the implementation of a centralized Permission/RBAC system.
 
 ---
 
-## 1. Tech Stack & Environment
+## 1. Tech Stack & Environmental Matrix
 
-The project is built on a modern, highly reactive frontend stack designed for desktop-first enterprise applications.
-
-*   **Core Framework:** React 18 with TypeScript, bundled via Vite (ESM-based, lightning-fast HMR).
+*   **Core UI:** React 18/19 with TypeScript, bundled via Vite.
 *   **State Management:** 
-    *   **Zustand:** Used for global, decoupled UI state (specifically the OS-like window/tab management).
-    *   **Dexie.js & `dexie-react-hooks`:** A robust wrapper around IndexedDB used for local-first, offline-capable data persistence and reactive UI updates (`useLiveQuery`).
-*   **Styling Engine:** Tailwind CSS v4, utilizing custom CSS variables for dynamic theming.
-*   **Animation & Motion:** `motion/react` (Framer Motion) for fluid, OS-level transitions, micro-interactions, and layout animations.
-*   **UI Primitives:** Radix UI (`@radix-ui/react-dialog`, `dropdown-menu`, `tabs`) for accessible, unstyled headless components.
-*   **Iconography:** `lucide-react` for consistent, scalable SVG icons.
+    *   **Zustand:** Powering the OS-like window management (`useTabStore`) and Portal navigation (`useOsStore`).
+    *   **Dexie.js:** Version 10 schema. Local-first, high-performance IndexedDB wrapper with reactive queries (`useLiveQuery`).
+*   **Visual Engine:** Tailwind CSS v4 with the **"Titan" Design System**.
+    *   Industrial dark theme with neon accentuation (Cyan, Emerald, Rose, Amber).
+    *   Custom utility classes for physical UI components (`.titan-card`, `.titan-input`, `.titan-label`).
+*   **Motion Matrix:** `motion/react` for system-level transitions and interactive animations.
 
 ---
 
-## 2. Directory Architecture (FSD/DDD)
-
-The codebase follows a hybrid Feature-Sliced Design (FSD) and Domain-Driven Design (DDD) approach, ensuring that business logic is strictly encapsulated within its respective domain.
+## 2. Directory Architecture (FSD/Titan Hybrid)
 
 ```text
 src/
-├── app/                  # Application Shell & Global Providers
-│   ├── DesktopLayout.tsx # The main OS-like window manager and sidebar
-│   └── store.ts          # Zustand global stores (e.g., useTabStore)
-├── core/                 # Core Infrastructure & Data Layer
-│   └── db.ts             # Dexie.js database initialization and schemas
-├── features/             # Domain-Driven Modules (The Business Logic)
-│   ├── auth/             # Authentication & Login Screen (Windows 11 style)
-│   ├── pdr-engine/       # Core Spare Parts Engine (Dashboard, Inventory, Details)
-│   ├── procurement/      # Purchase Orders & Vendor Management
-│   ├── settings/         # System Settings, DB Management, User Management
-│   └── terminal/         # Simulated Kernel/CLI access for System Admins
-├── shared/               # Cross-domain Utilities & UI Components
-│   ├── components/       # Reusable UI (e.g., GlassCard.tsx)
-│   └── utils.ts          # Helper functions (e.g., `cn` for Tailwind merge)
-├── index.css             # Global styles and CSS variables (Theming)
-└── main.tsx              # React entry point
+├── app/                  # OS Shell & Global Kernel
+│   ├── DesktopLayout.tsx # Main window manager & Security Guard
+│   ├── layout/           # Global UI (Launchpad, Dock, Sidebar)
+│   └── store/            # Kernel state (useOsStore, useTabStore, useAuthStore)
+├── core/                 # System Backbone
+│   ├── db.ts             # Dexie v10 Hub (Audit, PM, PDR, Users)
+│   ├── permissions.ts    # Centralized RBAC logic (ADMIN_ROLES, hasPortalAccess)
+│   └── schemas.ts        # Zod validation matrix
+├── features/             # Logical Portals (Engines)
+│   ├── auth/             # Login Matrix & Identity Verification
+│   ├── pdr-engine/       # Spare Parts, Stock & Requisition
+│   ├── preventive/       # Shield Ops (PM Schedules, Checklists, Work Orders)
+│   ├── factory/          # Topological Map (Machines, Sectors, Personnel)
+│   └── system/           # Configuration, Audit Trail, User Management
+└── shared/               # Universal Modules
+    ├── components/       # Titan UI Primitives
+    └── hooks/            # useNotifications, useAuditTrail, etc.
 ```
 
 ---
 
-## 3. Data Layer & Schemas
+## 3. Data Integrity & Security (Audit Shield)
 
-The application currently operates in a **Local-First** architecture using IndexedDB (via Dexie.js). The database (`CIOB_GMAO_DB`) is currently at Version 3.
+The application implements a strict **Zero-Trust** approach for administrative actions.
 
-### TypeScript Interfaces & Dexie Schemas
+### Audit Trail Matrix
+Every destructive or configuration-level event is logged in the `auditLogs` table via the `useAuditTrail` hook.
+*   **Attributes Captured:** User ID, Name, Action Type, Entity ID, Severity (INFO/WARNING/CRITICAL), and Payload Details.
+*   **Encapsulation:** All PM and System actions (e.g., purging DB, updating RBAC, creating schedules) trigger an audit pulse.
 
-**1. Spare Parts (`spareParts`)**
-*   *Schema:* `++id, partNumber, name, quantity, location`
-*   *Interface:*
-    ```typescript
-    export interface SparePart {
-      id?: number;
-      partNumber: string;
-      name: string;
-      description: string;
-      quantity: number;
-      minThreshold: number;
-      location: string;
-      updatedAt: Date;
-    }
-    ```
-
-**2. Stock Movements (`stockMovements`)**
-*   *Schema:* `++id, partId, type, date`
-*   *Interface:*
-    ```typescript
-    export interface StockMovement {
-      id?: number;
-      partId: number;
-      type: 'IN' | 'OUT';
-      quantity: number;
-      reason: string;
-      date: Date;
-    }
-    ```
-
-**3. Users (`users`)**
-*   *Schema:* `++id, name, role, isPrimary`
-*   *Interface:*
-    ```typescript
-    export interface User {
-      id?: number;
-      name: string;
-      role: string;
-      initials: string;
-      color: string;
-      pin: string;
-      isPrimary?: boolean; // Used to designate the un-deletable Super Admin
-    }
-    ```
+### Permission Guard (RBAC)
+A centralized guard system (`permissions.ts`) controls access based on roles:
+*   **Founders:** Absolute DNA clearance. Undeleatable and possess global override.
+*   **Admins/Managers:** Authorized for System Config and high-level management.
+*   **Technicians/Engineers:** Operational clearance only (PDR & Preventive).
+*   **Enforcement:** Real-time gatekeeping in `DesktopLayout` and `LaunchpadView`.
 
 ---
 
-## 4. UI/UX & The "OS-Like" Shell
+## 4. Feature Portals: Current Progress
 
-The application completely bypasses traditional web layouts in favor of a **Desktop-First, OS-like Shell**.
+### ✅ PDR Engine (Operational)
+*   **Hiearachy:** Family -> Template -> Blueprint. Absolute SKU collision prevention.
+*   **Inventory:** Multi-warehouse stock tracking with movement auditing.
 
-*   **Liquid Glass Styling (`GlassCard.tsx`):** The UI heavily relies on a "Frosted Glass" aesthetic. This is achieved using Tailwind's `backdrop-blur`, semi-transparent backgrounds (`bg-white/5`, `bg-black/20`), and subtle borders (`border-[var(--glass-border)]`).
-*   **Chrome-like Tabs:** Implemented in `DesktopLayout.tsx`. Users don't "navigate" between pages; they open modules in tabs. The tabs feature active states, close buttons, and smooth layout transitions.
-*   **Windows 11-style Login:** The `LoginScreen.tsx` features a centralized clock, blurred abstract backgrounds, and a PIN-based user selection grid, mimicking a modern desktop lock screen.
-*   **System Terminal:** A dedicated `TerminalView.tsx` provides a simulated CLI for the Super Admin, complete with command history, auto-scrolling, and simulated kernel load metrics.
+### ✅ Shield Ops / Preventive Maintenance (FOCUSED)
+*   **Checklists:** Recursive task lists with criticality flags.
+*   **Tactical Schedules:** Machine-based frequency engine with auto-due calculations.
+*   **Deployment Queue:** Real-time Work Order terminal for technicians.
+*   **Excel Sync:** Hub for importing/exporting PM master data with backup integrity.
 
----
-
-## 5. Core Logic & State Hooks
-
-The business logic is decoupled from the UI using custom hooks and Zustand.
-
-*   **`useTabStore` (Zustand):** Manages the entire routing mechanism. 
-    *   State: `tabs` (array of open modules), `activeTabId`.
-    *   Actions: `openTab` (prevents duplicates, focuses existing), `closeTab` (smart fallback to the previous tab), `setActiveTab`.
-*   **Dexie Live Queries (`useLiveQuery`):** Instead of manually fetching data, components subscribe to database queries. For example, in `SettingsView.tsx`, `useLiveQuery(() => db.users.toArray())` ensures the user list instantly updates when a new user is added or deleted, without requiring a manual state refresh.
-*   **Authentication Seeding:** The `LoginScreen` contains a robust `useEffect` that seeds the initial database with default users (including the `System Admin`) and actively cleans up any accidental duplicates to maintain database integrity.
+### ✅ System Configuration (Titan Polish)
+*   **RBAC Node:** Detailed user management with portal-specific toggles.
+*   **Neural Core Backup:** High-speed serialization for DB snapshots (Export/Import).
+*   **Policy Matrix:** Configuration for session timeouts and developer debug layers.
 
 ---
 
-## 6. Current Progress vs. Gaps
+## 5. Visual Identity: The "Titan" Aesthetic
 
-### Fully Functional (Production-Ready)
-*   **Authentication Flow:** PIN-based login, user selection, and secure routing.
-*   **OS Layout:** The Sidebar, Tab Manager, and Footer are fully operational.
-*   **System Settings:** 
-    *   **User Management:** Full CRUD operations for users (add, edit, delete), restricted to the Primary Admin.
-    *   **Data Management:** Ability to export the entire IndexedDB to a JSON file, and a secure "Clear Database" function with transaction safety.
-*   **Terminal:** Interactive CLI with basic commands (`help`, `status`, `whoami`, `clear`).
+The UI has been unified under the **Titan Design System**:
+*   **Color Palette:** Carbon Black (`#050508`) surfaces with high-visibility neon accents.
+*   **Typography:** Italicized, heavy tracking-tighter headers for an aggressive industrial feel.
+*   **Card Design:** `.titan-card` utilizes subtle inner glows and sharp border definition instead of soft shadows.
+*   **Interactivity:** Hover-states trigger scale pulses and accent-color glows, providing positive tactile feedback.
 
-### Partial Implementation (Stubs & Mocks)
-*   **PDR Dashboard (`PDRDashboard.tsx`):** The layout and Stat Cards are built, but the "Inventory Activity" chart is an empty placeholder (`<div className="border-dashed...">`). Data is currently hardcoded.
-*   **Procurement (`ProcurementView.tsx`):** The UI is highly polished (search, filters, status badges), but the `orders` array is statically defined. It needs to be wired to a new Dexie table (e.g., `purchaseOrders`).
-*   **Inventory List & Part Details:** The routing exists, but full CRUD operations for `SparePart` and `StockMovement` need to be thoroughly connected to the UI.
+---
 
-### Architectural Gaps to Address
-1.  **Cloud Synchronization:** The app is currently 100% local (`DEXIE_LOCAL`). A sync engine (e.g., Firebase, Supabase, or a custom REST API) needs to be implemented to sync IndexedDB with a central server.
-2.  **Role-Based Access Control (RBAC):** While the Terminal and User Management are restricted to `isPrimary`, a more granular RBAC system is needed for standard users vs. managers.
-3.  **Data Validation:** Zod or Yup should be introduced to validate data before it enters the Dexie database.
+## 6. Next Engineering Steps
+1.  **Stock-PM Synchronization:** Wire PM Work Orders to consume stock items from the Inventory automatically upon completion.
+2.  **Machine Telemetry:** Integration of IoT/Sensor data into the Preventive Dashboard for predictive alerts.
+3.  **Global Search Logic:** A "Spotlight" search to jump between Blueprints, Technicians, and Work Orders across the entire OS.

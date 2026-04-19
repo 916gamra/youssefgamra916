@@ -15,15 +15,15 @@ export function PortalCanvas({ componentMap, user, onLogout }: { componentMap: R
   };
 
   return (
-        <main className="flex-1 flex flex-col min-w-0 relative z-10 bg-[#0a0a0f]">
+        <main className="flex-1 flex flex-col min-w-0 relative z-10 bg-[#0a0a0f] overflow-hidden">
           {/* Top Bar (Chrome-like Tabs) */}
-          <header className="h-[44px] bg-black/40 border-b border-[var(--glass-border)] flex items-end px-2 gap-1 shrink-0">
+          <header className="h-[44px] md:h-[50px] bg-black/40 border-b border-[var(--glass-border)] flex items-end px-2 gap-1 shrink-0 w-full overflow-x-auto custom-scrollbar lg:pr-64 pr-20">
             {tabs.map((tab) => (
               <div
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "group relative flex items-center h-[36px] px-4 min-w-[160px] max-w-[240px] rounded-t-lg cursor-pointer transition-all select-none border border-b-0 text-xs gap-2",
+                  "group relative flex items-center h-[36px] md:h-[42px] px-3 md:px-4 min-w-[120px] max-w-[200px] md:min-w-[160px] md:max-w-[240px] rounded-t-lg cursor-pointer transition-all select-none border border-b-0 text-[11px] md:text-xs gap-2 shrink-0",
                   tab.isActive 
                     ? "bg-[var(--glass-bg)] text-[var(--text-bright)] border-[var(--glass-border)] border-t-2 border-t-[var(--accent)] z-10" 
                     : "bg-white/[0.03] text-[var(--text-dim)] border-[var(--glass-border)] hover:bg-white/5"
@@ -33,17 +33,17 @@ export function PortalCanvas({ componentMap, user, onLogout }: { componentMap: R
                 <button 
                   onClick={(e) => { e.stopPropagation(); closeTab(tab.id); }}
                   className={cn(
-                    "ml-2 p-1 rounded-md opacity-40 hover:opacity-100 transition-all text-[10px]",
+                    "ml-1 p-1 rounded-md opacity-40 hover:opacity-100 transition-all text-[10px]",
                   )}
                 >
-                  <X className="w-3 h-3" />
+                  <X className="w-3 h-3 md:w-3.5 md:h-3.5" />
                 </button>
               </div>
             ))}
           </header>
 
           {/* Canvas Area */}
-          <div className="flex-1 relative overflow-hidden flex flex-col">
+          <div className="flex-1 relative overflow-hidden flex flex-col w-full">
             <AnimatePresence mode="wait">
               {activeTabId && tabs.find(t => t.id === activeTabId) && (() => {
                 const tab = tabs.find(t => t.id === activeTabId)!;
@@ -55,7 +55,7 @@ export function PortalCanvas({ componentMap, user, onLogout }: { componentMap: R
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute inset-0 overflow-y-auto p-6"
+                    className="absolute inset-0 overflow-y-auto px-4 py-6 md:p-8 custom-scrollbar w-full"
                   >
                     <Component tabId={tab.id} onLogout={onLogout} user={user} />
                   </motion.div>
@@ -64,12 +64,12 @@ export function PortalCanvas({ componentMap, user, onLogout }: { componentMap: R
             </AnimatePresence>
             
             {tabs.length === 0 && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-[var(--text-dim)] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0a0a0f] to-[#0a0a0f]">
-                <div className="w-24 h-24 rounded-3xl bg-white/5 flex items-center justify-center border border-white/10 mb-6 shadow-2xl">
-                    <Package className="w-12 h-12 text-white/20" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-[var(--text-dim)] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0a0a0f] to-[#0a0a0f] px-6 text-center">
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-white/5 flex items-center justify-center border border-white/10 mb-6 shadow-2xl">
+                    <Package className="w-10 h-10 md:w-12 md:h-12 text-white/20" />
                 </div>
-                <h2 className="text-xl font-semibold text-white/50 tracking-widest uppercase mb-2">No Active Module</h2>
-                <p className="text-sm">Select operations from the sidebar to begin.</p>
+                <h2 className="text-lg md:text-xl font-semibold text-white/50 tracking-widest uppercase mb-2">No Active Module</h2>
+                <p className="text-xs md:text-sm max-w-sm">Select operations from the sidebar to begin.</p>
               </div>
             )}
           </div>

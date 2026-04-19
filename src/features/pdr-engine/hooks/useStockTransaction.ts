@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { db } from '@/core/db';
+import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 
 export function useStockTransaction() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { logEvent } = useAuditTrail();
 
   const executeTransaction = async (
     stockId: string,
     type: 'IN' | 'OUT',
     quantity: number,
-    performedBy: string
+    performedBy: string,
+    userId?: string | number // Optional: if we have the logged in user ID
   ): Promise<boolean> => {
     setIsProcessing(true);
     setError(null);
@@ -24,7 +27,7 @@ export function useStockTransaction() {
         throw new Error('Technician name is required.');
       }
 
-      await db.transaction('rw', [db.inventory, db.movements], async () => {
+      await db.transaction('rw', [db.inventory, db.movements, db.auditLogs, db.users], async () => {
         const item = await db.inventory.get(stockId);
         if (!item) throw new Error('Stock item not found in database.');
 
@@ -43,7 +46,7 @@ export function useStockTransaction() {
           updatedAt: new Date().toISOString(),
         });
 
-        // Log the movement
+        // Log the movement (Business Logic Log)
         await db.movements.add({
           id: crypto.randomUUID(),
           stockId,
@@ -51,6 +54,17 @@ export function useStockTransaction() {
           quantity,
           performedBy,
           timestamp: new Date().toISOString(),
+        });
+
+        // Log the event (Security/Audit Log)
+        await logEvent({
+          userId: userId || 'N/A',
+          userName: performedBy,
+          action: type === 'IN' ? 'RESTOCK' : 'WITHDRAW',
+          entityType: 'STOCK_ITEM',
+          entityId: stockId,
+          details: `${type} Transaction: ${quantity} units. Final balance: ${newQuantity}`,
+          severity: type === 'OUT' && newQuantity === 0 ? 'WARNING' : 'INFO'
         });
       });
 

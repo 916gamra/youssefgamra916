@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Box, Wrench, ShieldCheck, PieChart, Network, LayoutGrid, Settings, Factory } from 'lucide-react';
+import { Box, ShieldCheck, PieChart, Network, Settings, Factory } from 'lucide-react';
 import { useOsStore, PortalType } from '../store/useOsStore';
 import type { User } from '@/core/db';
+import { hasPortalAccess } from '@/core/permissions';
 
 const colorStyles = {
   cyan: {
@@ -130,24 +131,14 @@ export function LaunchpadView({ user }: { user: User | null }) {
     return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   };
 
-  // Fallback default permissions based on role if allowedPortals isn't set
-  let visibleApps = APPS;
-  if (user) {
-    const userPortals = user.allowedPortals || ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS'];
-    if (user.isPrimary) {
-      // Founders/Primary users always see everything
-      visibleApps = APPS;
-    } else if (user.role === 'Admin' || user.role === 'Manager' || user.role === 'Super Administrator') {
-      visibleApps = APPS.filter(app => userPortals.includes(app.id));
-    } else {
-      visibleApps = APPS.filter(app => userPortals.includes(app.id));
-    }
-  }
+  // Filter apps based on security permissions
+  const visibleApps = APPS.filter(app => hasPortalAccess(user, app.id));
 
   return (
-    <div className="flex flex-col h-screen w-full items-center justify-center relative overflow-hidden bg-[#050508]">
+    <div className="flex flex-col h-full w-full items-center relative overflow-y-auto overflow-x-hidden bg-[#050508] custom-scrollbar pb-16">
+
       {/* Background Ambience */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[10%] left-[20%] w-[40%] h-[500px] bg-blue-500/10 rounded-full blur-[160px] mix-blend-screen" />
         <div className="absolute bottom-[10%] right-[20%] w-[50%] h-[600px] bg-emerald-500/5 rounded-full blur-[180px] mix-blend-screen" />
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay" />
@@ -158,22 +149,22 @@ export function LaunchpadView({ user }: { user: User | null }) {
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="absolute top-8 flex flex-col items-center pointer-events-none w-full"
+        className="w-full flex flex-col items-center pointer-events-none pt-8 md:pt-12 mb-6 md:mb-10 relative z-20 shrink-0"
       >
-        <h2 className="text-5xl font-light text-white tracking-widest leading-none mb-1 opacity-90">{formatTime(time)}</h2>
-        <p className="text-[10px] text-zinc-500 uppercase tracking-[0.4em] font-bold">{formatDate(time)}</p>
+        <h2 className="text-4xl md:text-5xl font-light text-white tracking-widest leading-none mb-1 opacity-90">{formatTime(time)}</h2>
+        <p className="text-[10px] md:text-xs text-zinc-500 uppercase tracking-[0.4em] font-bold">{formatDate(time)}</p>
       </motion.div>
 
-      <div className="relative z-10 w-full max-w-6xl px-6 pt-24 md:pt-32">
-        <div className="text-center mb-12 md:mb-16">
+      <div className="relative z-10 w-full max-w-7xl px-4 md:px-8 flex-1 flex flex-col items-center">
+        <div className="text-center mb-10 md:mb-16 shrink-0">
           <motion.div initial={{ opacity: 0, y: -20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.8, ease: "easeOut" }}>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 mb-6 drop-shadow-sm">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 mb-4 md:mb-6 drop-shadow-sm">
               TITANIC OS
             </h1>
-            <p className="text-sm text-[var(--text-dim)] uppercase tracking-[0.3em] font-medium flex items-center justify-center gap-4">
-              <span className="w-8 h-[1px] bg-gradient-to-r from-transparent to-white/30" />
+            <p className="text-xs md:text-sm text-[var(--text-dim)] uppercase tracking-[0.2em] md:tracking-[0.3em] font-medium flex items-center justify-center gap-2 md:gap-4">
+              <span className="hidden leading-none md:block w-8 h-[1px] bg-gradient-to-r from-transparent to-white/30" />
               Strategic Command Center
-              <span className="w-8 h-[1px] bg-gradient-to-l from-transparent to-white/30" />
+              <span className="hidden leading-none md:block w-8 h-[1px] bg-gradient-to-l from-transparent to-white/30" />
             </p>
           </motion.div>
         </div>
@@ -182,28 +173,28 @@ export function LaunchpadView({ user }: { user: User | null }) {
           variants={container}
           initial="hidden"
           animate="show"
-          className="flex flex-wrap justify-center gap-5 lg:gap-8"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-5xl mx-auto"
         >
           {visibleApps.map((app) => {
             const styles = colorStyles[app.color];
             return (
-              <motion.div key={app.id} variants={item} className="h-full w-full md:w-[calc(50%-10px)] lg:w-[calc(33.333%-22px)] max-w-sm">
+              <motion.div key={app.id} variants={item} className="h-full w-full flex">
                 <div 
                   onClick={() => setPortal(app.id)}
-                  className={`h-full group relative overflow-hidden p-8 rounded-[2rem] glass-panel ${styles.border} cursor-pointer transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 flex flex-col items-center text-center`}
+                  className={`flex-1 group relative overflow-hidden flex flex-col items-center text-center p-6 md:p-8 rounded-[2rem] glass-panel ${styles.border} cursor-pointer transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 lg:hover:-translate-y-3`}
                 >
-                  <div className={`absolute -top-32 -right-32 w-64 h-64 rounded-full blur-[80px] ${app.glow} group-hover:blur-[50px] group-hover:scale-150 transition-all duration-700 opacity-50 group-hover:opacity-100`} />
-                  <div className={`absolute inset-0 bg-gradient-to-br ${app.gradient} opacity-0 group-hover:opacity-[0.15] transition-opacity duration-500`} />
+                  <div className={`absolute -top-24 -right-24 md:-top-32 md:-right-32 w-48 h-48 md:w-64 md:h-64 rounded-full blur-[60px] md:blur-[80px] ${app.glow} group-hover:blur-[40px] group-hover:scale-[1.3] transition-all duration-700 opacity-40 group-hover:opacity-100 pointer-events-none`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${app.gradient} opacity-0 group-hover:opacity-[0.15] transition-opacity duration-500 pointer-events-none`} />
                   
-                  <div className={`relative z-10 w-20 h-20 rounded-[1.5rem] mb-8 flex items-center justify-center glass-panel-heavy ${styles.iconBorder} transition-all duration-500 group-hover:scale-110 shadow-2xl`}>
-                     {React.createElement(app.icon, { className: `w-9 h-9 ${styles.icon} drop-shadow-[0_0_15px_currentColor] transition-transform duration-500` })}
+                  <div className={`relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-[1.25rem] md:rounded-[1.5rem] mb-6 md:mb-8 flex items-center justify-center glass-panel-heavy ${styles.iconBorder} transition-all duration-500 group-hover:scale-110 shadow-xl md:shadow-2xl`}>
+                     {React.createElement(app.icon, { className: `w-7 h-7 md:w-9 md:h-9 ${styles.icon} drop-shadow-[0_0_10px_currentColor] md:drop-shadow-[0_0_15px_currentColor] transition-transform duration-500` })}
                   </div>
                   
-                  <h3 className={`relative z-10 text-2xl font-bold text-white mb-2 tracking-tight ${styles.title} transition-colors`}>
+                  <h3 className={`relative z-10 text-xl md:text-2xl font-bold text-white mb-2 md:mb-3 tracking-tight ${styles.title} transition-colors leading-tight`}>
                     {app.title}
                   </h3>
                   
-                  <p className="relative z-10 text-sm text-[var(--text-dim)] font-medium leading-relaxed group-hover:text-white/70 transition-colors px-2">
+                  <p className="relative z-10 text-xs md:text-sm text-[var(--text-dim)] font-medium leading-relaxed group-hover:text-white/80 transition-colors px-2">
                     {app.desc}
                   </p>
                 </div>

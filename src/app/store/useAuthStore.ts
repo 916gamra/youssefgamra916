@@ -42,6 +42,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       
       sessionManager.createSession(id);
       resetLoginAttempts();
+      useTabStore.getState().clearTabs();
+      import('./useOsStore').then(m => m.useOsStore.getState().setPortal('HOME'));
       set({ currentUser: adminUser, isAuthenticated: true });
       return true;
     }
@@ -53,6 +55,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           if (await verifyPin(pin, user.pin)) {
             sessionManager.createSession(user.id!);
             resetLoginAttempts();
+            useTabStore.getState().clearTabs();
+            import('./useOsStore').then(m => m.useOsStore.getState().setPortal('HOME'));
             set({ currentUser: user, isAuthenticated: true });
             return true;
           }
@@ -91,6 +95,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     sessionManager.destroySession();
     // Strict isolation: Tabs must not survive logout
     useTabStore.getState().clearTabs();
+    import('./useOsStore').then(module => {
+      module.useOsStore.getState().setPortal('HOME');
+    });
     set({ currentUser: null, isAuthenticated: false });
   }
 }));
