@@ -29,6 +29,37 @@ export function usePdrLibrary() {
     return counts;
   }, [blueprints]);
 
+  const linkPartToMachine = async (machineId: string, blueprintId: string) => {
+    // Prevent duplicates
+    const existing = await db.machinePartMappings
+      .where({ machineId, blueprintId })
+      .first();
+    
+    if (existing) return;
+
+    await db.machinePartMappings.add({
+      id: crypto.randomUUID(),
+      machineId,
+      blueprintId,
+      addedAt: new Date().toISOString()
+    });
+  };
+
+  const unlinkPartFromMachine = async (machineId: string, blueprintId: string) => {
+    await db.machinePartMappings
+      .where({ machineId, blueprintId })
+      .delete();
+  };
+
+  const getMachineBOM = (machineId?: string) => {
+    return useLiveQuery(async () => {
+      if (!machineId) return [];
+      const mappings = await db.machinePartMappings.where('machineId').equals(machineId).toArray();
+      const blueprintIds = mappings.map(m => m.blueprintId);
+      return db.pdrBlueprints.where('id').anyOf(blueprintIds).toArray();
+    }, [machineId]);
+  };
+
   return {
     families: families || [],
     templates: templates || [],
@@ -36,5 +67,8 @@ export function usePdrLibrary() {
     templateCounts,
     blueprintCounts,
     isLoading,
+    linkPartToMachine,
+    unlinkPartFromMachine,
+    getMachineBOM
   };
 }

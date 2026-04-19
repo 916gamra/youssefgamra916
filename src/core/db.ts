@@ -53,7 +53,7 @@ export interface StockMovement {
 
 // --- 3. Domain Interfaces (Procurement Engine) ---
 
-export type OrderStatus = 'DRAFT' | 'ORDERED' | 'DELIVERED' | 'CANCELLED';
+export type OrderStatus = 'PENDING' | 'ORDERED' | 'FULFILLED' | 'CANCELLED';
 
 export interface PurchaseOrder {
   id: string; // UUID
@@ -94,6 +94,13 @@ export interface Machine {
   family: string;
   template: string;
   referenceCode: string;
+}
+
+export interface MachinePartMapping {
+  id: string; // UUID
+  machineId: string; // Foreign Key to Machine
+  blueprintId: string; // Foreign Key to PdrBlueprint
+  addedAt: string;
 }
 
 export type RequisitionStatus = 'PENDING' | 'FULFILLED' | 'CANCELLED';
@@ -204,6 +211,7 @@ export class GmaoDatabase extends Dexie {
   sectors!: Table<Sector, string>;
   technicians!: Table<Technician, string>;
   machines!: Table<Machine, string>;
+  machinePartMappings!: Table<MachinePartMapping, string>;
   partRequisitions!: Table<PartRequisition, string>;
   partRequisitionLines!: Table<PartRequisitionLine, string>;
 
@@ -224,8 +232,8 @@ export class GmaoDatabase extends Dexie {
   constructor() {
     super('CIOB_GMAO_DB');
     
-    // Schema Version 10 (Added Audit Logs & User Activity)
-    this.version(10).stores({
+    // Schema Version 11 (Added Machine Part Mappings for BOM)
+    this.version(11).stores({
       pdrFamilies: 'id, name',
       pdrTemplates: 'id, familyId, name, skuBase',
       pdrBlueprints: 'id, templateId, reference',
@@ -236,6 +244,7 @@ export class GmaoDatabase extends Dexie {
       sectors: 'id, name',
       technicians: 'id, name, sectorId',
       machines: 'id, name, sectorId',
+      machinePartMappings: 'id, machineId, blueprintId',
       partRequisitions: 'id, technicianId, machineId, status, requestDate',
       partRequisitionLines: 'id, requisitionId, blueprintId',
       pmChecklists: 'id, name',

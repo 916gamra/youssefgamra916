@@ -61,7 +61,7 @@ export function useProcurementEngine() {
   }, [purchaseOrders, purchaseOrderLines, blueprints]);
 
   /**
-   * ✅ Creates a DRAFT Purchase Order
+   * ✅ Creates a PENDING Purchase Order
    * 
    * Initiates a new procurement process by creating an order and attaching its lines atomically.
    * 
@@ -71,8 +71,8 @@ export function useProcurementEngine() {
    * @throws {Error} If the database transaction fails
    * @returns {Promise<void>}
    */
-  const createDraftOrder = async (supplierName: string, linesData: Array<{ blueprintId: string, quantity: number, unitPrice?: number }>): Promise<void> => {
-    return measureOperation('Procurement.CreateDraft', async () => {
+  const createPendingOrder = async (supplierName: string, linesData: Array<{ blueprintId: string, quantity: number, unitPrice?: number }>): Promise<void> => {
+    return measureOperation('Procurement.CreatePending', async () => {
       const orderId = crypto.randomUUID();
       const orderDate = new Date().toISOString();
 
@@ -80,7 +80,7 @@ export function useProcurementEngine() {
         await db.purchaseOrders.add({
           id: orderId,
           supplierName,
-          status: 'DRAFT',
+          status: 'PENDING',
           orderDate,
           createdAt: orderDate
         });
@@ -95,14 +95,14 @@ export function useProcurementEngine() {
 
         await db.purchaseOrderLines.bulkAdd(linesToInsert);
       });
-      logger.info({ orderId, supplierName }, 'Draft order created securely');
+      logger.info({ orderId, supplierName }, 'Pending order created securely');
     });
   };
 
   /**
    * ✅ Confirms a Purchase Order
    * 
-   * Moves the status from DRAFT to ORDERED, implying it has been sent to the supplier.
+   * Moves the status from PENDING to ORDERED, implying it has been sent to the supplier.
    * 
    * @param orderId - Target order UUID
    * @returns {Promise<void>}
@@ -123,16 +123,16 @@ export function useProcurementEngine() {
    * @param orderId - UUID of the incoming order
    * @param performedBy - System marker for the actor
    * 
-   * @throws {Error} If the order is already delivered or not found
+   * @throws {Error} If the order is already fulfilled or not found
    * @returns {Promise<void>}
    */
-  const receiveOrder = async (orderId: string, performedBy: string = 'Procurement Auto-Fulfillment'): Promise<void> => {
-    return measureOperation('Procurement.ReceiveOrder', async () => {
+  const fulfillOrder = async (orderId: string, performedBy: string = 'Procurement Auto-Fulfillment'): Promise<void> => {
+    return measureOperation('Procurement.FulfillOrder', async () => {
       let lineCount = 0;
       await db.transaction('rw', db.purchaseOrders, db.purchaseOrderLines, db.inventory, db.movements, async () => {
         const order = await db.purchaseOrders.get(orderId);
         if (!order) throw new Error('Order not found');
-        if (order.status === 'DELIVERED') throw new Error('Order already delivered');
+        if (order.status === 'FULFILLED') throw new Error('Order already fulfilled');
 
         const lines = await db.purchaseOrderLines.where('orderId').equals(orderId).toArray();
         lineCount = lines.length;
@@ -168,17 +168,17 @@ export function useProcurementEngine() {
           });
         }
 
-        await db.purchaseOrders.update(orderId, { status: 'DELIVERED' });
+        await db.purchaseOrders.update(orderId, { status: 'FULFILLED' });
       });
-      logger.info({ orderId, lineCount }, 'Order received and stock updated');
+      logger.info({ orderId, lineCount }, 'Order fulfilled and stock globally updated');
     });
   };
 
   return {
     orders: enrichedOrders,
     isLoading,
-    createDraftOrder,
+    createPendingOrder,
     confirmOrder,
-    receiveOrder
+    fulfillOrder
   };
 }

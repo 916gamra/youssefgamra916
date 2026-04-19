@@ -58,13 +58,51 @@ export function useOrganizationEngine() {
     return id;
   };
 
+  const updateSector = async (id: string, updates: Partial<Sector>) => {
+    await db.sectors.update(id, updates);
+  };
+
+  const deleteSector = async (id: string) => {
+    // Check if sector has dependencies (machines or techs)
+    const machinesCount = await db.machines.where('sectorId').equals(id).count();
+    const techsCount = await db.technicians.where('sectorId').equals(id).count();
+    
+    if (machinesCount > 0 || techsCount > 0) {
+      throw new Error(`Cannot delete sector: It contains ${machinesCount} machines and ${techsCount} technicians.`);
+    }
+    
+    await db.sectors.delete(id);
+  };
+
+  const updateTechnician = async (id: string, updates: Partial<Technician>) => {
+    await db.technicians.update(id, updates);
+  };
+
+  const deleteTechnician = async (id: string) => {
+    await db.technicians.delete(id);
+  };
+
+  const updateMachine = async (id: string, updates: Partial<Machine>) => {
+    await db.machines.update(id, updates);
+  };
+
+  const deleteMachine = async (id: string) => {
+    await db.machines.delete(id);
+  };
+
   return {
     sectors: sectors || [],
     technicians: enrichedTechnicians,
     machines: enrichedMachines,
     isLoading,
     createSector,
+    updateSector,
+    deleteSector,
     createTechnician,
-    createMachine
+    updateTechnician,
+    deleteTechnician,
+    createMachine,
+    updateMachine,
+    deleteMachine
   };
 }

@@ -1,23 +1,27 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GlassCard } from '@/shared/components/GlassCard';
-import { Building2, Users, Plus, Wrench, ChevronRight, Briefcase, Factory, Cpu, ArrowLeft, Tag, Box } from 'lucide-react';
+import { Building2, Users, Plus, Wrench, ChevronRight, Briefcase, Factory, Cpu, ArrowLeft, Tag, Box, Trash2, Edit3, Save, X } from 'lucide-react';
 import { useOrganizationEngine } from '../hooks/useOrganizationEngine';
+import { useNotifications } from '@/shared/hooks/useNotifications';
 import { cn } from '@/shared/utils';
 
 export function OrganizationView() {
-  const { sectors, technicians, machines, createSector, createTechnician } = useOrganizationEngine();
+  const { sectors, technicians, machines, createSector, updateSector, deleteSector, createTechnician, updateTechnician, deleteTechnician } = useOrganizationEngine();
+  const { showSuccess, showError, showWarning } = useNotifications();
   
   // Drill-down State
   const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
 
-  // States for new Sector
+  // States for Sector
   const [isAddingSector, setIsAddingSector] = useState(false);
+  const [editingSectorId, setEditingSectorId] = useState<string | null>(null);
   const [newSectorName, setNewSectorName] = useState('');
   const [newSectorDesc, setNewSectorDesc] = useState('');
 
-  // States for new Technician
+  // States for Technician
   const [isAddingTech, setIsAddingTech] = useState(false);
+  const [editingTechId, setEditingTechId] = useState<string | null>(null);
   const [newTechName, setNewTechName] = useState('');
   const [newTechSpecialty, setNewTechSpecialty] = useState('');
   const [newTechSectorId, setNewTechSectorId] = useState('');
@@ -25,20 +29,60 @@ export function OrganizationView() {
   const handleAddSector = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSectorName) return;
-    await createSector(newSectorName, newSectorDesc);
-    setNewSectorName('');
-    setNewSectorDesc('');
-    setIsAddingSector(false);
+    try {
+      if (editingSectorId) {
+        await updateSector(editingSectorId, { name: newSectorName, description: newSectorDesc });
+        showSuccess('Sector Updated', `${newSectorName} has been modified.`);
+      } else {
+        await createSector(newSectorName, newSectorDesc);
+        showSuccess('Sector Created', `${newSectorName} is now in the system.`);
+      }
+      setNewSectorName('');
+      setNewSectorDesc('');
+      setIsAddingSector(false);
+      setEditingSectorId(null);
+    } catch (err: any) {
+      showError('Action Failed', err.message);
+    }
+  };
+
+  const handleDeleteSector = async (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
+      try {
+        await deleteSector(id);
+        showSuccess('Sector Deleted', `${name} removed.`);
+      } catch (err: any) {
+        showError('Delete Forbidden', err.message);
+      }
+    }
   };
 
   const handleAddTechnician = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTechName || !newTechSectorId) return;
-    await createTechnician(newTechName, newTechSectorId, newTechSpecialty);
-    setNewTechName('');
-    setNewTechSpecialty('');
-    setNewTechSectorId('');
-    setIsAddingTech(false);
+    try {
+      if (editingTechId) {
+        await updateTechnician(editingTechId, { name: newTechName, sectorId: newTechSectorId, specialty: newTechSpecialty });
+        showSuccess('Technician Updated', `${newTechName} profile adjusted.`);
+      } else {
+        await createTechnician(newTechName, newTechSectorId, newTechSpecialty);
+        showSuccess('Technician Registered', `${newTechName} added to ${sectors.find(s => s.id === newTechSectorId)?.name}.`);
+      }
+      setNewTechName('');
+      setNewTechSpecialty('');
+      setNewTechSectorId('');
+      setIsAddingTech(false);
+      setEditingTechId(null);
+    } catch (err: any) {
+      showError('Action Failed', err.message);
+    }
+  };
+
+  const handleDeleteTech = async (id: string, name: string) => {
+    if (window.confirm(`Revoke access for ${name}?`)) {
+      await deleteTechnician(id);
+      showSuccess('Personnel Removed', `${name} deleted.`);
+    }
   };
 
   const selectedSector = sectors.find(s => s.id === selectedSectorId);
@@ -98,9 +142,9 @@ export function OrganizationView() {
             className="overflow-hidden"
           >
             <GlassCard className="p-6 border border-emerald-500/20 bg-emerald-500/5 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
               <h3 className="text-lg font-medium text-[var(--text-bright)] mb-4 flex items-center gap-2 relative z-10">
-                <Building2 className="w-5 h-5 text-emerald-400" /> Create Facility Sector
+                <Building2 className="w-5 h-5 text-emerald-400" /> {editingSectorId ? 'Edit Facility Sector' : 'Create Facility Sector'}
               </h3>
               <form onSubmit={handleAddSector} className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
                 <input
@@ -108,7 +152,7 @@ export function OrganizationView() {
                   placeholder="Sector Name (e.g., Packaging Line A)"
                   value={newSectorName}
                   onChange={(e) => setNewSectorName(e.target.value)}
-                  className="bg-black/30 border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-bright)] focus:border-[var(--accent)] outline-none"
+                  className="bg-black/30 border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-bright)] focus:border-[var(--accent)] outline-none transition-all"
                   required
                 />
                 <input
@@ -116,11 +160,13 @@ export function OrganizationView() {
                   placeholder="Description (Optional)"
                   value={newSectorDesc}
                   onChange={(e) => setNewSectorDesc(e.target.value)}
-                  className="bg-black/30 border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-bright)] focus:border-[var(--accent)] outline-none"
+                  className="bg-black/30 border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-bright)] focus:border-[var(--accent)] outline-none transition-all"
                 />
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => setIsAddingSector(false)} className="flex-1 py-2.5 rounded-xl border border-[var(--glass-border)] text-sm font-medium hover:bg-white/5">Cancel</button>
-                  <button type="submit" className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium shadow-[0_0_15px_rgba(16,185,129,0.3)]">Save Sector</button>
+                  <button type="button" onClick={() => { setIsAddingSector(false); setEditingSectorId(null); setNewSectorName(''); setNewSectorDesc(''); }} className="flex-1 py-2.5 rounded-xl border border-[var(--glass-border)] text-sm font-medium hover:bg-white/5 uppercase tracking-widest text-[10px]">Cancel</button>
+                  <button type="submit" className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium shadow-[0_0_15px_rgba(16,185,129,0.3)] uppercase tracking-widest text-[10px] flex items-center justify-center gap-2">
+                    <Save className="w-4 h-4" /> {editingSectorId ? 'Update' : 'Save'}
+                  </button>
                 </div>
               </form>
             </GlassCard>
@@ -135,9 +181,9 @@ export function OrganizationView() {
             className="overflow-hidden"
           >
             <GlassCard className="p-6 border border-blue-500/20 bg-blue-500/5 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
               <h3 className="text-lg font-medium text-[var(--text-bright)] mb-4 flex items-center gap-2 relative z-10">
-                <Users className="w-5 h-5 text-blue-400" /> Register Technician
+                <Users className="w-5 h-5 text-blue-400" /> {editingTechId ? 'Update Personnel Profile' : 'Register Technician'}
               </h3>
               <form onSubmit={handleAddTechnician} className="grid grid-cols-1 md:grid-cols-4 gap-4 relative z-10">
                 <input
@@ -145,13 +191,13 @@ export function OrganizationView() {
                   placeholder="Full Name"
                   value={newTechName}
                   onChange={(e) => setNewTechName(e.target.value)}
-                  className="bg-black/30 border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-bright)] focus:border-[var(--accent)] outline-none"
+                  className="bg-black/30 border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-bright)] focus:border-[var(--accent)] outline-none transition-all"
                   required
                 />
                 <select
                   value={newTechSectorId}
                   onChange={(e) => setNewTechSectorId(e.target.value)}
-                  className="bg-black/30 border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-bright)] focus:border-[var(--accent)] outline-none appearance-none"
+                  className="bg-black/30 border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-bright)] focus:border-[var(--accent)] outline-none appearance-none transition-all"
                   required
                 >
                   <option value="" disabled>Assign to Sector...</option>
@@ -162,11 +208,13 @@ export function OrganizationView() {
                   placeholder="Specialty (e.g., Electrical)"
                   value={newTechSpecialty}
                   onChange={(e) => setNewTechSpecialty(e.target.value)}
-                  className="bg-black/30 border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-bright)] focus:border-[var(--accent)] outline-none"
+                  className="bg-black/30 border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-bright)] focus:border-[var(--accent)] outline-none transition-all"
                 />
                 <div className="flex gap-2">
-                  <button type="button" onClick={() => setIsAddingTech(false)} className="flex-1 py-2.5 rounded-xl border border-[var(--glass-border)] text-sm font-medium hover:bg-white/5">Cancel</button>
-                  <button type="submit" className="flex-1 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium shadow-[0_0_15px_rgba(59,130,246,0.3)]">Register</button>
+                  <button type="button" onClick={() => { setIsAddingTech(false); setEditingTechId(null); setNewTechName(''); setNewTechSectorId(''); setNewTechSpecialty(''); }} className="flex-1 py-2.5 rounded-xl border border-[var(--glass-border)] text-sm font-medium hover:bg-white/5 uppercase tracking-widest text-[10px]">Cancel</button>
+                  <button type="submit" className="flex-1 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium shadow-[0_0_15px_rgba(59,130,246,0.3)] uppercase tracking-widest text-[10px] flex items-center justify-center gap-2">
+                    <Save className="w-4 h-4" /> {editingTechId ? 'Modify' : 'Register'}
+                  </button>
                 </div>
               </form>
             </GlassCard>
@@ -197,30 +245,55 @@ export function OrganizationView() {
                 return (
                   <GlassCard 
                     key={sector.id} 
-                    className="flex flex-col p-0 overflow-hidden group cursor-pointer hover:border-[var(--accent)]/50 transition-colors"
+                    className="flex flex-col p-0 overflow-hidden group cursor-pointer hover:border-[var(--accent)]/50 transition-colors relative"
                     onClick={() => setSelectedSectorId(sector.id)}
                   >
-                    <div className="p-6 relative overflow-hidden h-[200px] flex flex-col justify-between">
+                    <div className="p-6 relative overflow-hidden h-[220px] flex flex-col justify-between">
                       <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--accent)]/10 rounded-full blur-3xl group-hover:bg-[var(--accent)]/20 transition-colors" />
                       
                       <div className="relative z-10">
-                        <h3 className="text-2xl font-bold text-[var(--text-bright)] flex items-center gap-2 mb-2">
-                          <Building2 className="w-6 h-6 text-[var(--accent)]" />
-                          {sector.name}
-                        </h3>
+                        <div className="flex justify-between items-start">
+                          <h3 className="text-2xl font-bold text-[var(--text-bright)] flex items-center gap-2 mb-2 italic tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis">
+                            <Building2 className="w-6 h-6 text-[var(--accent)] shrink-0" />
+                            {sector.name}
+                          </h3>
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                             <button 
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 setEditingSectorId(sector.id);
+                                 setNewSectorName(sector.name);
+                                 setNewSectorDesc(sector.description || '');
+                                 setIsAddingSector(true);
+                               }}
+                               className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors border border-white/5"
+                             >
+                               <Edit3 className="w-3.5 h-3.5" />
+                             </button>
+                             <button 
+                               onClick={(e) => {
+                                 e.stopPropagation();
+                                 handleDeleteSector(sector.id, sector.name);
+                               }}
+                               className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400/50 hover:text-red-400 transition-colors border border-red-500/10"
+                             >
+                               <Trash2 className="w-3.5 h-3.5" />
+                             </button>
+                          </div>
+                        </div>
                         {sector.description && (
-                          <p className="text-sm text-[var(--text-dim)] line-clamp-2">{sector.description}</p>
+                          <p className="text-sm text-[var(--text-dim)] line-clamp-2 italic font-medium">{sector.description}</p>
                         )}
                       </div>
 
-                      <div className="relative z-10 flex gap-4">
+                      <div className="relative z-10 flex gap-4 mt-4">
                         <div className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2">
                            <Users className="w-4 h-4 text-blue-400" />
-                           <span className="text-sm font-mono font-semibold text-white">{sectorTechs.length} <span className="text-[10px] text-[var(--text-dim)] font-sans font-normal uppercase">Techs</span></span>
+                           <span className="text-sm font-mono font-semibold text-white">{sectorTechs.length} <span className="text-[9px] text-[var(--text-dim)] font-sans font-normal uppercase tracking-widest">Techs</span></span>
                         </div>
                         <div className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2">
                            <Cpu className="w-4 h-4 text-fuchsia-400" />
-                           <span className="text-sm font-mono font-semibold text-white">{sectorMachines.length} <span className="text-[10px] text-[var(--text-dim)] font-sans font-normal uppercase">Assets</span></span>
+                           <span className="text-sm font-mono font-semibold text-white">{sectorMachines.length} <span className="text-[9px] text-[var(--text-dim)] font-sans font-normal uppercase tracking-widest">Assets</span></span>
                         </div>
                       </div>
                       
@@ -242,30 +315,61 @@ export function OrganizationView() {
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
           >
             {/* Techs Column */}
-            <GlassCard className="flex flex-col h-[600px] border-blue-500/20 bg-blue-500/5 p-0 overflow-hidden relative">
+            <GlassCard className="flex flex-col h-[600px] border-blue-500/20 bg-blue-500/5 p-0 overflow-hidden relative group/column">
                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-               <div className="p-5 border-b border-white/10 bg-black/20 shrink-0 relative z-10">
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+               <div className="p-5 border-b border-white/10 bg-black/20 shrink-0 relative z-10 flex justify-between items-center">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2 italic uppercase tracking-tighter">
                      <Users className="w-5 h-5 text-blue-400" />
                      Assigned Personnel
                   </h3>
+                  <button 
+                    onClick={() => {
+                        setNewTechSectorId(selectedSector.id);
+                        setIsAddingTech(true);
+                        setSelectedSectorId(null); // Return to home to show form
+                    }}
+                    className="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-all"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
                </div>
                <div className="flex-1 overflow-auto p-4 space-y-3 relative z-10">
                   {technicians.filter(t => t.sectorId === selectedSector.id).map(tech => (
-                     <div key={tech.id} className="flex items-center gap-4 p-4 rounded-xl bg-black/40 border border-white/5 hover:border-blue-500/30 transition-colors">
-                        <div className="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-900 border border-blue-500/50 flex items-center justify-center text-lg font-bold text-white">
+                     <div key={tech.id} className="flex items-center group/item gap-4 p-4 rounded-xl bg-black/40 border border-white/5 hover:border-blue-500/30 transition-colors relative">
+                        <div className="w-12 h-12 shrink-0 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-900 border border-blue-500/50 flex items-center justify-center text-lg font-bold text-white shadow-lg">
                           {tech.name.substring(0, 2).toUpperCase()}
                         </div>
-                        <div>
-                          <p className="text-base font-semibold text-white">{tech.name}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-base font-semibold text-white truncate">{tech.name}</p>
                           <div className="flex items-center gap-1.5 mt-1 text-xs text-[var(--text-dim)]">
                              <Briefcase className="w-3.5 h-3.5 text-blue-400" /> {tech.specialty || 'Generalist'}
                           </div>
                         </div>
+                        <div className="flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                             <button 
+                               onClick={() => {
+                                 setEditingTechId(tech.id);
+                                 setNewTechName(tech.name);
+                                 setNewTechSpecialty(tech.specialty || '');
+                                 setNewTechSectorId(tech.sectorId);
+                                 setIsAddingTech(true);
+                                 setSelectedSectorId(null);
+                               }}
+                               className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors border border-white/5"
+                             >
+                               <Edit3 className="w-3.5 h-3.5" />
+                             </button>
+                             <button 
+                               onClick={() => handleDeleteTech(tech.id, tech.name)}
+                               className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-colors border border-red-500/10"
+                             >
+                               <Trash2 className="w-3.5 h-3.5" />
+                             </button>
+                        </div>
                      </div>
                   ))}
                   {technicians.filter(t => t.sectorId === selectedSector.id).length === 0 && (
-                     <div className="p-8 text-center text-[var(--text-dim)]">No technicians assigned inside this sector.</div>
+                     <div className="p-12 text-center text-[var(--text-dim)] italic font-medium">No technicians assigned inside this sector.</div>
                   )}
                </div>
             </GlassCard>
@@ -273,39 +377,39 @@ export function OrganizationView() {
             {/* Machines Column */}
             <GlassCard className="flex flex-col h-[600px] border-fuchsia-500/20 bg-fuchsia-500/5 p-0 overflow-hidden relative">
                <div className="absolute top-0 left-0 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-3xl pointer-events-none" />
-               <div className="p-5 border-b border-white/10 bg-black/20 shrink-0 relative z-10">
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2">
+               <div className="p-5 border-b border-white/10 bg-black/20 shrink-0 relative z-10 flex justify-between items-center">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2 italic uppercase tracking-tighter">
                      <Factory className="w-5 h-5 text-fuchsia-400" />
                      Operating Machinery
                   </h3>
                </div>
                <div className="flex-1 overflow-auto p-4 space-y-3 relative z-10">
                   {machines.filter(m => m.sectorId === selectedSector.id).map(machine => (
-                     <div key={machine.id} className="p-4 rounded-xl bg-black/40 border border-white/5 hover:border-fuchsia-500/30 transition-colors flex flex-col justify-between gap-3">
+                     <div key={machine.id} className="p-5 rounded-xl bg-black/40 border border-white/5 hover:border-fuchsia-500/30 transition-colors flex flex-col justify-between gap-3 shadow-inner">
                         <div className="flex justify-between items-start">
                            <div>
-                              <p className="text-base font-semibold text-white">{machine.name}</p>
-                              <p className="text-[10px] font-mono mt-1 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-fuchsia-300 w-fit">{machine.referenceCode}</p>
+                              <p className="text-lg font-bold text-white italic tracking-tight">{machine.name}</p>
+                              <p className="text-[10px] font-mono mt-1.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-fuchsia-300 w-fit tracking-widest">{machine.referenceCode}</p>
                            </div>
-                           <div className="p-2 rounded-xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20">
+                           <div className="p-2.5 rounded-xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 shadow-lg">
                               <Cpu className="w-5 h-5" />
                            </div>
                         </div>
                         <div className="flex gap-4 border-t border-white/5 pt-3 mt-1">
                            <div className="flex flex-col">
-                              <span className="text-[9px] uppercase tracking-wider text-[var(--text-dim)] mb-0.5 flex items-center gap-1"><Box className="w-3 h-3"/> Family</span>
-                              <span className="text-xs text-white/90">{machine.family}</span>
+                              <span className="text-[9px] uppercase tracking-[0.2em] font-black text-[var(--text-dim)] mb-1 flex items-center gap-1"><Box className="w-3 h-3"/> Family</span>
+                              <span className="text-xs text-white/90 font-medium">{machine.family}</span>
                            </div>
                            <div className="w-px bg-white/10" />
                            <div className="flex flex-col">
-                              <span className="text-[9px] uppercase tracking-wider text-[var(--text-dim)] mb-0.5 flex items-center gap-1"><Tag className="w-3 h-3"/> Template</span>
-                              <span className="text-xs text-white/90">{machine.template}</span>
+                              <span className="text-[9px] uppercase tracking-[0.2em] font-black text-[var(--text-dim)] mb-1 flex items-center gap-1"><Tag className="w-3 h-3"/> Template</span>
+                              <span className="text-xs text-white/90 font-medium">{machine.template}</span>
                            </div>
                         </div>
                      </div>
                   ))}
                   {machines.filter(m => m.sectorId === selectedSector.id).length === 0 && (
-                     <div className="p-8 text-center text-[var(--text-dim)]">No machines physically mapped to this sector.</div>
+                     <div className="p-12 text-center text-[var(--text-dim)] italic font-medium">No machines physically mapped to this sector.</div>
                   )}
                </div>
             </GlassCard>
