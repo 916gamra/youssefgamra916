@@ -172,21 +172,21 @@ export function SchedulesView({ user }: SchedulesViewProps) {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 shrink-0">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tighter flex items-center gap-3">
-            <CalendarClock className="w-8 h-8 text-emerald-500 drop-shadow-[0_0_10px_#10b98144]" />
-            PM SCHEDULER
+          <h1 className="text-3xl font-bold text-slate-100 tracking-tight flex items-center gap-3 uppercase">
+            <CalendarClock className="w-8 h-8 text-blue-500" />
+            PM Scheduler
           </h1>
-          <p className="text-[#8b9bb4] uppercase tracking-[0.2em] text-[10px] mt-2 font-bold flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_#10b981]"></span>
-            Automated Protocol Deployment Engine
+          <p className="text-slate-400 uppercase tracking-widest text-xs mt-2 font-semibold flex items-center gap-2 mb-4">
+            <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
+            Automated Maintenance Assignments
           </p>
         </div>
         <button 
           onClick={() => setIsCreating(!isCreating)}
           disabled={!isDataReady}
-          className="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold uppercase tracking-widest text-xs rounded-xl flex items-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-emerald-500/10 active:scale-95"
+          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shrink-0 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
         >
-          <Plus className="w-4 h-4" /> Initialize Link
+          <Plus className="w-4 h-4" /> Initialize Schedule
         </button>
       </div>
 
@@ -195,7 +195,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
           <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div>
             <h3 className="text-white text-sm font-bold uppercase tracking-widest">Configuration Required</h3>
-            <p className="text-[#8b9bb4] text-xs mt-1 italic">To establish a maintenance link, register at least one Machine and one Protocol Checklist.</p>
+            <p className="text-slate-400 text-xs mt-1 font-medium">To establish a maintenance schedule, register at least one Machine and one Maintenance Protocol.</p>
           </div>
         </div>
       )}
@@ -277,7 +277,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
               <div className="w-24 h-24 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6">
                 <CalendarClock className="w-10 h-10 text-white/20" />
               </div>
-              <p className="text-[#8b9bb4] text-xs font-bold uppercase tracking-[0.3em] opacity-40">No Maintenance Bonds Configured</p>
+              <p className="text-[#8b9bb4] text-xs font-bold uppercase tracking-widest opacity-40">No Maintenance Bonds Configured</p>
            </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -307,20 +307,20 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-4">
                         <div className={cn(
-                          "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 group-hover:scale-110",
+                          "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 group-hover:scale-105",
                           schedule.isActive 
-                            ? (isOverdue ? "bg-rose-500/10 border-rose-500/30 text-rose-400" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500") 
+                            ? (isOverdue ? "bg-rose-500/10 border-rose-500/30 text-rose-400" : "bg-blue-500/10 border-blue-500/30 text-blue-500") 
                             : "bg-white/5 border-white/10 text-white/20 shadow-inner"
                         )}>
                           <Briefcase className="w-6 h-6" />
                         </div>
                         <div>
                           {isOverdue && schedule.isActive && (
-                            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-rose-500 flex items-center gap-1 mb-1">
-                              <AlertTriangle className="w-3 h-3 animate-pulse" /> Urgent Invariant Breach
+                            <span className="text-[9px] font-bold uppercase tracking-widest text-rose-500 flex items-center gap-1 mb-1">
+                              <AlertTriangle className="w-3 h-3 animate-pulse" /> Maintenance Overdue
                             </span>
                           )}
-                          <h3 className="font-black text-white text-lg leading-tight tracking-tight drop-shadow-md">{machineName}</h3>
+                          <h3 className="font-bold text-white text-lg leading-tight tracking-tight drop-shadow-md">{machineName}</h3>
                         </div>
                       </div>
                       
@@ -330,7 +330,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                           title={schedule.isActive ? "Pause System" : "Activate System"}
                           className="p-2.5 bg-black/40 hover:bg-white/10 rounded-xl text-white/30 hover:text-white border border-white/5 transition-all active:scale-95 shadow-inner"
                         >
-                          <Power className={cn("w-4 h-4", schedule.isActive ? "text-emerald-400 drop-shadow-[0_0_5px_#10b981]" : "text-white/20")} />
+                          <Power className={cn("w-4 h-4", schedule.isActive ? "text-emerald-400 " : "text-white/20")} />
                         </button>
                         <button 
                           onClick={(e) => handleDeleteSchedule(schedule.id, e)}
@@ -344,18 +344,18 @@ export function SchedulesView({ user }: SchedulesViewProps) {
 
                     <div className="space-y-4 mb-auto">
                       <div className="bg-black/20 p-3 rounded-xl border border-white/5">
-                        <p className="text-[10px] uppercase tracking-widest text-[#8b9bb4] font-bold mb-1 ml-1 opacity-60">Deployment Protocol</p>
-                        <p className="text-xs font-bold text-white/90 line-clamp-1 italic ml-1">{checklistName}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-[#8b9bb4] font-bold mb-1 ml-1 opacity-60">Maintenance Protocol</p>
+                        <p className="text-xs font-bold text-white/90 line-clamp-1 ml-1">{checklistName}</p>
                       </div>
                       
                       <div className="flex gap-6 px-1">
                         <div className="flex-1">
-                          <p className="text-[9px] uppercase tracking-widest text-[#8b9bb4] font-black mb-1 opacity-50">Interval</p>
-                          <p className="text-sm font-black text-white italic">{schedule.frequencyDays}d</p>
+                          <p className="text-[9px] uppercase tracking-widest text-[#8b9bb4] font-bold mb-1 opacity-50">Frequency</p>
+                          <p className="text-sm font-bold text-white uppercase">{schedule.frequencyDays} Days</p>
                         </div>
                         <div className="flex-1">
-                          <p className="text-[9px] uppercase tracking-widest text-[#8b9bb4] font-black mb-1 opacity-50">Telemetry Due</p>
-                          <p className={cn("text-sm font-black italic", isOverdue && schedule.isActive ? "text-rose-400" : "text-emerald-400")}>
+                          <p className="text-[9px] uppercase tracking-widest text-[#8b9bb4] font-bold mb-1 opacity-50">Next Service Due</p>
+                          <p className={cn("text-sm font-bold", isOverdue && schedule.isActive ? "text-rose-400" : "text-blue-400")}>
                             {dueDate.toLocaleDateString()}
                           </p>
                         </div>
@@ -367,14 +367,14 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                         onClick={(e) => handleTriggerWorkOrder(schedule, e)}
                         disabled={!schedule.isActive}
                         className={cn(
-                          "w-full py-3.5 font-black text-[10px] uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-2 transition-all duration-500 border relative group/btn",
+                          "w-full py-3 font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 transition-all duration-300 border relative",
                           isOverdue && schedule.isActive 
-                            ? "bg-rose-500 text-black shadow-[0_0_20px_rgba(244,63,94,0.3)] border-rose-400" 
-                            : "bg-emerald-500/10 hover:bg-emerald-500 text-white hover:text-black border-emerald-500/20 hover:border-emerald-500 shadow-inner"
+                            ? "bg-rose-500 hover:bg-rose-600 text-white border-rose-400 shadow-md shadow-rose-500/20" 
+                            : "bg-blue-600 hover:bg-blue-500 text-white border-blue-500/50 shadow-md shadow-blue-500/20"
                         )}
                       >
                         <Zap className="w-4 h-4" />
-                        {isOverdue && schedule.isActive ? "Execute Urgent Deployment" : "Manual Pulse Deployment"}
+                        {isOverdue && schedule.isActive ? "Execute Overdue Service" : "Generate Work Order"}
                       </button>
                     </div>
                   </div>

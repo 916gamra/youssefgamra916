@@ -187,7 +187,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
                   <div className={`absolute inset-0 bg-gradient-to-br ${app.gradient} opacity-0 group-hover:opacity-[0.15] transition-opacity duration-500 pointer-events-none`} />
                   
                   <div className={`relative z-10 w-16 h-16 md:w-20 md:h-20 rounded-[1.25rem] md:rounded-[1.5rem] mb-6 md:mb-8 flex items-center justify-center glass-panel-heavy ${styles.iconBorder} transition-all duration-500 group-hover:scale-110 shadow-xl md:shadow-2xl`}>
-                     {React.createElement(app.icon, { className: `w-7 h-7 md:w-9 md:h-9 ${styles.icon} drop-shadow-[0_0_10px_currentColor] md:drop-shadow-[0_0_15px_currentColor] transition-transform duration-500` })}
+                     {React.createElement(app.icon, { className: `w-7 h-7 md:w-9 md:h-9 ${styles.icon}  md: transition-transform duration-500` })}
                   </div>
                   
                   <h3 className={`relative z-10 text-xl md:text-2xl font-bold text-white mb-2 md:mb-3 tracking-tight ${styles.title} transition-colors leading-tight`}>

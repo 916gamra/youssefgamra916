@@ -253,7 +253,7 @@ export function OrganizationView() {
                       
                       <div className="relative z-10">
                         <div className="flex justify-between items-start">
-                          <h3 className="text-2xl font-bold text-[var(--text-bright)] flex items-center gap-2 mb-2 italic tracking-tighter uppercase whitespace-nowrap overflow-hidden text-ellipsis">
+                          <h3 className="text-2xl font-bold text-[var(--text-bright)] flex items-center gap-2 mb-2 tracking-tight uppercase whitespace-nowrap overflow-hidden text-ellipsis">
                             <Building2 className="w-6 h-6 text-[var(--accent)] shrink-0" />
                             {sector.name}
                           </h3>
@@ -282,7 +282,7 @@ export function OrganizationView() {
                           </div>
                         </div>
                         {sector.description && (
-                          <p className="text-sm text-[var(--text-dim)] line-clamp-2 italic font-medium">{sector.description}</p>
+                          <p className="text-sm text-[var(--text-dim)] line-clamp-2 font-medium">{sector.description}</p>
                         )}
                       </div>
 
@@ -318,7 +318,7 @@ export function OrganizationView() {
             <GlassCard className="flex flex-col h-[600px] border-blue-500/20 bg-blue-500/5 p-0 overflow-hidden relative group/column">
                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
                <div className="p-5 border-b border-white/10 bg-black/20 shrink-0 relative z-10 flex justify-between items-center">
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2 italic uppercase tracking-tighter">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2 uppercase tracking-tight">
                      <Users className="w-5 h-5 text-blue-400" />
                      Assigned Personnel
                   </h3>
@@ -369,7 +369,7 @@ export function OrganizationView() {
                      </div>
                   ))}
                   {technicians.filter(t => t.sectorId === selectedSector.id).length === 0 && (
-                     <div className="p-12 text-center text-[var(--text-dim)] italic font-medium">No technicians assigned inside this sector.</div>
+                     <div className="p-12 text-center text-[var(--text-dim)] font-medium">No technicians assigned inside this sector.</div>
                   )}
                </div>
             </GlassCard>
@@ -378,7 +378,7 @@ export function OrganizationView() {
             <GlassCard className="flex flex-col h-[600px] border-fuchsia-500/20 bg-fuchsia-500/5 p-0 overflow-hidden relative">
                <div className="absolute top-0 left-0 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-3xl pointer-events-none" />
                <div className="p-5 border-b border-white/10 bg-black/20 shrink-0 relative z-10 flex justify-between items-center">
-                  <h3 className="text-xl font-bold text-white flex items-center gap-2 italic uppercase tracking-tighter">
+                  <h3 className="text-xl font-bold text-white flex items-center gap-2 uppercase tracking-tight">
                      <Factory className="w-5 h-5 text-fuchsia-400" />
                      Operating Machinery
                   </h3>
@@ -388,7 +388,7 @@ export function OrganizationView() {
                      <div key={machine.id} className="p-5 rounded-xl bg-black/40 border border-white/5 hover:border-fuchsia-500/30 transition-colors flex flex-col justify-between gap-3 shadow-inner">
                         <div className="flex justify-between items-start">
                            <div>
-                              <p className="text-lg font-bold text-white italic tracking-tight">{machine.name}</p>
+                              <p className="text-lg font-bold text-white tracking-tight">{machine.name}</p>
                               <p className="text-[10px] font-mono mt-1.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-fuchsia-300 w-fit tracking-widest">{machine.referenceCode}</p>
                            </div>
                            <div className="p-2.5 rounded-xl bg-fuchsia-500/10 text-fuchsia-400 border border-fuchsia-500/20 shadow-lg">
@@ -397,19 +397,19 @@ export function OrganizationView() {
                         </div>
                         <div className="flex gap-4 border-t border-white/5 pt-3 mt-1">
                            <div className="flex flex-col">
-                              <span className="text-[9px] uppercase tracking-[0.2em] font-black text-[var(--text-dim)] mb-1 flex items-center gap-1"><Box className="w-3 h-3"/> Family</span>
+                              <span className="text-[9px] uppercase tracking-widest font-bold text-[var(--text-dim)] mb-1 flex items-center gap-1"><Box className="w-3 h-3"/> Family</span>
                               <span className="text-xs text-white/90 font-medium">{machine.family}</span>
                            </div>
                            <div className="w-px bg-white/10" />
                            <div className="flex flex-col">
-                              <span className="text-[9px] uppercase tracking-[0.2em] font-black text-[var(--text-dim)] mb-1 flex items-center gap-1"><Tag className="w-3 h-3"/> Template</span>
+                              <span className="text-[9px] uppercase tracking-widest font-bold text-[var(--text-dim)] mb-1 flex items-center gap-1"><Tag className="w-3 h-3"/> Template</span>
                               <span className="text-xs text-white/90 font-medium">{machine.template}</span>
                            </div>
                         </div>
                      </div>
                   ))}
                   {machines.filter(m => m.sectorId === selectedSector.id).length === 0 && (
-                     <div className="p-12 text-center text-[var(--text-dim)] italic font-medium">No machines physically mapped to this sector.</div>
+                     <div className="p-12 text-center text-[var(--text-dim)] font-medium">No machines physically mapped to this sector.</div>
                   )}
                </div>
             </GlassCard>

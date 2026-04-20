@@ -20,7 +20,7 @@ export function FactoryExcelHubView() {
         </p>
       </header>
 
-      <ExcelManager portalId="Factory" />
+      <ExcelManager portalId="FACTORY" />
     </motion.div>
   );
 }

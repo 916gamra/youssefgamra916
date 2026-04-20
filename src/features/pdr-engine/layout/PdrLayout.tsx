@@ -12,7 +12,10 @@ import { PartDetail } from '../views/PartDetail';
 import { ProcurementView } from '@/features/procurement/views/ProcurementView';
 import { RequisitionHubView } from '@/features/requisition/views/RequisitionHubView';
 import { ExcelHubView } from '../views/ExcelHubView';
-import { FileSpreadsheet } from 'lucide-react';
+import { RealFileImporterUI } from '../views/RealFileImporterUI';
+import { AdvancedInventoryDashboard } from '../views/AdvancedInventoryDashboard';
+import { ReconciliationCenterView } from '../views/ReconciliationCenterView';
+import { FileSpreadsheet, HardDriveUpload, Activity, Wrench } from 'lucide-react';
 
 const PDR_COMPONENTS = {
   'pdr-dashboard': StockDashboardPage,
@@ -21,6 +24,9 @@ const PDR_COMPONENTS = {
   'procurement': ProcurementView,
   'requisition-hub': RequisitionHubView,
   'excel-hub': ExcelHubView,
+  'legacy-import': RealFileImporterUI,
+  'advanced-dashboard': AdvancedInventoryDashboard,
+  'reconciliation': ReconciliationCenterView,
 };
 
 export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
@@ -37,15 +43,27 @@ export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () 
       <PortalSidebar 
         portalName="PDR Engine"
         portalIcon={<Package />}
-        colorClass="bg-cyan-500/20"
-        borderClass="border-cyan-500/30"
-        textClass="text-cyan-400"
+        colorClass="bg-blue-600/20"
+        borderClass="border-blue-500/30"
+        textClass="text-blue-400"
       >
         <PortalSidebarItem 
           icon={<LayoutDashboard />} 
           isActive={activeTabId === 'dashboard'} 
           onClick={() => openTab({ id: 'dashboard', title: 'Stock Radar', component: 'pdr-dashboard' })}
           title="Stock Radar"
+        />
+        <PortalSidebarItem 
+          icon={<Activity />} 
+          isActive={activeTabId === 'advanced-dashboard'} 
+          onClick={() => openTab({ id: 'advanced-dashboard', title: 'Inventory Analytics', component: 'advanced-dashboard' })}
+          title="Inventory Analytics"
+        />
+        <PortalSidebarItem 
+          icon={<Wrench />} 
+          isActive={activeTabId === 'reconciliation'} 
+          onClick={() => openTab({ id: 'reconciliation', title: 'Reconciliation Center', component: 'reconciliation' })}
+          title="Reconciliation Center"
         />
         <PortalSidebarItem 
           icon={<Package />} 
@@ -64,6 +82,12 @@ export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () 
           isActive={activeTabId === 'requisition-hub'} 
           onClick={() => openTab({ id: 'requisition-hub', title: 'Requisition Hub', component: 'requisition-hub' })}
           title="Requisition Hub"
+        />
+        <PortalSidebarItem 
+          icon={<HardDriveUpload />} 
+          isActive={activeTabId === 'legacy-import'} 
+          onClick={() => openTab({ id: 'legacy-import', title: 'Legacy Data Import', component: 'legacy-import' })}
+          title="Legacy Data Import"
         />
         <PortalSidebarItem 
           icon={<FileSpreadsheet />} 

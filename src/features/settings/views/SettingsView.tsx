@@ -174,7 +174,7 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-[15px] font-medium text-[var(--text-bright)]">Theme</h3>
-                    <p className="text-[13px] text-[var(--text-dim)] mt-1">CIOB GMAO v17.0 is optimized for Immersive Dark Mode.</p>
+                    <p className="text-[13px] text-[var(--text-dim)] mt-1">Application is currently optimized for dark mode environments.</p>
                   </div>
                   <div className="flex items-center gap-2 bg-black/20 border border-[var(--glass-border)] rounded-lg p-1">
                     <button className="px-3 py-1.5 rounded-md text-xs font-medium bg-[var(--glass-bg)] text-[var(--text-bright)] shadow-sm">
@@ -198,8 +198,8 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-[15px] font-medium text-[var(--accent)]">Seed Dummy Data</h3>
-                    <p className="text-[13px] text-[var(--text-dim)] mt-1">Populate the database with hierarchical PDR mock data for testing.</p>
+                    <h3 className="text-[15px] font-medium text-[var(--accent)]">Seed Sample Data</h3>
+                    <p className="text-[13px] text-[var(--text-dim)] mt-1">Populate the database with sample maintenance data for testing.</p>
                   </div>
                   <button 
                     onClick={handleSeedDatabase}

@@ -216,7 +216,7 @@ export function MachineRegistryView() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-2 gap-5">
                     <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-[0.2em] ml-1">Asset Identity</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-widest ml-1">Asset Identity</label>
                       <input 
                         type="text" required value={name} onChange={e => setName(e.target.value)}
                         placeholder="e.g. Turbine X-400"
@@ -224,7 +224,7 @@ export function MachineRegistryView() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-[0.2em] ml-1">Serial/Ref Code</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-widest ml-1">Serial/Ref Code</label>
                       <input 
                         type="text" required value={referenceCode} onChange={e => setReferenceCode(e.target.value)}
                         placeholder="e.g. SN-99-01"
@@ -234,7 +234,7 @@ export function MachineRegistryView() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-[0.2em] ml-1">Operational Sector</label>
+                    <label className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-widest ml-1">Operational Sector</label>
                     <select
                       required value={sectorId} onChange={e => setSectorId(e.target.value)}
                       className="titan-input appearance-none transition-all cursor-pointer"
@@ -246,7 +246,7 @@ export function MachineRegistryView() {
 
                   <div className="grid grid-cols-2 gap-5">
                     <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-[0.2em] ml-1">Classification (Family)</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-widest ml-1">Classification (Family)</label>
                       <input 
                         type="text" required value={family} onChange={e => setFamily(e.target.value)}
                         placeholder="e.g. Hydraulic"
@@ -254,7 +254,7 @@ export function MachineRegistryView() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-[0.2em] ml-1">Model (Template)</label>
+                      <label className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-widest ml-1">Model (Template)</label>
                       <input 
                         type="text" required value={template} onChange={e => setTemplate(e.target.value)}
                         placeholder="e.g. Standard V2"

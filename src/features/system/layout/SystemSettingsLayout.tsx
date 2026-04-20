@@ -23,7 +23,7 @@ export function SystemSettingsLayout({ user, onLogout }: { user: User | null, on
 
   useEffect(() => {
     if (tabs.length === 0) {
-      openTab({ id: 'user-management', title: 'RBAC & Users', component: 'user-management' });
+      openTab({ id: 'user-management', title: 'User Management', component: 'user-management' });
     }
   }, [tabs.length, openTab]);
 
@@ -32,21 +32,21 @@ export function SystemSettingsLayout({ user, onLogout }: { user: User | null, on
       <PortalSidebar 
         portalName="System Config"
         portalIcon={<Settings />}
-        colorClass="text-rose-500 bg-rose-500/20"
-        borderClass="border-rose-500/30"
-        textClass="text-rose-400"
+        colorClass="text-blue-500 bg-blue-500/20"
+        borderClass="border-blue-500/30"
+        textClass="text-blue-400"
       >
         <PortalSidebarItem 
           icon={<Users />} 
           isActive={activeTabId === 'user-management'} 
-          onClick={() => openTab({ id: 'user-management', title: 'RBAC & Users', component: 'user-management' })}
-          title="RBAC & Users"
+          onClick={() => openTab({ id: 'user-management', title: 'User Management', component: 'user-management' })}
+          title="User Management"
         />
         <PortalSidebarItem 
           icon={<HardDriveDownload />} 
           isActive={activeTabId === 'data-core'} 
-          onClick={() => openTab({ id: 'data-core', title: 'Data Core Backup', component: 'data-core' })}
-          title="Data Core & Backup"
+          onClick={() => openTab({ id: 'data-core', title: 'Database Backup', component: 'data-core' })}
+          title="Database Backup"
         />
         <PortalSidebarItem 
           icon={<Shield />} 

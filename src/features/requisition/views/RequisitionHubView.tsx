@@ -184,7 +184,7 @@ export function RequisitionHubView() {
              </p>
              <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 {cart.length === 0 ? (
-                  <div className="text-center py-6 text-[var(--text-dim)] text-sm italic">Cart is empty. Select parts from the right panel.</div>
+                  <div className="text-center py-6 text-[var(--text-dim)] text-sm">Cart is empty. Select parts from the right panel.</div>
                 ) : (
                   <AnimatePresence>
                     {cart.map((item) => (

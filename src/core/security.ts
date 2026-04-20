@@ -71,8 +71,10 @@ export interface Session {
   lastActivity: number;
 }
 
-// In a real backend this would be in Redis. For offline-first MVP, memory works (lost on refresh)
-// but realistically we should persist it to sessionStorage to survive reloads within the same tab.
+// In memory only, to strictly enforce logout on page reload.
+// By avoiding sessionStorage/localStorage entirely, a page reload perfectly flushes the session.
+let activeSessionInMemory: Session | null = null;
+
 export const sessionManager = {
   createSession(userId: number, customTimeoutMinutes?: number): Session {
     // Default 30 min, or fetch from security policies
@@ -99,21 +101,20 @@ export const sessionManager = {
       lastActivity: now
     };
     
-    sessionStorage.setItem('os_active_session', JSON.stringify(session));
+    activeSessionInMemory = session;
     return session;
   },
 
   validateSession(): Session | null {
-    const sessionStr = sessionStorage.getItem('os_active_session');
-    if (!sessionStr) return null;
+    if (!activeSessionInMemory) return null;
 
     try {
-      const session: Session = JSON.parse(sessionStr);
+      const session = activeSessionInMemory;
       const now = Date.now();
 
       // Check if expired
       if (now > session.expiresAt) {
-        sessionStorage.removeItem('os_active_session');
+        activeSessionInMemory = null;
         return null;
       }
 
@@ -127,7 +128,7 @@ export const sessionManager = {
       
       session.lastActivity = now;
       session.expiresAt = now + timeoutMinutes * 60 * 1000;
-      sessionStorage.setItem('os_active_session', JSON.stringify(session));
+      activeSessionInMemory = session;
       
       return session;
     } catch (e) {
@@ -136,6 +137,6 @@ export const sessionManager = {
   },
 
   destroySession() {
-    sessionStorage.removeItem('os_active_session');
+    activeSessionInMemory = null;
   }
 };

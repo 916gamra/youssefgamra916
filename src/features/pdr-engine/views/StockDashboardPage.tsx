@@ -145,8 +145,8 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
         >
           <div className="flex justify-between items-start mb-6 relative z-10">
             <div>
-              <p className="text-[10px] uppercase font-black text-[var(--text-dim)] tracking-[0.2em]">Warning Threshold</p>
-              <h2 className={cn("text-5xl font-black mt-2 italic tracking-tighter tabular-nums", lowStockItems.length > 0 ? "text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]" : "text-[var(--text-bright)]")}>
+              <p className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-widest">Warning Threshold</p>
+              <h2 className={cn("text-5xl font-bold mt-2 tracking-tight tabular-nums", lowStockItems.length > 0 ? "text-amber-400 " : "text-[var(--text-bright)]")}>
                 {lowStockItems.length}
               </h2>
             </div>
@@ -154,7 +154,7 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
               <AlertTriangle className="w-8 h-8" />
             </div>
           </div>
-          <p className="text-xs font-bold text-[var(--text-dim)] relative z-10 uppercase tracking-widest italic opacity-60">Approaching system minima</p>
+          <p className="text-xs font-bold text-[var(--text-dim)] relative z-10 uppercase tracking-widest opacity-60">Approaching system minima</p>
           {lowStockItems.length > 0 && <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />}
         </motion.div>
 

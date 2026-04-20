@@ -88,8 +88,8 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
       {/* OS Footer */}
       <footer className="h-[28px] bg-black/80 backdrop-blur-3xl border-t border-white/5 flex items-center px-4 md:px-6 text-[9px] md:text-[10px] text-white/40 gap-4 md:gap-6 shrink-0 z-50 relative tracking-widest uppercase font-mono shadow-[0_-5px_20px_rgba(0,0,0,0.5)] overflow-x-auto whitespace-nowrap custom-scrollbar">
         <span className="flex items-center gap-2 shrink-0">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse"></span>
-          <span className="hidden sm:inline">SYS.PORTAL: </span>{activePortal}
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm animate-pulse"></span>
+          <span className="hidden sm:inline">MODULE: </span>{activePortal}
         </span>
         <span className="flex items-center gap-2 opacity-80 shrink-0">
           <Timer className="w-3 h-3" />
@@ -97,7 +97,7 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
         </span>
         <span className="text-white/60 font-semibold shrink-0">USER: {user ? user.name : 'GUEST'}</span>
         <span className="ml-auto opacity-50 shrink-0 hidden md:inline">SYNC: SECURE</span>
-        <span className="text-white/30 truncate shrink-0 ml-auto md:ml-0">V17.0.5 <span className="hidden lg:inline">- GRAND MASTER EDITION</span></span>
+        <span className="text-white/30 truncate shrink-0 ml-auto md:ml-0">V17.0.5 <span className="hidden lg:inline">- ENTERPRISE EDITION</span></span>
       </footer>
     </div>
   );

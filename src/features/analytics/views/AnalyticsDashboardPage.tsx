@@ -122,7 +122,7 @@ export function AnalyticsDashboardPage() {
                   </BarChart>
                </ResponsiveContainer>
               ) : (
-                <div className="h-full flex items-center justify-center text-[var(--text-dim)] text-sm italic">Insufficient requisition data</div>
+                <div className="h-full flex items-center justify-center text-[var(--text-dim)] text-sm">Insufficient requisition data</div>
               )}
             </div>
           </GlassCard>
@@ -150,7 +150,7 @@ export function AnalyticsDashboardPage() {
                     stroke="none"
                   >
                     {stockHealth.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} className="drop-shadow-[0_0_10px_rgba(0,0,0,0.5)]" />
+                      <Cell key={`cell-${index}`} fill={entry.color} className="" />
                     ))}
                   </Pie>
                   <RechartsTooltip content={<CustomTooltip />} />
@@ -190,7 +190,7 @@ export function AnalyticsDashboardPage() {
                      <span className="text-xs text-[var(--text-dim)]">{tech.count} requests</span>
                   </div>
                 )) : (
-                  <div className="col-span-full py-8 text-center text-[var(--text-dim)] italic text-sm">Awaiting field activity to populate.</div>
+                  <div className="col-span-full py-8 text-center text-[var(--text-dim)] text-sm">Awaiting field activity to populate.</div>
                 )}
              </div>
            </div>

@@ -2,7 +2,7 @@ export interface ExcelTemplate {
   id: string;
   name: string;
   description: string;
-  portalId: 'PDR' | 'ShieldOps' | 'Factory' | 'Analytics';
+  portalId: 'PDR' | 'PREVENTIVE' | 'ORGANIZATION' | 'FACTORY' | 'ANALYTICS' | 'SETTINGS';
   version: string;
   createdAt: Date;
   updatedAt: Date;

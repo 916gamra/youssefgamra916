@@ -36,7 +36,7 @@ export function MachineBomModal({ machineId, machineName, onClose }: MachineBomM
       >
         <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.01]">
           <div>
-            <h3 className="text-2xl font-black text-white flex items-center gap-3 italic uppercase tracking-tighter">
+            <h3 className="text-2xl font-bold text-white flex items-center gap-3 uppercase tracking-tight">
               <Wrench className="w-6 h-6 text-blue-400" />
               BOM Configuration
             </h3>
@@ -53,8 +53,8 @@ export function MachineBomModal({ machineId, machineName, onClose }: MachineBomM
           {/* Current BOM */}
           <div className="border-r border-white/5 p-6 overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-400">Linked Components</h4>
-              <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-[9px] font-black text-blue-300 border border-blue-500/20">
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-blue-400">Linked Components</h4>
+              <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-[9px] font-bold text-blue-300 border border-blue-500/20">
                 {machineParts?.length || 0} ITEMS
               </span>
             </div>
@@ -67,8 +67,8 @@ export function MachineBomModal({ machineId, machineName, onClose }: MachineBomM
                       <Cpu className="w-4 h-4 text-blue-400" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-white italic truncate max-w-[150px]">{p.reference}</p>
-                      <p className="text-[9px] font-black text-[var(--text-dim)] uppercase tracking-widest">{p.unit}</p>
+                      <p className="text-sm font-bold text-white truncate max-w-[150px]">{p.reference}</p>
+                      <p className="text-[9px] font-bold text-[var(--text-dim)] uppercase tracking-widest">{p.unit}</p>
                     </div>
                   </div>
                   <button 
@@ -80,7 +80,7 @@ export function MachineBomModal({ machineId, machineName, onClose }: MachineBomM
                 </div>
               ))}
               {(!machineParts || machineParts.length === 0) && (
-                <div className="py-12 text-center opacity-20 italic text-[var(--text-dim)] text-xs">
+                <div className="py-12 text-center opacity-20 text-[var(--text-dim)] text-xs">
                   Empty Bill of Materials. Populate Registry.
                 </div>
               )}
@@ -90,7 +90,7 @@ export function MachineBomModal({ machineId, machineName, onClose }: MachineBomM
           {/* Catalog Search */}
           <div className="p-6 overflow-y-auto bg-black/5">
             <div className="mb-6 space-y-4">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-dim)]">Component Catalog</h4>
+              <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-dim)]">Component Catalog</h4>
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-dim)]" />
                 <input 
@@ -112,14 +112,14 @@ export function MachineBomModal({ machineId, machineName, onClose }: MachineBomM
                       <Plus className="w-4 h-4" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-[var(--text-bright)] italic">{b.reference}</p>
-                      <p className="text-[9px] text-[var(--text-dim)] font-black uppercase tracking-widest">{b.unit}</p>
+                      <p className="text-sm font-bold text-[var(--text-bright)]">{b.reference}</p>
+                      <p className="text-[9px] text-[var(--text-dim)] font-bold uppercase tracking-widest">{b.unit}</p>
                     </div>
                   </div>
                 </button>
               ))}
               {availableBlueprints.length === 0 && (
-                <div className="py-12 text-center opacity-20 italic text-[var(--text-dim)] text-xs">
+                <div className="py-12 text-center opacity-20 text-[var(--text-dim)] text-xs">
                   No compatible components found.
                 </div>
               )}
@@ -128,7 +128,7 @@ export function MachineBomModal({ machineId, machineName, onClose }: MachineBomM
         </div>
 
         <div className="p-6 bg-white/[0.01] border-t border-white/5 flex justify-end">
-          <button onClick={onClose} className="px-8 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_10px_30px_rgba(37,99,235,0.3)] transition-all">
+          <button onClick={onClose} className="px-8 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] uppercase tracking-widest shadow-[0_10px_30px_rgba(37,99,235,0.3)] transition-all">
             Finish Sync
           </button>
         </div>

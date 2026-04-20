@@ -11,14 +11,16 @@ const generateId = () => crypto.randomUUID ? crypto.randomUUID() : Math.random()
  */
 export async function seedUsers() {
   try {
+    // Cleanup old mock users if they exist
+    await db.users.where('name').equals('Alex Mercer').delete();
+    await db.users.where('name').equals('Sarah Chen').delete();
+
     const usersCount = await db.users.count();
     if (usersCount === 0) {
       console.log('[System Seed] No users found. Initializing secure seed...');
       
       const salt = await bcrypt.genSalt(10);
       const adminHash = await bcrypt.hash('0000', salt);
-      const archHash = await bcrypt.hash('1234', salt);
-      const imHash = await bcrypt.hash('2580', salt);
 
       await db.users.bulkAdd([
         { 
@@ -28,27 +30,11 @@ export async function seedUsers() {
           color: 'bg-indigo-600', 
           pin: adminHash, 
           isPrimary: true,
-          allowedPortals: ['PDR', 'ShieldOps', 'Factory', 'Analytics', 'SETTINGS']
-        },
-        { 
-          name: 'Alex Mercer', 
-          role: 'Chief Architect', 
-          initials: 'AM', 
-          color: 'bg-blue-500', 
-          pin: archHash,
-          allowedPortals: ['PDR', 'ShieldOps', 'Analytics']
-        },
-        { 
-          name: 'Sarah Chen', 
-          role: 'Inventory Manager', 
-          initials: 'SC', 
-          color: 'bg-emerald-500', 
-          pin: imHash,
-          allowedPortals: ['PDR', 'Analytics']
+          allowedPortals: ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS']
         }
       ]);
 
-      toast.info('Initial secure users seeded.', { description: 'System Admin PIN: 0000' });
+      toast.info('Initial secure admin seeded.', { description: 'System Admin PIN: 0000' });
       return true;
     }
     return false;

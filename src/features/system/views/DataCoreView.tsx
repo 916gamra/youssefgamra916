@@ -58,12 +58,12 @@ export function DataCoreView({ user }: { user: User | null }) {
         action: 'EXPORT',
         entityType: 'DATABASE',
         entityId: 'SYSTEM',
-        details: 'Full system backup exported to JSON payload.',
+        details: 'Full system backup exported to JSON file.',
         severity: 'INFO'
       });
 
-      toast.success('Core Snapshot Extracted', {
-        description: 'Store this payload in an air-gapped secure location.',
+      toast.success('Backup Exported', {
+        description: 'Store this backup in a secure location.',
       });
       
     } catch (error) {
@@ -76,7 +76,7 @@ export function DataCoreView({ user }: { user: User | null }) {
   };
 
   const handleImportClick = () => {
-    if (window.confirm("CRITICAL WARNING: You are about to initiate a Core DNA Injection. This will completely purge existing local records and overwrite the system state. Proceed?")) {
+    if (window.confirm("CRITICAL WARNING: You are about to initiate a database restore. This will completely purge existing local records and overwrite the system state. Proceed?")) {
       fileInputRef.current?.click();
     }
   };
@@ -113,8 +113,8 @@ export function DataCoreView({ user }: { user: User | null }) {
         severity: 'CRITICAL'
       });
 
-      toast.success('DNA Injection Complete', {
-        description: 'System state overwritten. Rebooting UI matrix.',
+      toast.success('Restore Complete', {
+        description: 'Database state restored. Reloading application.',
         icon: <ShieldCheck className="text-emerald-400" />
       });
       
@@ -122,8 +122,8 @@ export function DataCoreView({ user }: { user: User | null }) {
       
     } catch (error) {
       console.error(error);
-      toast.error('Injection Failed', {
-         description: 'The DNA payload is corrupted, tampered with, or incompatible.'
+      toast.error('Restore Failed', {
+         description: 'The backup file is invalid or corrupted.'
       });
     } finally {
       setIsImporting(false);
@@ -137,13 +137,13 @@ export function DataCoreView({ user }: { user: User | null }) {
     <div className="max-w-6xl mx-auto space-y-10 pb-12 pt-4 px-6 md:px-0 bg-[#0a0a0f]">
       <header className="flex flex-col gap-2 relative">
         <div className="absolute -top-10 -left-10 w-96 h-96 bg-rose-500/5 blur-[120px] rounded-full pointer-events-none" />
-        <h1 className="text-4xl font-black italic text-white tracking-tighter mb-2 flex items-center gap-4 uppercase">
-          <Disc className="w-10 h-10 text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.5)]" />
-          Neural Core Backup
+        <h1 className="text-3xl font-bold text-white tracking-tight mb-2 flex items-center gap-4 uppercase">
+          <Disc className="w-10 h-10 text-blue-500 " />
+          Database Backup
         </h1>
-        <p className="text-[#8b9bb4] uppercase tracking-[0.3em] text-[10px] font-bold flex items-center gap-3">
-          <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_#f43f5e]" />
-          Level 7 Data Persistence & Recovery Matrix
+        <p className="text-slate-400 uppercase tracking-widest text-xs font-semibold flex items-center gap-3">
+          <span className="w-2 h-2 rounded-full bg-blue-500 " />
+          System Data Preservation
         </p>
       </header>
 
@@ -153,30 +153,30 @@ export function DataCoreView({ user }: { user: User | null }) {
           <Terminal className="w-48 h-48 text-rose-500" />
         </div>
         <div className="p-4 border-b border-white/5 bg-white/[0.02] flex items-center gap-3">
-           <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse" />
-           <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest italic">Matrix Status: Operational / Air-Gapped</span>
+           <div className="w-2 h-2 rounded-full bg-emerald-500 " />
+           <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">System Status: Online / Secure</span>
         </div>
         <div className="p-10 grid grid-cols-2 md:grid-cols-4 gap-10 relative z-10">
            <div className="space-y-1">
-              <div className="text-[10px] text-[#8b9bb4] uppercase tracking-widest font-black opacity-60">Tables</div>
-              <div className="text-3xl font-black text-white italic">{dbStats.tables}</div>
+              <div className="text-[10px] text-[#8b9bb4] uppercase tracking-widest font-bold opacity-60">Tables</div>
+              <div className="text-3xl font-bold text-white">{dbStats.tables}</div>
            </div>
            <div className="space-y-1">
-              <div className="text-[10px] text-[#8b9bb4] uppercase tracking-widest font-black opacity-60">Logic Nodes</div>
-              <div className="text-3xl font-black text-rose-500 italic flex items-center gap-3">
-                {dbStats.rows} <RefreshCw className="w-5 h-5 text-rose-500/40 animate-spin-slow" />
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold opacity-60">Records</div>
+              <div className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+                {dbStats.rows} <RefreshCw className="w-5 h-5 text-slate-500/40" />
               </div>
            </div>
            <div className="space-y-1">
-              <div className="text-[10px] text-[#8b9bb4] uppercase tracking-widest font-black opacity-60">Persistence</div>
-              <div className="text-xs font-black text-emerald-400 uppercase tracking-tighter mt-1 bg-emerald-500/10 px-3 py-1 rounded w-fit border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
-                Local-Only DNA
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold opacity-60">Storage Mode</div>
+              <div className="text-xs font-bold text-emerald-400 uppercase tracking-tight mt-1 bg-emerald-500/10 px-3 py-1 rounded w-fit border border-emerald-500/20">
+                Local Database
               </div>
            </div>
            <div className="space-y-1">
-              <div className="text-[10px] text-[#8b9bb4] uppercase tracking-widest font-black opacity-60">Encryption</div>
-              <div className="text-xs font-black text-cyan-400 uppercase tracking-tighter mt-1 bg-cyan-500/10 px-3 py-1 rounded w-fit border border-cyan-500/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]">
-                AES-T7 (Ready)
+              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold opacity-60">Encryption</div>
+              <div className="text-xs font-bold text-cyan-400 uppercase tracking-tight mt-1 bg-cyan-500/10 px-3 py-1 rounded w-fit border border-cyan-500/20">
+                Standard (Ready)
               </div>
            </div>
         </div>
@@ -191,11 +191,11 @@ export function DataCoreView({ user }: { user: User | null }) {
           <div className="relative z-10 mb-8">
             <div className="w-20 h-20 rounded-[1.25rem] bg-rose-500/5 border border-rose-500/20 flex items-center justify-center mb-8 shadow-inner relative overflow-hidden group-hover:scale-110 group-hover:rotate-6 transition-all duration-700">
                {isExporting && <div className="absolute inset-0 bg-rose-500/20 animate-pulse" />}
-               <HardDriveDownload className="w-10 h-10 text-rose-500 drop-shadow-[0_0_10px_#f43f5e] relative z-10" />
+               <HardDriveDownload className="w-10 h-10 text-rose-500  relative z-10" />
             </div>
-            <h2 className="text-3xl font-black text-white mb-3 tracking-tighter italic uppercase">CORE EXTRACTION</h2>
-            <p className="text-[#8b9bb4] leading-relaxed text-xs font-medium italic">
-              Initiate a high-speed serialization protocol to capture the entire system state into a portable JSON artifact.
+            <h2 className="text-2xl font-bold text-white mb-3 tracking-tight uppercase">DATABASE EXPORT</h2>
+            <p className="text-slate-400 leading-relaxed text-xs font-medium">
+              Generate a full system backup containing all records and configurations in JSON format.
             </p>
           </div>
 
@@ -203,7 +203,7 @@ export function DataCoreView({ user }: { user: User | null }) {
              <AnimatePresence>
                {isExporting && (
                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-6">
-                    <div className="flex justify-between text-[10px] font-black text-rose-500 uppercase tracking-widest mb-3">
+                    <div className="flex justify-between text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-3">
                        <span>Extraction Integrity</span>
                        <span className="font-mono">{progressPercentage}%</span>
                     </div>
@@ -222,7 +222,7 @@ export function DataCoreView({ user }: { user: User | null }) {
              <button
                 onClick={handleExport}
                 disabled={isExporting || isImporting}
-                className="w-full py-5 rounded-2xl bg-rose-500 hover:bg-rose-400 text-black font-black uppercase tracking-[0.2em] text-xs transition-all shadow-[0_0_30px_rgba(244,63,94,0.2)] hover:shadow-[0_0_40px_rgba(244,63,94,0.4)] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 relative overflow-hidden active:scale-95 group/btn"
+                className="w-full py-5 rounded-2xl bg-rose-500 hover:bg-rose-400 text-black font-bold uppercase tracking-widest text-xs transition-all shadow-[0_0_30px_rgba(244,63,94,0.2)] hover:shadow-[0_0_40px_rgba(244,63,94,0.4)] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 relative overflow-hidden active:scale-95 group/btn"
               >
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700" />
                 {isExporting ? (
@@ -233,7 +233,7 @@ export function DataCoreView({ user }: { user: User | null }) {
                 ) : (
                   <>
                     <FileJson className="w-5 h-5" />
-                    <span>Download SNAPSHOT</span>
+                    <span>DOWNLOAD BACKUP</span>
                   </>
                 )}
              </button>
@@ -247,11 +247,11 @@ export function DataCoreView({ user }: { user: User | null }) {
           <div className="relative z-10 mb-8">
             <div className="w-20 h-20 rounded-[1.25rem] bg-amber-500/5 border border-amber-500/20 flex items-center justify-center mb-8 shadow-inner relative overflow-hidden group-hover:scale-110 group-hover:-rotate-6 transition-all duration-700">
                {isImporting && <div className="absolute inset-0 bg-amber-500/20 animate-pulse" />}
-               <HardDriveUpload className="w-10 h-10 text-amber-500 drop-shadow-[0_0_10px_#f59e0b] relative z-10" />
+               <HardDriveUpload className="w-10 h-10 text-amber-500  relative z-10" />
             </div>
-            <h2 className="text-3xl font-black text-white mb-3 tracking-tighter italic uppercase">CORE INJECTION</h2>
-            <p className="text-amber-500/60 leading-relaxed text-xs font-medium italic">
-              Restore historical DNA. Warning: This protocol executes a comprehensive memory wipe before state reconstruction.
+            <h2 className="text-2xl font-bold text-white mb-3 tracking-tight uppercase">DATABASE RESTORE</h2>
+            <p className="text-amber-500/80 leading-relaxed text-xs font-medium">
+              Restore database from backup file. Warning: This action will completely overwrite all existing data.
             </p>
           </div>
 
@@ -267,7 +267,7 @@ export function DataCoreView({ user }: { user: User | null }) {
              <AnimatePresence>
                {isImporting && (
                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-6">
-                    <div className="flex justify-between text-[10px] font-black text-amber-500 uppercase tracking-widest mb-3">
+                    <div className="flex justify-between text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3">
                        <span>Injection Flux</span>
                        <span className="font-mono">{progressPercentage}%</span>
                     </div>
@@ -286,18 +286,18 @@ export function DataCoreView({ user }: { user: User | null }) {
             <button
               onClick={handleImportClick}
               disabled={isImporting || isExporting}
-              className="w-full py-5 rounded-2xl bg-black/60 border border-amber-500/30 hover:bg-amber-500/10 text-amber-500 font-black uppercase tracking-[0.2em] text-xs transition-all hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 relative overflow-hidden active:scale-95 group/bit"
+              className="w-full py-5 rounded-2xl bg-black/60 border border-amber-500/30 hover:bg-amber-500/10 text-amber-500 font-bold uppercase tracking-widest text-xs transition-all hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 relative overflow-hidden active:scale-95 group/bit"
             >
               <div className="absolute inset-0 bg-white/5 translate-x-[-100%] group-hover/bit:translate-x-[100%] transition-transform duration-700" />
               {isImporting ? (
                 <>
                   <RefreshCw className="w-5 h-5 animate-spin" />
-                  <span>REWRITING DNA...</span>
+                  <span>RESTORING DATABASE...</span>
                 </>
               ) : (
                 <>
                   <HardDriveUpload className="w-5 h-5" />
-                  <span>Upload PAYLOAD</span>
+                  <span>UPLOAD BACKUP FILE</span>
                 </>
               )}
             </button>

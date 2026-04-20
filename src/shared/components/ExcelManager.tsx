@@ -10,7 +10,7 @@ import { db } from '@/core/db';
 import { GlassCard } from '@/shared/components/GlassCard';
 
 interface ExcelManagerProps {
-  portalId: 'PDR' | 'ShieldOps' | 'Factory' | 'Analytics' | 'SETTINGS';
+  portalId: 'PDR' | 'PREVENTIVE' | 'ORGANIZATION' | 'FACTORY' | 'ANALYTICS' | 'SETTINGS';
 }
 
 export function ExcelManager({ portalId }: ExcelManagerProps) {

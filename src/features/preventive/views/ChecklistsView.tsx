@@ -158,14 +158,14 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
       {/* LEFT PANEL: Checklists Catalog */}
       <div className="w-full md:w-1/3 flex flex-col h-full titan-card overflow-hidden shrink-0">
         <div className="p-5 border-b border-white/5 flex justify-between items-center bg-emerald-500/5">
-          <h2 className="text-emerald-400 font-bold tracking-widest text-xs uppercase flex items-center gap-2">
-            <LayoutList className="w-4 h-4" />
-            Protocols Hub
-          </h2>
-          <button 
-            onClick={() => setIsCreatingList(!isCreatingList)}
-            className="p-2 bg-emerald-500/20 text-emerald-300 rounded-lg hover:bg-emerald-500/30 transition-all active:scale-95 border border-emerald-500/20"
-          >
+            <h2 className="text-blue-400 font-bold tracking-widest text-xs uppercase flex items-center gap-2">
+              <LayoutList className="w-4 h-4" />
+              Maintenance Protocols
+            </h2>
+            <button 
+              onClick={() => setIsCreatingList(!isCreatingList)}
+              className="p-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-all active:scale-95 border border-blue-500/20"
+            >
             <Plus className="w-4 h-4" />
           </button>
         </div>
@@ -232,7 +232,7 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
               <div className="flex justify-between items-start relative z-10">
                 <div className="flex-1 pr-4">
                   <h3 className={cn("font-bold text-sm tracking-tight", selectedChecklistId === list.id ? "text-emerald-400" : "text-white/90")}>{list.name}</h3>
-                  {list.description && <p className="text-[10px] text-[#8b9bb4] mt-1 line-clamp-1 italic">{list.description}</p>}
+                  {list.description && <p className="text-[10px] text-[#8b9bb4] mt-1 line-clamp-1">{list.description}</p>}
                 </div>
                 <button 
                   onClick={(e) => handleDeleteChecklist(list.id, e)}
@@ -256,8 +256,8 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
             <div className="w-32 h-32 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6">
               <LayoutList className="w-16 h-16 opacity-30" />
             </div>
-            <p className="text-sm font-bold tracking-[0.2em] uppercase opacity-40">Tactical Protocol Builder</p>
-            <p className="text-xs text-[#8b9bb4] mt-2 italic">Select a checklist to deploy mission parameters</p>
+            <p className="text-sm font-bold tracking-widest uppercase opacity-40">Protocol Builder</p>
+            <p className="text-xs text-[#8b9bb4] mt-2">Select a checklist to manage its tasks</p>
           </div>
         ) : (
           <>
@@ -266,7 +266,7 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
                 <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">Active Schema</span>
                 <h2 className="text-xl font-bold text-white tracking-tight">{selectedChecklist?.name}</h2>
               </div>
-              <p className="text-sm text-[#8b9bb4] font-medium italic">{selectedChecklist?.description || 'No description provided.'}</p>
+              <p className="text-sm text-slate-400 font-medium">{selectedChecklist?.description || 'No description provided.'}</p>
               <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-10">
                 <ShieldAlert className="w-16 h-16" />
               </div>
@@ -281,7 +281,7 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
                     className="text-center py-20"
                   >
                      <ShieldAlert className="w-16 h-16 text-[#8b9bb4]/10 mx-auto mb-4" />
-                     <p className="text-[#8b9bb4] text-sm italic">This protocol has no operational tasks defined.</p>
+                     <p className="text-slate-400 text-sm">This protocol has no defined tasks.</p>
                   </motion.div>
                 ) : (
                   <div className="space-y-3">
@@ -302,7 +302,7 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
                             {task.isCritical && (
                               <div className="flex items-center gap-1.5 mt-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.5)]"></span>
-                                <span className="text-[10px] font-bold uppercase tracking-widest text-rose-400">Critical Path Invariant</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-rose-400">Critical Checkpoint</span>
                               </div>
                             )}
                           </div>
@@ -324,7 +324,7 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
             <div className="p-6 border-t border-white/5 bg-black/40 backdrop-blur-xl">
               <form onSubmit={handleCreateTask} className="flex gap-6 items-end">
                 <div className="flex-1">
-                  <label className="titan-label text-[10px] mb-2">New Operational Task</label>
+                  <label className="titan-label text-[10px] mb-2">New Maintenance Task</label>
                   <input 
                     type="text" 
                     placeholder="E.g., Analyze vibration metrics on primary rotor assembly..." 

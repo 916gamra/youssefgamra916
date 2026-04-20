@@ -27,7 +27,7 @@ export function PartDetail({ tabId }: { tabId: string }) {
   }, [blueprintId]);
 
   if (data === undefined) {
-    return <div className="p-8 text-[var(--text-dim)] flex items-center justify-center animate-pulse"><RefreshCcw className="animate-spin w-5 h-5 mr-3"/> Loading specific telemetry...</div>;
+    return <div className="p-8 text-[var(--text-dim)] flex items-center justify-center animate-pulse"><RefreshCcw className="animate-spin w-5 h-5 mr-3"/> Loading record data...</div>;
   }
 
   if (data === null) {
@@ -61,11 +61,11 @@ export function PartDetail({ tabId }: { tabId: string }) {
              <span>/</span>
              <span className="flex items-center gap-1"><Layers className="w-3.5 h-3.5"/> {tpl?.name || 'Unknown Template'}</span>
            </div>
-          <h1 className="text-4xl font-mono font-bold text-[var(--text-bright)] tracking-tight mb-2 flex items-center gap-3">
-            <Hash className="w-8 h-8 text-cyan-400 opacity-60" /> 
+           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
+            <Hash className="w-8 h-8 text-blue-400 opacity-60" /> 
             {bp.reference}
           </h1>
-          <p className="text-[var(--text-dim)] font-mono text-sm pl-11">
+          <p className="text-slate-400 font-mono text-sm pl-11">
             SKU Base Context: {tpl?.skuBase}
           </p>
         </div>
@@ -89,8 +89,8 @@ export function PartDetail({ tabId }: { tabId: string }) {
           <GlassCard className={`relative overflow-hidden ${isCriticalOut ? 'border-red-500/30 bg-red-500/5' : isLowStock ? 'border-amber-500/30 bg-amber-500/5' : 'bg-cyan-500/5 border-cyan-500/20'}`}>
              <div className="flex justify-between items-start mb-4">
                <div>
-                  <h3 className="text-xs uppercase font-bold text-[var(--text-dim)] tracking-wider">Total Physical Inventory</h3>
-                  <div className={`text-5xl font-mono font-semibold mt-2 ${isCriticalOut ? 'text-red-500' : isLowStock ? 'text-amber-500' : 'text-cyan-400'}`}>
+               <h3 className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Total Physical Inventory</h3>
+                  <div className={`text-4xl font-bold mt-2 ${isCriticalOut ? 'text-red-500' : isLowStock ? 'text-amber-500' : 'text-blue-400'}`}>
                     {totalStock}
                   </div>
                </div>
@@ -113,7 +113,7 @@ export function PartDetail({ tabId }: { tabId: string }) {
              </div>
              <div className="divide-y divide-[var(--glass-border)] max-h-[300px] overflow-auto">
                {stockItems.length === 0 ? (
-                 <div className="p-6 text-center text-sm text-[var(--text-dim)] italic">No active locations mapped.</div>
+                 <div className="p-6 text-center text-sm text-[var(--text-dim)] font-medium">No active locations mapped.</div>
                ) : (
                  stockItems.map(s => (
                    <div key={s.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
@@ -144,7 +144,7 @@ export function PartDetail({ tabId }: { tabId: string }) {
              
              <div className="flex-1 overflow-auto p-2 bg-[#05050A]">
                 {movements.length === 0 ? (
-                  <div className="h-full flex flex-col justify-center items-center text-[var(--text-dim)] text-sm italic">
+                  <div className="h-full flex flex-col justify-center items-center text-[var(--text-dim)] text-sm font-medium">
                     <CalendarClock className="w-8 h-8 mb-3 opacity-30" />
                     No historical movements recorded.
                   </div>

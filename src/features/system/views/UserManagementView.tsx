@@ -14,11 +14,11 @@ import { isUserAdmin } from '@/core/permissions';
 
 const AVAILABLE_PORTALS = [
   { id: 'PDR', name: 'PDR Engine', color: 'text-cyan-400' },
-  { id: 'PREVENTIVE', name: 'Shield Ops', color: 'text-emerald-400' },
+  { id: 'PREVENTIVE', name: 'Maintenance', color: 'text-emerald-400' },
   { id: 'ORGANIZATION', name: 'Part Catalog', color: 'text-amber-400' },
   { id: 'FACTORY', name: 'Factory Admin', color: 'text-indigo-400' },
-  { id: 'ANALYTICS', name: 'The Oracle', color: 'text-fuchsia-400' },
-  { id: 'SETTINGS', name: 'System Config', color: 'text-rose-400' }
+  { id: 'ANALYTICS', name: 'Analytics Hub', color: 'text-purple-400' },
+  { id: 'SETTINGS', name: 'System Config', color: 'text-blue-400' }
 ];
 
 const DEFAULT_PORTALS_ADMIN = ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS'];
@@ -32,15 +32,15 @@ export function UserManagementView() {
   // SECURITY GUARD: Absolute gate for non-admins
   if (!isUserAdmin(currentUser)) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-black/60 rounded-[3rem] border border-rose-500/20 backdrop-blur-3xl min-h-[500px]">
-         <div className="w-24 h-24 rounded-full bg-rose-500/10 flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(244,63,94,0.15)] border border-rose-500/20">
-            <Lock className="w-10 h-10 text-rose-500" />
+      <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-black/60 rounded-[3rem] border border-blue-500/20 md:min-h-[500px]">
+         <div className="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center mb-8 border border-blue-500/20">
+            <Lock className="w-10 h-10 text-blue-500" />
          </div>
-         <h1 className="text-4xl font-black italic text-white uppercase tracking-tighter mb-4 drop-shadow-md">Clearance Required</h1>
-         <p className="max-w-md text-[#8b9bb4] italic font-medium leading-relaxed">
-            Your current biometric signature does not match the required authorization level for the System Configuration Node. 
+         <h1 className="text-4xl font-bold text-slate-100 uppercase tracking-tight mb-4 " >Clearance Required</h1>
+         <p className="max-w-md text-slate-400 font-medium leading-relaxed">
+            Your current authorization level does not permit access to system configuration nodes.
          </p>
-         <div className="mt-8 text-[10px] font-black text-rose-500/50 uppercase tracking-[0.5em] animate-pulse">Security Lockdown Active</div>
+         <div className="mt-8 text-[10px] font-bold text-blue-500/50 uppercase tracking-widest">Access Denied</div>
       </div>
     );
   }
@@ -56,7 +56,7 @@ export function UserManagementView() {
   const openEditModal = (user: User) => {
     // SECURITY: Non-primaries cannot edit the primary founder
     if (user.isPrimary && !currentUser?.isPrimary) {
-      showError('Level 7 Restriction', 'Access Denied: The Prime DNA structure is write-protected.');
+      showError('Restricted', 'Access Denied: The primary administrator profile is write-protected.');
       return;
     }
     
@@ -74,18 +74,21 @@ export function UserManagementView() {
 
     // Final security check
     if (!isUserAdmin(currentUser)) {
-      showError('Operation Void', 'Administrative signature required for commit.');
+      showError('Operation Void', 'Administrative signature required to write changes.');
       return;
     }
 
     try {
       const updates: any = {
         name: editName,
-        role: editRole,
         color: editColor,
         initials: editName.substring(0, 2).toUpperCase(),
-        allowedPortals: editPortals
       };
+      
+      if (!editingUser.isPrimary) {
+        updates.role = editRole;
+        updates.allowedPortals = editPortals;
+      }
 
       if (editPin.trim() !== '') {
         const { hashPin } = await import('@/core/security');
@@ -175,7 +178,7 @@ export function UserManagementView() {
         logger.info({ userId: result }, 'User registered successfully to IndexedDB');
       });
 
-      showSuccess('Personnel Registered Successfully', `User ${newName} added securely.`);
+      showSuccess('User Added', `User ${newName} added.`);
       setNewName('');
       setNewPin('');
       setIsAdding(false);
@@ -216,17 +219,17 @@ export function UserManagementView() {
     <div className="max-w-7xl mx-auto space-y-6 pb-12">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
         <div>
-          <h1 className="text-3xl font-semibold text-[var(--text-bright)] tracking-tight mb-2 flex items-center gap-3">
-            <UserCog className="w-8 h-8 text-rose-400" /> RBAC & Users
+          <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
+            <UserCog className="w-8 h-8 text-blue-500" /> User Management
           </h1>
-          <p className="text-[#8b9bb4] text-lg">System-wide technical role-based access control.</p>
+          <p className="text-slate-400 text-sm">Manage system users, roles, and functional constraints.</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => { setIsAdding(true); setAllowedPortals(DEFAULT_PORTALS_TECH); }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-rose-500 hover:bg-rose-400 text-[#050508] rounded-xl font-bold uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(244,63,94,0.3)] hover:shadow-[0_0_30px_rgba(244,63,94,0.5)] shrink-0 active:scale-95"
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] shrink-0 active:scale-95"
           >
-            <Plus className="w-4 h-4" /> Register User
+            <Plus className="w-4 h-4" /> Add User
           </button>
         </div>
       </header>
@@ -239,10 +242,9 @@ export function UserManagementView() {
             exit={{ opacity: 0, height: 0, marginBottom: 0 }}
             className="overflow-hidden"
           >
-            <GlassCard className="p-6 border-rose-500/20 bg-rose-500/[0.02] relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-64 h-64 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
+            <GlassCard className="p-6 border-blue-500/20 bg-blue-500/[0.02] relative overflow-hidden">
                <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2 relative z-10">
-                 <ShieldCheck className="w-5 h-5 text-rose-400" /> New System User
+                 <ShieldCheck className="w-5 h-5 text-blue-500" /> New System User
                </h3>
                <form onSubmit={handleCreateUser} className="space-y-6 relative z-10">
                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -281,13 +283,13 @@ export function UserManagementView() {
                  
                  <div className="pt-2 border-t border-white/5">
                    <label className="titan-label mb-3 flex items-center gap-2">
-                     <KeyRound className="w-4 h-4 text-rose-400" /> Portal Access Constraints
+                     <KeyRound className="w-4 h-4 text-blue-500" /> System Features
                    </label>
                    <div className="flex flex-wrap gap-3">
                      {AVAILABLE_PORTALS.map(portal => (
-                       <label key={portal.id} className={cn("flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer select-none transition-colors", allowedPortals.includes(portal.id) ? "bg-white/10 border-rose-500/50 shadow-[0_0_10px_rgba(244,63,94,0.1)]" : "bg-black/20 border-white/5 opacity-50")}>
+                       <label key={portal.id} className={cn("flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer select-none transition-colors", allowedPortals.includes(portal.id) ? "bg-white/10 border-blue-500/50 shadow-sm" : "bg-black/20 border-white/5 opacity-50")}>
                           <input type="checkbox" checked={allowedPortals.includes(portal.id)} onChange={() => togglePortal(portal.id)} className="hidden" />
-                          <div className={cn("w-3 h-3 rounded-full border", allowedPortals.includes(portal.id) ? "bg-rose-500 border-rose-400" : "bg-transparent border-white/20")} />
+                          <div className={cn("w-3 h-3 rounded-full border", allowedPortals.includes(portal.id) ? "bg-blue-500 border-blue-400" : "bg-transparent border-white/20")} />
                           <span className={cn("text-xs font-bold uppercase tracking-widest", portal.color)}>{portal.name}</span>
                        </label>
                      ))}
@@ -296,7 +298,7 @@ export function UserManagementView() {
 
                  <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
                     <button type="button" onClick={() => setIsAdding(false)} className="px-5 py-2.5 rounded-xl border border-white/10 text-sm font-medium hover:bg-white/5 uppercase tracking-widest transition-all">Cancel</button>
-                    <button type="submit" className="px-6 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-[#050508] text-sm font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(244,63,94,0.3)] hover:shadow-[0_0_25px_rgba(244,63,94,0.5)] transition-all active:scale-95">Deploy User</button>
+                    <button type="submit" className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold uppercase tracking-widest transition-all active:scale-95">Create User</button>
                  </div>
                </form>
             </GlassCard>
@@ -344,37 +346,38 @@ export function UserManagementView() {
                      </div>
                      <div>
                        <label className="titan-label">Role Title</label>
-                       <select value={editRole} onChange={e => setEditRole(e.target.value)} className="titan-input appearance-none">
+                       <select value={editRole} onChange={e => setEditRole(e.target.value)} disabled={editingUser.isPrimary} className={cn("titan-input appearance-none", editingUser.isPrimary && "opacity-50 cursor-not-allowed")}>
                          <option>Technician</option>
                          <option>Engineer</option>
                          <option>Manager</option>
                          <option>Admin</option>
+                         {editingUser.isPrimary && <option>Super Administrator</option>}
                        </select>
                      </div>
                      <div>
-                       <label className="titan-label">Interface Color</label>
+                       <label className="titan-label">Avatar Color</label>
                        <select value={editColor} onChange={e => setEditColor(e.target.value)} className="titan-input appearance-none">
-                         <option value="bg-cyan-500">Cyan Energy</option>
-                         <option value="bg-emerald-500">Emerald Green</option>
-                         <option value="bg-rose-500">Crimson Red</option>
-                         <option value="bg-amber-500">Amber Gold</option>
-                         <option value="bg-indigo-500">Indigo Void</option>
+                         <option value="bg-cyan-600">Cyan</option>
+                         <option value="bg-emerald-600">Emerald</option>
+                         <option value="bg-rose-600">Red</option>
+                         <option value="bg-amber-600">Amber</option>
+                         <option value="bg-indigo-600">Indigo</option>
                        </select>
                      </div>
                    </div>
                    
                    <div className="pt-4 border-t border-white/5">
                      <label className="titan-label mb-4 flex items-center gap-2">
-                       <KeyRound className="w-4 h-4 text-cyan-400" /> Portal Clearances
+                       <KeyRound className="w-4 h-4 text-blue-500" /> System Features
                      </label>
                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                        {AVAILABLE_PORTALS.map(portal => (
-                         <label key={portal.id} className={cn("flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all duration-300", editPortals.includes(portal.id) ? "bg-white/10 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.15)] bg-white/[0.05]" : "bg-black/40 border-white/5 opacity-60 hover:opacity-100")}>
+                         <label key={portal.id} className={cn("flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all duration-300", editPortals.includes(portal.id) ? "bg-white/10 border-blue-500/50 shadow-sm bg-white/[0.05]" : "bg-black/40 border-white/5 opacity-60 hover:opacity-100")}>
                             <input type="checkbox" checked={editPortals.includes(portal.id)} onChange={() => toggleEditPortal(portal.id)} className="hidden" disabled={editingUser.isPrimary} />
-                            <div className={cn("w-4 h-4 rounded border flex items-center justify-center transition-colors shadow-inner", editPortals.includes(portal.id) ? "bg-cyan-500 border-cyan-400" : "bg-black/50 border-white/20")}>
-                               {editPortals.includes(portal.id) && <ShieldCheck className="w-3 h-3 text-black" />}
+                            <div className={cn("w-4 h-4 rounded border flex items-center justify-center transition-colors shadow-inner", editPortals.includes(portal.id) ? "bg-blue-500 border-blue-400" : "bg-black/50 border-white/20")}>
+                               {editPortals.includes(portal.id) && <ShieldCheck className="w-3 h-3 text-white" />}
                             </div>
-                            <span className={cn("text-xs font-bold uppercase tracking-widest", editPortals.includes(portal.id) ? portal.color : "text-[var(--text-dim)]")}>{portal.name}</span>
+                            <span className={cn("text-xs font-bold uppercase tracking-widest", editPortals.includes(portal.id) ? portal.color : "text-slate-500")}>{portal.name}</span>
                          </label>
                        ))}
                      </div>
@@ -382,7 +385,7 @@ export function UserManagementView() {
 
                    <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
                       <button type="button" onClick={() => setEditingUser(null)} className="px-6 py-3 rounded-xl border border-white/10 text-sm font-bold text-white hover:bg-white/10 uppercase tracking-widest transition-colors">Cancel</button>
-                      <button type="submit" className="px-8 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-[#050508] text-sm font-bold uppercase tracking-widest shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] transition-all active:scale-95">Save Changes</button>
+                      <button type="submit" className="px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold uppercase tracking-widest shadow-sm transition-all active:scale-95">Save Changes</button>
                    </div>
                  </form>
               </GlassCard>
@@ -420,12 +423,12 @@ export function UserManagementView() {
                   )}
 
                   <div className="flex items-center gap-4 mb-3">
-                     <div className={cn("w-14 h-14 rounded-[1.25rem] flex items-center justify-center text-xl font-bold text-white shadow-[0_0_20px_rgba(0,0,0,0.5)] border border-white/10 transition-transform group-hover:scale-105", u.color || 'bg-gray-700')}>
+                     <div className={cn("w-14 h-14 rounded-[1.25rem] flex items-center justify-center text-xl font-bold text-white shadow-inner border border-white/10 transition-transform group-hover:scale-105", u.color || 'bg-gray-700')}>
                        {u.initials}
                      </div>
                      <div>
-                        <h3 className="text-xl font-bold text-white leading-tight drop-shadow-md">{u.name}</h3>
-                        <div className="text-[10px] font-mono mt-2 px-2.5 py-1 bg-black/40 rounded-md border border-white/10 w-fit text-[#8b9bb4] uppercase tracking-widest shadow-inner">{u.role}</div>
+                        <h3 className="text-xl font-bold text-slate-100 leading-tight">{u.name}</h3>
+                        <div className="text-[10px] font-mono mt-2 px-2.5 py-1 bg-black/40 rounded-md border border-white/10 w-fit text-slate-400 uppercase tracking-widest">{u.role}</div>
                      </div>
                   </div>
                   <div className="text-xs text-white/30 mt-4 flex items-center gap-1 group-hover:text-cyan-400/80 transition-colors">
@@ -433,8 +436,8 @@ export function UserManagementView() {
                   </div>
                </div>
                
-               <div className="p-5 flex-1 bg-black/40 shadow-inner">
-                  <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#8b9bb4] mb-4 flex items-center gap-1.5 drop-shadow-md"><KeyRound className="w-3.5 h-3.5 text-white/30" /> Portal Clearances</h4>
+               <div className="p-5 flex-1 bg-black/40 border-t border-white/5">
+                  <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5"><KeyRound className="w-3.5 h-3.5 text-white/30" /> System Access</h4>
                   <div className="space-y-2">
                      {AVAILABLE_PORTALS.map(portal => {
                         const hasAccess = userPortals.includes(portal.id);

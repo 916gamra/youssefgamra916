@@ -71,10 +71,10 @@ export function AuditTrailView() {
     <div className="max-w-7xl mx-auto space-y-6 pb-12">
       <header className="pt-2 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-white tracking-tight mb-2 flex items-center gap-3">
-             <ShieldAlert className="w-8 h-8 text-rose-400" /> System Audit Trail
+           <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
+             <ShieldAlert className="w-8 h-8 text-blue-500" /> System Audit Trail
            </h1>
-           <p className="text-[#8b9bb4] text-lg">Real-time immutable log of all critical system operations.</p>
+           <p className="text-slate-400 text-sm">Comprehensive log of all critical system operations.</p>
         </div>
         
         <div className="flex gap-3">
@@ -86,7 +86,7 @@ export function AuditTrailView() {
           </button>
           <button 
              onClick={clearLogs}
-             className="px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 shadow-[inset_0_1px_rgba(255,255,255,0.05),_0_0_10px_rgba(244,63,94,0.1)] border border-rose-500/30 rounded-xl text-xs font-bold uppercase tracking-widest text-rose-400 transition-all flex items-center gap-2 active:scale-95"
+             className="px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 shadow-inner border border-blue-500/30 rounded-xl text-xs font-bold uppercase tracking-widest text-blue-400 transition-all flex items-center gap-2 active:scale-95"
           >
             <Trash2 className="w-4 h-4" /> Purge Logs
           </button>
@@ -156,29 +156,29 @@ export function AuditTrailView() {
              <tbody className="divide-y divide-white/[0.02]">
                {filteredLogs.length === 0 ? (
                  <tr>
-                   <td colSpan={5} className="px-6 py-12 text-center text-white/30 italic text-sm">No audit logs match your current telemetry filter.</td>
+                   <td colSpan={5} className="px-6 py-12 text-center text-white/30 text-sm">No audit logs match your current filter criteria.</td>
                  </tr>
                ) : (
                  filteredLogs.map(log => (
                    <tr key={log.id} className="group hover:bg-white/[0.02] transition-colors">
                      <td className="px-6 py-4 whitespace-nowrap">
                        <div className="flex items-center gap-2 text-xs font-mono text-[#8b9bb4] group-hover:text-white/80">
-                         <Calendar className="w-3 h-3 text-rose-400 opacity-50" />
+                         <Calendar className="w-3 h-3 text-blue-400 opacity-50" />
                          {new Date(log.timestamp).toLocaleString()}
                        </div>
                      </td>
                      <td className="px-6 py-4 whitespace-nowrap">
                        <div className="flex items-center gap-2">
-                         <div className="w-6 h-6 rounded-full bg-rose-500/20 flex items-center justify-center text-[10px] font-bold text-rose-400 border border-rose-500/20 shadow-inner">
+                         <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-400 border border-blue-500/20 shadow-inner">
                             {log.userName.charAt(0)}
                          </div>
-                         <span className="text-sm font-medium text-white/90 drop-shadow-md">{log.userName}</span>
+                         <span className="text-sm font-medium text-slate-100">{log.userName}</span>
                        </div>
                      </td>
                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                            {getSeverityIcon(log.severity)}
-                           <span className="text-xs font-bold uppercase tracking-wider text-white/80 drop-shadow-md">{log.action}</span>
+                           <span className="text-xs font-bold uppercase tracking-wider text-slate-100">{log.action}</span>
                         </div>
                      </td>
                      <td className="px-6 py-4 whitespace-nowrap">

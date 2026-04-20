@@ -27,7 +27,7 @@ export function PortalSidebarItem({ icon, isActive, onClick, title }: PortalSide
       {React.cloneElement(icon as React.ReactElement, { 
         className: cn(
           "w-6 h-6 transition-transform duration-500", 
-          isActive && "scale-110 drop-shadow-[0_0_8px_currentColor]"
+          isActive && "scale-110 "
         ) 
       })}
     </button>

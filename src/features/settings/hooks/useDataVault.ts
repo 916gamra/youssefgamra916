@@ -19,7 +19,7 @@ export function useDataVault() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `GMAO_DNA_BACKUP_${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `GMAO_BACKUP_${new Date().toISOString().split('T')[0]}.json`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
