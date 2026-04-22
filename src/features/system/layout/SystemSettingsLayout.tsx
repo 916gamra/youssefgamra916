@@ -7,12 +7,15 @@ import { PortalSidebarItem } from '@/shared/components/PortalSidebarItem';
 import type { User } from '@/core/db';
 
 import { UserManagementView } from '../views/UserManagementView';
+import { DataExchangeView } from '../views/DataExchangeView';
 import { DataCoreView } from '../views/DataCoreView';
 import { SecurityPoliciesView } from '../views/SecurityPoliciesView';
 import { AuditTrailView } from '../views/AuditTrailView';
+import { ArrowRightLeft } from 'lucide-react';
 
 const SETTINGS_COMPONENTS = {
   'user-management': UserManagementView,
+  'data-exchange': DataExchangeView,
   'data-core': DataCoreView,
   'security-policies': SecurityPoliciesView,
   'audit-trail': AuditTrailView,
@@ -41,6 +44,12 @@ export function SystemSettingsLayout({ user, onLogout }: { user: User | null, on
           isActive={activeTabId === 'user-management'} 
           onClick={() => openTab({ id: 'user-management', title: 'User Management', component: 'user-management' })}
           title="User Management"
+        />
+        <PortalSidebarItem 
+          icon={<ArrowRightLeft />} 
+          isActive={activeTabId === 'data-exchange'} 
+          onClick={() => openTab({ id: 'data-exchange', title: 'Data Exchange Hub', component: 'data-exchange' })}
+          title="Data Exchange Hub"
         />
         <PortalSidebarItem 
           icon={<HardDriveDownload />} 
