@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { FolderTree, Component, Info, Search, Plus, Trash2, Tag, Archive } from 'lucide-react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/core/db';
+import { useMasterCatalogEngine } from '../hooks/useMasterCatalogEngine';
 import { useNotifications } from '@/shared/hooks/useNotifications';
 
 export function TaxonomyView() {
-  const families = useLiveQuery(() => db.pdrFamilies.toArray());
-  const templates = useLiveQuery(() => db.pdrTemplates.toArray());
+  const { families, templates, createFamily, createTemplate } = useMasterCatalogEngine();
   const { showSuccess, showError } = useNotifications();
 
   const [newFamilyName, setNewFamilyName] = useState('');
@@ -20,11 +18,9 @@ export function TaxonomyView() {
     e.preventDefault();
     if (!newFamilyName) return;
     try {
-      await db.pdrFamilies.add({
-        id: crypto.randomUUID(),
+      await createFamily({
         name: newFamilyName,
-        description: newFamilyDesc,
-        createdAt: new Date().toISOString()
+        description: newFamilyDesc
       });
       setNewFamilyName('');
       setNewFamilyDesc('');
@@ -38,12 +34,10 @@ export function TaxonomyView() {
     e.preventDefault();
     if (!newTemplateName || !newTemplateSku || !selectedFamilyId) return;
     try {
-      await db.pdrTemplates.add({
-        id: crypto.randomUUID(),
+      await createTemplate({
         familyId: selectedFamilyId,
         name: newTemplateName,
-        skuBase: newTemplateSku,
-        createdAt: new Date().toISOString()
+        skuBase: newTemplateSku
       });
       setNewTemplateName('');
       setNewTemplateSku('');

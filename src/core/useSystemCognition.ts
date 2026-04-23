@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/app/store/useAuthStore';
 import { useTabStore } from '@/app/store';
 import { toast } from 'sonner';
+import { runBackgroundHealthCheck } from '@/core/health';
 
 /**
  * Cognition Engine (The Self-Awareness Module)
@@ -12,9 +13,28 @@ export function useSystemCognition() {
   const { clearTabs } = useTabStore();
   
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const healthCheckTimerRef = useRef<NodeJS.Timeout | null>(null);
   const broadcastChannelRef = useRef<BroadcastChannel | null>(null);
 
-  // --- 1. IDLE DETECTION (Auto-Lock) ---
+  // --- 1. HEALTH AND VITALITY CHECKS ---
+  useEffect(() => {
+    // Run an initial health check 5 seconds after boot to let React settle
+    const initialHealthTimer = setTimeout(() => {
+      runBackgroundHealthCheck();
+    }, 5000);
+
+    // Continue checking every 30 minutes
+    healthCheckTimerRef.current = setInterval(() => {
+      runBackgroundHealthCheck();
+    }, 30 * 60 * 1000);
+
+    return () => {
+      clearTimeout(initialHealthTimer);
+      if (healthCheckTimerRef.current) clearInterval(healthCheckTimerRef.current);
+    };
+  }, []);
+
+  // --- 2. IDLE DETECTION (Auto-Lock) ---
   const resetIdleTimer = () => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     
@@ -38,7 +58,7 @@ export function useSystemCognition() {
   };
 
   useEffect(() => {
-    // --- 2. MULTI-TERMINAL HIVE MIND (Cross-Tab Sync) ---
+    // --- 3. MULTI-TERMINAL HIVE MIND (Cross-Tab Sync) ---
     broadcastChannelRef.current = new BroadcastChannel('ciob-os-consciousness');
 
     broadcastChannelRef.current.onmessage = (event) => {

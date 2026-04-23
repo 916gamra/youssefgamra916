@@ -1,76 +1,117 @@
-/**
- * @license
- * System-wide Logger & Performance Monitor
- * Mimics Pino API for browser safety while providing structured logs
- */
+import { db } from '@/core/db';
+import { z } from 'zod';
 
-type LogContext = Record<string, any>;
+export type LogLevel = 'INFO' | 'WARNING' | 'CRITICAL';
+
+export interface BaseLogContext {
+  userId?: string | number;
+  userName?: string;
+  action?: string;
+  entityType?: string;
+  entityId?: string;
+  details?: Record<string, any>;
+  [key: string]: any; // fallback
+}
 
 class SystemLogger {
-  private formatMessage(level: string, contextOrMsg: LogContext | string, msg?: string) {
-    const timestamp = new Date().toISOString();
-    let data = {};
-    let message = '';
+  private async persist(
+    level: LogLevel, 
+    context: BaseLogContext, 
+    error?: Error | unknown
+  ) {
+    const errorDetails = error instanceof Error 
+      ? { message: error.message, stack: error.stack } 
+      : error;
 
-    if (typeof contextOrMsg === 'string') {
-      message = contextOrMsg;
-    } else {
-      data = contextOrMsg;
-      message = msg || '';
-    }
-
-    return {
-      timestamp,
-      level,
-      message,
-      ...data
+    const fullDetails = {
+      ...context.details,
+      ...(error && { error: errorDetails })
     };
+
+    try {
+      await db.auditLogs.add({
+        id: crypto.randomUUID(),
+        userId: context.userId || 'SYSTEM',
+        userName: context.userName || 'System Auto',
+        action: context.action || 'GENERAL_LOG',
+        entityType: context.entityType || 'SYSTEM',
+        entityId: context.entityId || 'N/A',
+        details: JSON.stringify(fullDetails),
+        timestamp: new Date().toISOString(),
+        severity: level,
+        deviceInfo: navigator.userAgent
+      });
+    } catch (e) {
+      console.error('CRITICAL: Failed to write to audit log', e);
+    }
   }
 
-  info(contextOrMsg: LogContext | string, msg?: string) {
-    const formatted = this.formatMessage('INFO', contextOrMsg, msg);
-    console.log(`[INFO] ${formatted.message}`, formatted);
+  private normalizeContext(contextOrMessage: string | BaseLogContext | Record<string, any>): BaseLogContext {
+    if (typeof contextOrMessage === 'string') {
+      return { action: contextOrMessage, entityType: 'GENERAL' };
+    }
+    return contextOrMessage as BaseLogContext;
   }
 
-  warn(contextOrMsg: LogContext | string, msg?: string) {
-    const formatted = this.formatMessage('WARN', contextOrMsg, msg);
-    console.warn(`[WARN] ${formatted.message}`, formatted);
+  info(contextOrMessage: string | BaseLogContext | Record<string, any>, details?: any) {
+    const context = this.normalizeContext(contextOrMessage);
+    if (details) context.details = { ...context.details, ...details };
+    console.info(`[${context.action}]`, context);
+    this.persist('INFO', context);
   }
 
-  error(contextOrMsg: LogContext | string, msg?: string) {
-    const formatted = this.formatMessage('ERROR', contextOrMsg, msg);
-    console.error(`[ERROR] ${formatted.message}`, formatted);
+  warn(contextOrMessage: string | BaseLogContext | Record<string, any>, details?: any) {
+    const context = this.normalizeContext(contextOrMessage);
+    if (details) context.details = { ...context.details, ...details };
+    console.warn(`[${context.action}]`, context);
+    this.persist('WARNING', context);
+  }
+
+  error(contextOrMessage: string | BaseLogContext | Record<string, any>, error?: Error | unknown) {
+    const context = this.normalizeContext(contextOrMessage);
+    // Remove the error object from context if accidentally passed inside to match old API usage
+    const actualError = error || context.error;
+    if (context.error) delete context.error;
+    
+    console.error(`[${context.action}]`, context, actualError);
+    this.persist('CRITICAL', context, actualError);
   }
 }
 
 export const logger = new SystemLogger();
 
-/**
- * Performance Monitoring Wrapper
- * Measures execution time of async operations and alerts on slow calls
- *
- * @param name - Name of the operation being measured
- * @param fn - The async function to measure
- * @returns The result of the async function
- * @throws The error thrown by the async function
- */
-export const measureOperation = async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
+export class PerformanceMonitor {
+  static async measure<T>(name: string, operation: () => Promise<T>): Promise<T> {
+    return measureOperation(name, operation);
+  }
+}
+
+export async function measureOperation<T>(name: string, operation: () => Promise<T>): Promise<T> {
   const start = performance.now();
   try {
-    const result = await fn();
+    const result = await operation();
     const duration = performance.now() - start;
-    
-    logger.info({ name, durationMs: duration.toFixed(2) }, `Operation completed: ${name}`);
-    
-    // Alert if operation took longer than 1 second
-    if (duration > 1000) {
-      logger.warn({ name, durationMs: duration.toFixed(2) }, `Slow operation detected: ${name}`);
-    }
-    
+    logger.info({ action: 'PERFORMANCE', entityType: 'MEASURE', details: { operation: name, durationMs: duration } });
     return result;
-  } catch (error: any) {
+  } catch (error) {
     const duration = performance.now() - start;
-    logger.error({ name, durationMs: duration.toFixed(2), error: error.message || error }, `Operation failed: ${name}`);
+    logger.error({ action: 'PERFORMANCE_FAILED', entityType: 'MEASURE', details: { operation: name, durationMs: duration } }, error);
     throw error;
   }
-};
+}
+
+// Zod validation helper
+export function validatePayload<T>(schema: z.Schema<T>, payload: unknown, contextAction: string): T {
+  try {
+    return schema.parse(payload);
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      logger.error({
+        action: `${contextAction}_VALIDATION_FAILED`,
+        entityType: 'PAYLOAD',
+        details: { issues: err.issues, payload }
+      }, err);
+    }
+    throw err;
+  }
+}

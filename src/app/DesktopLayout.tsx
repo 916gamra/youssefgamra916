@@ -112,12 +112,14 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
                  
                  {/* Dynamic Portal Content (Self-contained sidebars) */}
                  <div className="flex flex-1 overflow-hidden">
-                   {activePortal === 'PDR' && <PdrLayout user={user} onLogout={onLogout} />}
-                   {activePortal === 'ORGANIZATION' && <MasterDataLayout user={user} onLogout={onLogout} />}
-                   {activePortal === 'FACTORY' && <FactoryLayout user={user} onLogout={onLogout} />}
-                   {activePortal === 'ANALYTICS' && <AnalyticsLayout user={user} onLogout={onLogout} />}
-                   {activePortal === 'PREVENTIVE' && <PreventiveLayout user={user} onLogout={onLogout} />}
-                   {activePortal === 'SETTINGS' && <SystemSettingsLayout user={user} onLogout={onLogout} />}
+                   <ErrorBoundary componentName={activePortal}>
+                     {activePortal === 'PDR' && <PdrLayout user={user} onLogout={onLogout} />}
+                     {activePortal === 'ORGANIZATION' && <MasterDataLayout user={user} onLogout={onLogout} />}
+                     {activePortal === 'FACTORY' && <FactoryLayout user={user} onLogout={onLogout} />}
+                     {activePortal === 'ANALYTICS' && <AnalyticsLayout user={user} onLogout={onLogout} />}
+                     {activePortal === 'PREVENTIVE' && <PreventiveLayout user={user} onLogout={onLogout} />}
+                     {activePortal === 'SETTINGS' && <SystemSettingsLayout user={user} onLogout={onLogout} />}
+                   </ErrorBoundary>
                  </div>
               </div>
             </Suspense>

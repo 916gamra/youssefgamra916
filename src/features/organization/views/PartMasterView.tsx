@@ -1,15 +1,14 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Hash, Search, Plus, Filter, Database, FileText, Settings2, BarChart2, Info } from 'lucide-react';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/core/db';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useMasterCatalogEngine } from '../hooks/useMasterCatalogEngine';
 import { useNotifications } from '@/shared/hooks/useNotifications';
 
 export function PartMasterView() {
-  const blueprints = useLiveQuery(() => db.pdrBlueprints.toArray());
-  const templates = useLiveQuery(() => db.pdrTemplates.toArray());
-  const families = useLiveQuery(() => db.pdrFamilies.toArray());
+  const { blueprints, templates, families, createBlueprint } = useMasterCatalogEngine();
   const { showSuccess, showError } = useNotifications();
+  const parentRef = useRef<HTMLDivElement>(null);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -20,21 +19,25 @@ export function PartMasterView() {
   const [selectedTemplateId, setSelectedTemplateId] = useState('');
 
   const filteredBlueprints = useMemo(() => {
-    if (!blueprints) return [];
     return blueprints.filter(b => b.reference.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [blueprints, searchTerm]);
+
+  const virtualizer = useVirtualizer({
+    count: filteredBlueprints.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 200, // Card height approximation
+    overscan: 5,
+  });
 
   const handleCreateBlueprint = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newBlueprintRef || !selectedTemplateId) return;
     try {
-      await db.pdrBlueprints.add({
-        id: crypto.randomUUID(),
+      await createBlueprint({
         templateId: selectedTemplateId,
-        reference: newBlueprintRef.toUpperCase(),
+        reference: newBlueprintRef,
         unit: newBlueprintUnit,
-        minThreshold: parseInt(newBlueprintThreshold) || 0,
-        createdAt: new Date().toISOString()
+        minThreshold: parseInt(newBlueprintThreshold) || 0
       });
       setNewBlueprintRef('');
       setIsAdding(false);
@@ -157,62 +160,77 @@ export function PartMasterView() {
         </motion.div>
       )}
 
-      {/* Blueprints Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {filteredBlueprints.map((blueprint) => {
-          const tmpl = templates?.find(t => t.id === blueprint.templateId);
-          const fam = families?.find(f => f.id === tmpl?.familyId);
-          
-          return (
-            <motion.div 
-              key={blueprint.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden flex flex-col group relative"
-            >
-              <div className="absolute top-0 right-0 p-5 opacity-5 group-hover:opacity-10 group-hover:scale-110 group-hover:text-amber-500 transition-all duration-500 pointer-events-none">
-                <Hash className="w-24 h-24" />
-              </div>
-              
-              <div className="p-6 border-b border-white/10 bg-white/[0.02]">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <span className="text-[9px] font-bold tracking-widest uppercase text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                        {fam?.name || 'GEN'}
-                      </span>
-                      <span className="text-[9px] font-bold tracking-widest uppercase text-slate-400">/</span>
-                      <span className="text-[9px] font-bold tracking-widest uppercase text-slate-300">
-                        {tmpl?.name || 'N/A'}
-                      </span>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white font-mono tracking-tight group-hover:text-amber-400 transition-colors">
-                      {blueprint.reference}
-                    </h3>
-                  </div>
-                </div>
+      {/* Virtualized Blueprints List */}
+      <div 
+        ref={parentRef} 
+        style={{ height: '600px', overflow: 'auto' }} 
+        className="w-full custom-scrollbar pr-2 pb-12 rounded-2xl"
+      >
+        <div style={{ height: `${virtualizer.getTotalSize()}px`, width: '100%', position: 'relative' }}>
+          {virtualizer.getVirtualItems().map((virtualItem) => {
+            const blueprint = filteredBlueprints[virtualItem.index];
+            const tmpl = templates?.find(t => t.id === blueprint.templateId);
+            const fam = families?.find(f => f.id === tmpl?.familyId);
 
-                <div className="grid grid-cols-2 gap-4 mt-6">
-                  <div className="bg-black/40 p-3 rounded-xl border border-white/5">
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-1 flex items-center gap-1.5"><FileText className="w-3 h-3" /> Base Unit</p>
-                    <p className="text-sm font-bold text-white">{blueprint.unit}</p>
+            return (
+              <div
+                key={virtualItem.key}
+                data-index={virtualItem.index}
+                ref={virtualizer.measureElement}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  transform: `translateY(${virtualItem.start}px)`,
+                  paddingBottom: '16px' // Replace gap
+                }}
+              >
+                <div className="bg-black/40 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden flex flex-col md:flex-row group relative shadow-inner">
+                  <div className="p-6 border-b md:border-b-0 md:border-r border-white/10 bg-white/[0.02] flex items-center justify-between min-w-[300px]">
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <span className="text-[9px] font-bold tracking-widest uppercase text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                          {fam?.name || 'GEN'}
+                        </span>
+                        <span className="text-[9px] font-bold tracking-widest uppercase text-slate-400">/</span>
+                        <span className="text-[9px] font-bold tracking-widest uppercase text-slate-300">
+                          {tmpl?.name || 'N/A'}
+                        </span>
+                      </div>
+                      <h3 className="text-xl md:text-2xl font-bold text-white font-mono tracking-tight group-hover:text-amber-400 transition-colors">
+                        {blueprint.reference}
+                      </h3>
+                    </div>
+                    <div className="opacity-5 group-hover:opacity-10 group-hover:scale-110 group-hover:text-amber-500 transition-all duration-500 pointer-events-none">
+                      <Hash className="w-12 h-12" />
+                    </div>
                   </div>
-                  <div className="bg-black/40 p-3 rounded-xl border border-white/5">
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-1 flex items-center gap-1.5"><BarChart2 className="w-3 h-3" /> Min Alert</p>
-                    <p className="text-sm font-bold text-amber-400 font-mono">{blueprint.minThreshold}</p>
+
+                  <div className="p-6 flex flex-1 items-center justify-between gap-6">
+                    <div className="flex gap-6">
+                      <div className="bg-black/40 px-4 py-2 rounded-xl border border-white/5 flex flex-col">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-1 flex items-center gap-1.5"><FileText className="w-3 h-3" /> Base Unit</p>
+                        <p className="text-sm font-bold text-white">{blueprint.unit}</p>
+                      </div>
+                      <div className="bg-black/40 px-4 py-2 rounded-xl border border-white/5 flex flex-col">
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-1 flex items-center gap-1.5"><BarChart2 className="w-3 h-3" /> Min Alert</p>
+                        <p className="text-sm font-bold text-amber-400 font-mono">{blueprint.minThreshold}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col items-end justify-center">
+                      <span className="text-[10px] font-mono text-slate-500 mb-3">SYS_ID: {blueprint.id.substring(0,8)}</span>
+                      <button className="text-amber-500 hover:text-amber-400 uppercase tracking-widest font-bold px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 rounded-xl transition-colors text-xs border border-amber-500/20">View Details</button>
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              <div className="p-3 bg-black/20 flex justify-between items-center text-[10px] font-mono text-slate-500">
-                <span>SYS_ID: {blueprint.id.substring(0,8)}</span>
-                <button className="text-amber-500 hover:text-amber-400 uppercase tracking-widest font-bold px-3 py-1 bg-amber-500/10 rounded-md transition-colors">Details</button>
-              </div>
-            </motion.div>
-          );
-        })}
+            );
+          })}
+        </div>
         {filteredBlueprints.length === 0 && !isAdding && (
-          <div className="col-span-full py-20 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
+          <div className="py-20 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-2xl bg-white/[0.02] mt-4">
             <Database className="w-12 h-12 text-slate-600 mb-4" />
             <p className="text-sm text-slate-400 font-bold uppercase tracking-widest">Master Catalog Empty</p>
             <p className="text-xs text-slate-500 mt-2">Initialize your first engineering blueprint to start building the inventory.</p>

@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/core/db';
 import type { Sector, Technician, Machine } from '@/core/db';
+import { z } from 'zod';
+import { validatePayload } from '@/core/logger';
+import { organizationRepository } from '../repositories/OrganizationRepository';
 
 export interface EnrichedMachine extends Machine {
   sectorName: string;
@@ -11,10 +13,30 @@ export interface EnrichedTechnician extends Technician {
   sectorName: string;
 }
 
+// Validation Schemas
+const sectorSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  description: z.string().optional(),
+});
+
+const technicianSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  sectorId: z.string().uuid('Invalid sector ID format'),
+  specialty: z.string().optional(),
+});
+
+const machineSchema = z.object({
+  name: z.string().min(2).max(100),
+  sectorId: z.string().uuid(),
+  family: z.string().min(1),
+  template: z.string().min(1),
+  referenceCode: z.string().min(2).regex(/^[A-Z0-9-\s]+$/i, 'Alphanumeric and dashes only'),
+});
+
 export function useOrganizationEngine() {
-  const sectors = useLiveQuery(() => db.sectors.toArray());
-  const technicians = useLiveQuery(() => db.technicians.toArray());
-  const machines = useLiveQuery(() => db.machines.toArray());
+  const sectors = useLiveQuery(() => organizationRepository.getAllSectors());
+  const technicians = useLiveQuery(() => organizationRepository.getAllTechnicians());
+  const machines = useLiveQuery(() => organizationRepository.getAllMachines());
 
   const isLoading = sectors === undefined || technicians === undefined || machines === undefined;
 
@@ -41,53 +63,46 @@ export function useOrganizationEngine() {
   }, [technicians, sectors]);
 
   const createSector = async (name: string, description?: string) => {
-    const id = crypto.randomUUID();
-    await db.sectors.add({ id, name, description });
-    return id;
-  };
-
-  const createTechnician = async (name: string, sectorId: string, specialty?: string) => {
-    const id = crypto.randomUUID();
-    await db.technicians.add({ id, name, sectorId, specialty });
-    return id;
-  };
-
-  const createMachine = async (name: string, sectorId: string, family: string, template: string, referenceCode: string) => {
-    const id = crypto.randomUUID();
-    await db.machines.add({ id, name, sectorId, family, template, referenceCode });
-    return id;
+    const validated = validatePayload(sectorSchema, { name, description }, 'CREATE_SECTOR');
+    return organizationRepository.createSector(validated);
   };
 
   const updateSector = async (id: string, updates: Partial<Sector>) => {
-    await db.sectors.update(id, updates);
+    const validated = validatePayload(sectorSchema.partial(), updates, 'UPDATE_SECTOR');
+    return organizationRepository.updateSector(id, validated);
   };
 
   const deleteSector = async (id: string) => {
-    // Check if sector has dependencies (machines or techs)
-    const machinesCount = await db.machines.where('sectorId').equals(id).count();
-    const techsCount = await db.technicians.where('sectorId').equals(id).count();
-    
-    if (machinesCount > 0 || techsCount > 0) {
-      throw new Error(`Cannot delete sector: It contains ${machinesCount} machines and ${techsCount} technicians.`);
-    }
-    
-    await db.sectors.delete(id);
+    return organizationRepository.deleteSector(id);
+  };
+
+  const createTechnician = async (name: string, sectorId: string, specialty?: string) => {
+    const validated = validatePayload(technicianSchema, { name, sectorId, specialty }, 'CREATE_TECHNICIAN');
+    return organizationRepository.createTechnician(validated);
   };
 
   const updateTechnician = async (id: string, updates: Partial<Technician>) => {
-    await db.technicians.update(id, updates);
+    const validated = validatePayload(technicianSchema.partial(), updates, 'UPDATE_TECHNICIAN');
+    return organizationRepository.updateTechnician(id, validated);
   };
 
   const deleteTechnician = async (id: string) => {
-    await db.technicians.delete(id);
+    return organizationRepository.deleteTechnician(id);
+  };
+
+  const createMachine = async (name: string, sectorId: string, family: string, template: string, referenceCode: string) => {
+    const payload = { name, sectorId, family, template, referenceCode };
+    const validated = validatePayload(machineSchema, payload, 'CREATE_MACHINE');
+    return organizationRepository.createMachine(validated);
   };
 
   const updateMachine = async (id: string, updates: Partial<Machine>) => {
-    await db.machines.update(id, updates);
+    const validated = validatePayload(machineSchema.partial(), updates, 'UPDATE_MACHINE');
+    return organizationRepository.updateMachine(id, validated);
   };
 
   const deleteMachine = async (id: string) => {
-    await db.machines.delete(id);
+    return organizationRepository.deleteMachine(id);
   };
 
   return {

@@ -94,10 +94,21 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         output: {
-          manualChunks: {
-            'react-vendor': ['react', 'react-dom'],
-            'ui-vendor': ['lucide-react', 'motion/react', 'clsx', 'tailwind-merge'],
-            'data-vendor': ['zustand', '@tanstack/react-query', 'dexie', 'dexie-react-hooks'],
+          manualChunks(id) {
+            // Group react and UI basics
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+              return 'react-vendor';
+            }
+            if (id.includes('node_modules/lucide-react') || id.includes('node_modules/motion')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('node_modules/zustand') || id.includes('node_modules/dexie')) {
+              return 'data-vendor';
+            }
+            // Prevent chunks from being named "errors" to avoid confusion in logs
+            if (id.includes('error') || id.includes('Error')) {
+              return 'app-core';
+            }
           },
         },
       },
