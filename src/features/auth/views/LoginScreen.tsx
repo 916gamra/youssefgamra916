@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { db, User } from '@/core/db';
 import { useAuthStore } from '@/app/store/useAuthStore';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
+import { SystemBackground } from '@/shared/components/SystemBackground';
 
 export function LoginScreen() {
   const users = useLiveQuery(() => db.users.toArray());
@@ -99,13 +100,8 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#0a0b10] flex flex-col items-center justify-center selection:bg-blue-500/30">
-      {/* Abstract Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 blur-[120px] rounded-full mix-blend-screen" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-indigo-600/10 blur-[150px] rounded-full mix-blend-screen" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-      </div>
+    <div className="relative w-full h-screen overflow-hidden bg-transparent flex flex-col items-center justify-center selection:bg-blue-500/30">
+      <SystemBackground />
 
       <div className="relative z-10 w-full max-w-4xl px-6 flex flex-col items-center">
         
@@ -170,7 +166,7 @@ export function LoginScreen() {
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
                     disabled={isLoading}
-                    className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)] transition-all backdrop-blur-md text-center tracking-widest text-lg"
+                    className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all backdrop-blur-md text-center tracking-widest text-lg"
                   />
                   <button 
                     type="submit"

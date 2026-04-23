@@ -1,7 +1,9 @@
 import React from 'react';
 import { cn } from '@/shared/utils';
-import { LogOut } from 'lucide-react';
+import { LogOut, Sun, Moon, Languages } from 'lucide-react';
 import { useAuthStore } from '@/app/store/useAuthStore';
+import { useThemeStore } from '@/app/store/useThemeStore';
+import { useLanguageStore } from '@/app/store/useLanguageStore';
 
 interface PortalSidebarProps {
   portalName: string;
@@ -15,9 +17,11 @@ interface PortalSidebarProps {
 export function PortalSidebar({ portalName, portalIcon, colorClass, borderClass, textClass, children }: PortalSidebarProps) {
   const nameParts = portalName.split(' ');
   const logout = useAuthStore(state => state.logout);
+  const { theme, toggleTheme } = useThemeStore();
+  const { language, cycleLanguage } = useLanguageStore();
 
   return (
-    <aside className="w-[84px] border-r border-white/5 bg-[#050508] backdrop-blur-3xl flex flex-col items-center py-8 gap-4 shrink-0 z-40 overflow-y-auto custom-scrollbar shadow-[4px_0_32px_rgba(0,0,0,1)] relative">
+    <aside className="w-[84px] border-r border-white/5 bg-black/40 backdrop-blur-3xl flex flex-col items-center py-8 gap-4 shrink-0 z-40 overflow-y-auto custom-scrollbar shadow-[4px_0_32px_rgba(0,0,0,0.5)] relative">
       <div className="absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-white/5 to-transparent" />
       
       {/* Portal Identity */}
@@ -49,6 +53,23 @@ export function PortalSidebar({ portalName, portalIcon, colorClass, borderClass,
       {/* Bottom Actions */}
       <div className="w-10 h-px bg-white/5 shrink-0 my-2" />
       
+      <button 
+        onClick={cycleLanguage}
+        className="w-12 h-12 rounded-xl flex flex-col items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 transition-all shrink-0 relative group"
+        title="Cycle Language (EN/FR/AR)"
+      >
+        <Languages className="w-5 h-5 mb-0.5" />
+        <span className="text-[9px] font-bold opacity-60 group-hover:opacity-100">{language}</span>
+      </button>
+
+      <button 
+        onClick={toggleTheme}
+        className="w-12 h-12 rounded-xl flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 transition-all shrink-0"
+        title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+      >
+        {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      </button>
+
       <button 
         onClick={() => logout()}
         className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center text-rose-500/40 hover:text-rose-500 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all group shrink-0"

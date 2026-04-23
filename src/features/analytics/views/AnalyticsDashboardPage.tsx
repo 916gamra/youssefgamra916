@@ -9,19 +9,19 @@ export function AnalyticsDashboardPage() {
   const { kpis, topMachines, techActivity, stockHealth, isLoading } = useAnalyticsEngine();
 
   if (isLoading) {
-    return <div className="p-12 flex items-center gap-3 text-[var(--text-dim)]"><Loader2 className="w-5 h-5 animate-spin" /> Booting The Oracle...</div>;
+    return <div className="p-12 flex items-center gap-3 text-slate-400"><Loader2 className="w-5 h-5 animate-spin" /> Booting The Oracle...</div>;
   }
 
   // Liquid Chart Custom Tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-black/80 backdrop-blur-md border border-[var(--glass-border)] p-3 rounded-lg shadow-2xl">
-          <p className="text-sm font-semibold text-[var(--text-bright)] mb-1">{label || payload[0]?.name}</p>
+        <div className="bg-black/80 backdrop-blur-md border border-white/10 p-3 rounded-lg shadow-2xl">
+          <p className="text-sm font-semibold text-white mb-1">{label || payload[0]?.name}</p>
           {payload.map((p: any, idx: number) => (
-            <p key={idx} className="text-xs text-[var(--text-dim)] flex items-center gap-2">
+            <p key={idx} className="text-xs text-slate-400 flex items-center gap-2">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color || p.fill }} />
-              {p.name}: <span className="text-[var(--text-bright)] font-mono">{p.value}</span>
+              {p.name}: <span className="text-white font-mono">{p.value}</span>
             </p>
           ))}
         </div>
@@ -34,11 +34,11 @@ export function AnalyticsDashboardPage() {
     <div className="max-w-7xl mx-auto space-y-8 pb-24">
       {/* Oracle Header */}
       <header className="mb-8 pt-2">
-        <h1 className="text-3xl font-semibold text-[var(--text-bright)] tracking-tight mb-2 flex items-center gap-3">
+        <h1 className="text-3xl font-semibold text-white tracking-tight mb-2 flex items-center gap-3">
           <Eye className="w-8 h-8 text-indigo-400" /> The Oracle 
           <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">Executive</span>
         </h1>
-        <p className="text-[var(--text-dim)] text-lg">Central nervous system telemetry. Global supply chain and maintenance insights.</p>
+        <p className="text-slate-400 text-lg">Central nervous system telemetry. Global supply chain and maintenance insights.</p>
       </header>
 
       {/* KPI Row */}
@@ -51,9 +51,9 @@ export function AnalyticsDashboardPage() {
                   <Database className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-[var(--text-dim)] text-sm font-medium uppercase tracking-wider mb-1">Global Stock Volume</h3>
-                  <div className="text-3xl font-bold font-mono text-[var(--text-bright)]">
-                    {kpis.totalStockVolume.toLocaleString()} <span className="text-sm font-sans text-[var(--text-dim)] font-medium">units</span>
+                  <h3 className="text-slate-400 text-sm font-medium uppercase tracking-wider mb-1">Global Stock Volume</h3>
+                  <div className="text-3xl font-bold font-mono text-white">
+                    {kpis.totalStockVolume.toLocaleString()} <span className="text-sm font-sans text-slate-400 font-medium">units</span>
                   </div>
                 </div>
              </div>
@@ -68,9 +68,9 @@ export function AnalyticsDashboardPage() {
                   <PackageSearch className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-[var(--text-dim)] text-sm font-medium uppercase tracking-wider mb-1">Distinct Parts</h3>
-                  <div className="text-3xl font-bold font-mono text-[var(--text-bright)]">
-                    {kpis.distinctParts.toLocaleString()} <span className="text-sm font-sans text-[var(--text-dim)] font-medium">blueprints</span>
+                  <h3 className="text-slate-400 text-sm font-medium uppercase tracking-wider mb-1">Distinct Parts</h3>
+                  <div className="text-3xl font-bold font-mono text-white">
+                    {kpis.distinctParts.toLocaleString()} <span className="text-sm font-sans text-slate-400 font-medium">blueprints</span>
                   </div>
                 </div>
              </div>
@@ -85,9 +85,9 @@ export function AnalyticsDashboardPage() {
                   <TrendingUp className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-[var(--text-dim)] text-sm font-medium uppercase tracking-wider mb-1">Monthly Requisitions</h3>
-                  <div className="text-3xl font-bold font-mono text-[var(--text-bright)]">
-                    {kpis.totalReqsThisMonth.toLocaleString()} <span className="text-sm font-sans text-[var(--text-dim)] font-medium">orders</span>
+                  <h3 className="text-slate-400 text-sm font-medium uppercase tracking-wider mb-1">Monthly Requisitions</h3>
+                  <div className="text-3xl font-bold font-mono text-white">
+                    {kpis.totalReqsThisMonth.toLocaleString()} <span className="text-sm font-sans text-slate-400 font-medium">orders</span>
                   </div>
                 </div>
              </div>
@@ -103,8 +103,8 @@ export function AnalyticsDashboardPage() {
           <GlassCard className="h-[400px] flex flex-col relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative z-10">
-              <h2 className="text-lg font-semibold text-[var(--text-bright)] mb-1">The Black Holes 🕳️</h2>
-              <p className="text-xs text-[var(--text-dim)] mb-6 uppercase tracking-wider">Top Consuming Machines (Units Drafted)</p>
+              <h2 className="text-lg font-semibold text-white mb-1">The Black Holes 🕳️</h2>
+              <p className="text-xs text-slate-400 mb-6 uppercase tracking-wider">Top Consuming Machines (Units Drafted)</p>
             </div>
             <div className="flex-1 relative z-10">
               {topMachines.length > 0 ? (
@@ -122,7 +122,7 @@ export function AnalyticsDashboardPage() {
                   </BarChart>
                </ResponsiveContainer>
               ) : (
-                <div className="h-full flex items-center justify-center text-[var(--text-dim)] text-sm">Insufficient requisition data</div>
+                <div className="h-full flex items-center justify-center text-slate-400 text-sm">Insufficient requisition data</div>
               )}
             </div>
           </GlassCard>
@@ -133,8 +133,8 @@ export function AnalyticsDashboardPage() {
           <GlassCard className="h-[400px] flex flex-col relative overflow-hidden group">
             <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative z-10">
-              <h2 className="text-lg font-semibold text-[var(--text-bright)] mb-1">Global Stock Health 🏥</h2>
-              <p className="text-xs text-[var(--text-dim)] mb-2 uppercase tracking-wider">Inventory Viability Index</p>
+              <h2 className="text-lg font-semibold text-white mb-1">Global Stock Health 🏥</h2>
+              <p className="text-xs text-slate-400 mb-2 uppercase tracking-wider">Inventory Viability Index</p>
             </div>
             <div className="flex-1 relative z-10">
               <ResponsiveContainer width="100%" height="100%">
@@ -162,7 +162,7 @@ export function AnalyticsDashboardPage() {
                 {stockHealth.map(item => (
                   <div key={item.name} className="flex items-center gap-2">
                     <span className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                    <span className="text-xs text-[var(--text-dim)] font-medium">{item.name} ({item.value})</span>
+                    <span className="text-xs text-slate-400 font-medium">{item.name} ({item.value})</span>
                   </div>
                 ))}
               </div>
@@ -177,20 +177,20 @@ export function AnalyticsDashboardPage() {
         <GlassCard className="relative overflow-hidden border-orange-500/20 bg-orange-500/5">
            <div className="absolute top-0 right-1/4 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
            <div className="relative z-10">
-             <h2 className="text-lg font-semibold text-[var(--text-bright)] flex items-center gap-2 mb-4">
+             <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
                <PenTool className="w-5 h-5 text-orange-400" /> Top Requisitioning Technicians
              </h2>
              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
                 {techActivity.length > 0 ? techActivity.map((tech, idx) => (
-                  <div key={idx} className="p-4 rounded-xl bg-black/40 border border-[var(--glass-border)] flex flex-col items-center justify-center text-center hover:border-orange-500/30 transition-colors">
+                  <div key={idx} className="p-4 rounded-xl bg-black/40 border border-white/10 flex flex-col items-center justify-center text-center hover:border-orange-500/30 transition-colors">
                      <div className="w-10 h-10 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-lg mb-2 shadow-[0_0_15px_rgba(249,115,22,0.2)]">
                        #{idx + 1}
                      </div>
-                     <h3 className="text-sm font-medium text-[var(--text-bright)] w-full truncate px-2">{tech.name}</h3>
-                     <span className="text-xs text-[var(--text-dim)]">{tech.count} requests</span>
+                     <h3 className="text-sm font-medium text-white w-full truncate px-2">{tech.name}</h3>
+                     <span className="text-xs text-slate-400">{tech.count} requests</span>
                   </div>
                 )) : (
-                  <div className="col-span-full py-8 text-center text-[var(--text-dim)] text-sm">Awaiting field activity to populate.</div>
+                  <div className="col-span-full py-8 text-center text-slate-400 text-sm">Awaiting field activity to populate.</div>
                 )}
              </div>
            </div>

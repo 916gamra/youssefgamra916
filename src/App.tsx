@@ -41,7 +41,14 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Global Toast Notifications */}
-      <Toaster position="top-right" theme="dark" richColors />
+      <Toaster 
+        position="top-right" 
+        theme="dark" 
+        toastOptions={{
+          className: 'bg-[#121318]/90 backdrop-blur-3xl border border-white/10 text-white shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-2xl',
+          descriptionClassName: 'text-slate-400',
+        }}
+      />
 
       {isBooting && (
         <SplashScreen onComplete={() => setIsSplashScreenDone(true)} />

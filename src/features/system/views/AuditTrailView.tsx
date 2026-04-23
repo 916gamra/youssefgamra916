@@ -3,17 +3,16 @@ import { motion, AnimatePresence } from 'motion/react';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { useAuditTrail } from '../hooks/useAuditTrail';
 import { 
-  ShieldAlert, 
   Search, 
   Trash2, 
   Calendar, 
-  User, 
   Activity, 
   Info, 
   AlertTriangle, 
   AlertOctagon,
   Download,
-  Filter
+  Filter,
+  RefreshCw
 } from 'lucide-react';
 import { cn } from '@/shared/utils';
 
@@ -59,147 +58,203 @@ export function AuditTrailView() {
     link.click();
   };
 
-  const getSeverityIcon = (severity: string) => {
+  const getSeverityBadge = (severity: string) => {
     switch (severity) {
-      case 'CRITICAL': return <AlertOctagon className="w-4 h-4 text-rose-500" />;
-      case 'WARNING': return <AlertTriangle className="w-4 h-4 text-amber-500" />;
-      default: return <Info className="w-4 h-4 text-cyan-500" />;
+      case 'CRITICAL': 
+        return (
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-rose-500/30 bg-rose-500/10 text-[10px] uppercase text-rose-400 font-bold tracking-wider whitespace-nowrap shadow-sm">
+            <AlertOctagon className="w-3 h-3" /> Critical
+          </div>
+        );
+      case 'WARNING': 
+        return (
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-amber-500/30 bg-amber-500/10 text-[10px] uppercase text-amber-400 font-bold tracking-wider whitespace-nowrap shadow-sm">
+            <AlertTriangle className="w-3 h-3" /> Warning
+          </div>
+        );
+      default: 
+        return (
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border border-cyan-500/20 bg-cyan-500/5 text-[10px] uppercase text-cyan-500 font-bold tracking-wider whitespace-nowrap shadow-sm">
+            <Info className="w-3 h-3" /> Info
+          </div>
+        );
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-12">
-      <header className="pt-2 flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="max-w-7xl mx-auto space-y-6 pb-12 w-full">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2 object-contain">
         <div>
-           <h1 className="text-3xl font-bold tracking-tight text-white mb-2 flex items-center gap-3">
-             <ShieldAlert className="w-8 h-8 text-blue-500" /> System Audit Trail
-           </h1>
-           <p className="text-slate-400 text-sm">Comprehensive log of all critical system operations.</p>
+          <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
+            <RefreshCw className="w-8 h-8 text-blue-500" />
+            System Audit Trail
+          </h1>
+          <p className="text-slate-400 text-sm max-w-2xl leading-relaxed">
+            Immutable cryptographic log of critical system operations and transactions.
+          </p>
         </div>
         
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
           <button 
              onClick={exportLogsAsCSV}
-             className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold uppercase tracking-widest text-[#8b9bb4] hover:text-white transition-all flex items-center gap-2 active:scale-95"
+             className="flex items-center gap-2 px-5 py-2.5 bg-black/40 hover:bg-white/10 text-slate-300 rounded-xl font-medium text-sm transition-colors border border-white/10 shadow-inner shrink-0"
           >
             <Download className="w-4 h-4" /> Export CSV
           </button>
           <button 
              onClick={clearLogs}
-             className="px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 shadow-inner border border-blue-500/30 rounded-xl text-xs font-bold uppercase tracking-widest text-blue-400 transition-all flex items-center gap-2 active:scale-95"
+             className="flex items-center gap-2 px-5 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 rounded-xl font-medium text-sm transition-all shadow-inner shrink-0"
           >
-            <Trash2 className="w-4 h-4" /> Purge Logs
+            <Trash2 className="w-4 h-4" /> Clear Logs
           </button>
         </div>
       </header>
 
       {/* Stats Quick Look */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-         <GlassCard className="p-4 bg-white/[0.02]">
-            <div className="text-[10px] text-[#8b9bb4] uppercase font-bold tracking-widest mb-1">Total Events</div>
-            <div className="text-2xl font-mono text-white">{logs.length}</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+         <GlassCard className="p-5 bg-white/[0.02] border border-white/5 flex flex-col justify-between group rounded-2xl shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
+                 <Activity className="w-5 h-5 text-slate-400" />
+              </div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Events</span>
+            </div>
+            <div className="text-3xl font-semibold text-slate-200 tabular-nums">{logs.length}</div>
          </GlassCard>
-         <GlassCard className="p-4 bg-white/[0.02]">
-            <div className="text-[10px] text-rose-400/80 uppercase font-bold tracking-widest mb-1">Critical Alerts</div>
-            <div className="text-2xl font-mono text-rose-400">{logs.filter(l => l.severity === 'CRITICAL').length}</div>
+         <GlassCard className="p-5 bg-rose-500/[0.02] border border-rose-500/20 flex flex-col justify-between group rounded-2xl shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
+                 <AlertOctagon className="w-5 h-5 text-rose-500" />
+              </div>
+              <span className="text-xs font-bold text-rose-500/80 uppercase tracking-wider">Critical Alerts</span>
+            </div>
+            <div className="text-3xl font-semibold text-rose-500 tabular-nums">{logs.filter(l => l.severity === 'CRITICAL').length}</div>
          </GlassCard>
-         <GlassCard className="p-4 bg-white/[0.02]">
-            <div className="text-[10px] text-amber-400/80 uppercase font-bold tracking-widest mb-1">Warnings</div>
-            <div className="text-2xl font-mono text-amber-400">{logs.filter(l => l.severity === 'WARNING').length}</div>
+         <GlassCard className="p-5 bg-amber-500/[0.02] border border-amber-500/20 flex flex-col justify-between group rounded-2xl shadow-lg">
+             <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
+                 <AlertTriangle className="w-5 h-5 text-amber-500" />
+              </div>
+              <span className="text-xs font-bold text-amber-500/80 uppercase tracking-wider">Warnings</span>
+            </div>
+            <div className="text-3xl font-semibold text-amber-500 tabular-nums">{logs.filter(l => l.severity === 'WARNING').length}</div>
          </GlassCard>
-         <GlassCard className="p-4 bg-white/[0.02]">
-            <div className="text-[10px] text-cyan-400/80 uppercase font-bold tracking-widest mb-1">Info Streams</div>
-            <div className="text-2xl font-mono text-cyan-400">{logs.filter(l => l.severity === 'INFO').length}</div>
+         <GlassCard className="p-5 bg-cyan-500/[0.02] border border-cyan-500/20 flex flex-col justify-between group rounded-2xl shadow-lg">
+             <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
+                 <Info className="w-5 h-5 text-cyan-500" />
+              </div>
+              <span className="text-xs font-bold text-cyan-500/80 uppercase tracking-wider">Info Stream</span>
+            </div>
+            <div className="text-3xl font-semibold text-cyan-500 tabular-nums">{logs.filter(l => l.severity === 'INFO').length}</div>
          </GlassCard>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 items-center">
-         <div className="relative flex-1 w-full">
-           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b9bb4]" />
-           <input 
-             type="text" 
-             placeholder="Search by user, action, or entity..."
-             value={searchTerm}
-             onChange={(e) => setSearchTerm(e.target.value)}
-             className="w-full titan-input pl-12"
-           />
-         </div>
-         
-         <div className="flex bg-black/40 p-1 rounded-xl border border-white/10 shrink-0 w-full md:w-auto h-full items-center shadow-inner">
-            {(['ALL', 'INFO', 'WARNING', 'CRITICAL'] as const).map(sev => (
-              <button
-                key={sev}
-                onClick={() => setSeverityFilter(sev)}
-                className={cn(
-                  "px-4 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all",
-                  severityFilter === sev ? "bg-white/10 text-white shadow-sm" : "text-[#8b9bb4] hover:text-white/80"
-                )}
-              >
-                {sev}
-              </button>
-            ))}
-         </div>
-      </div>
-
-      <GlassCard className="overflow-hidden p-0 border-white/5">
-         <div className="overflow-x-auto">
-           <table className="w-full text-left border-collapse">
-             <thead>
-               <tr className="bg-white/5 border-b border-white/10">
-                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8b9bb4]">Timestamp</th>
-                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8b9bb4]">User</th>
-                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8b9bb4]">Operation</th>
-                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8b9bb4]">Target</th>
-                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8b9bb4]">Details</th>
-               </tr>
-             </thead>
-             <tbody className="divide-y divide-white/[0.02]">
-               {filteredLogs.length === 0 ? (
-                 <tr>
-                   <td colSpan={5} className="px-6 py-12 text-center text-white/30 text-sm">No audit logs match your current filter criteria.</td>
-                 </tr>
-               ) : (
-                 filteredLogs.map(log => (
-                   <tr key={log.id} className="group hover:bg-white/[0.02] transition-colors">
-                     <td className="px-6 py-4 whitespace-nowrap">
-                       <div className="flex items-center gap-2 text-xs font-mono text-[#8b9bb4] group-hover:text-white/80">
-                         <Calendar className="w-3 h-3 text-blue-400 opacity-50" />
-                         {new Date(log.timestamp).toLocaleString()}
+      <div className="flex flex-col bg-white/[0.02] border border-white/[0.05] rounded-3xl overflow-hidden shadow-2xl relative">
+        <div className="p-5 border-b border-white/[0.05] bg-black/40 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shrink-0">
+          <div className="flex items-center gap-3">
+             <Filter className="w-4 h-4 text-slate-400" />
+             <div className="flex bg-black/40 p-1 rounded-xl border border-white/10 shrink-0 shadow-inner relative z-10">
+                {(['ALL', 'INFO', 'WARNING', 'CRITICAL'] as const).map(sev => (
+                  <button
+                    key={sev}
+                    onClick={() => setSeverityFilter(sev)}
+                    className={cn(
+                      "px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
+                      severityFilter === sev 
+                       ? "bg-white/10 text-white shadow-sm" 
+                       : "text-slate-500 hover:text-white/80"
+                    )}
+                  >
+                    {sev}
+                  </button>
+                ))}
+            </div>
+          </div>
+          <div className="relative group flex-1 md:max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-500 transition-colors" />
+            <input 
+              type="text" 
+              placeholder="Search users, operations, or entities..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm text-slate-200 outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all placeholder:text-slate-600 shadow-inner"
+            />
+          </div>
+        </div>
+        
+        <div className="overflow-x-auto bg-transparent flex-1">
+          <table className="w-full text-left border-collapse whitespace-nowrap min-w-[800px]">
+            <thead className="sticky top-0 bg-transparent/90 backdrop-blur-md z-20 border-b border-white/[0.05]">
+              <tr>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-[10px]">Timestamp</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-[10px]">User Identity</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-[10px]">Operation</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-[10px]">Target Entity</th>
+                <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-wider text-[10px] w-full">Payload Details</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.02]">
+              <AnimatePresence mode="popLayout">
+                {filteredLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-24 text-center">
+                       <div className="flex flex-col items-center">
+                          <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 shadow-inner">
+                            <Activity className="w-8 h-8 text-slate-600" />
+                          </div>
+                          <p className="text-sm font-medium text-slate-400">No matching logs found.</p>
                        </div>
-                     </td>
-                     <td className="px-6 py-4 whitespace-nowrap">
-                       <div className="flex items-center gap-2">
-                         <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-400 border border-blue-500/20 shadow-inner">
-                            {log.userName.charAt(0)}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredLogs.map((log, idx) => (
+                    <motion.tr 
+                      key={log.id} 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: Math.min(idx * 0.01, 0.2) }}
+                      className="group hover:bg-white/[0.02] cursor-pointer transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2 text-xs text-slate-400 group-hover:text-blue-300 transition-colors">
+                          <Calendar className="w-3.5 h-3.5 opacity-50" />
+                          {new Date(log.timestamp).toLocaleString([], { hour12: false, year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white bg-slate-800 border border-slate-700 shadow-inner">
+                             {log.userName.charAt(0).toUpperCase()}
+                          </div>
+                          <span className="text-sm font-semibold text-slate-200">{log.userName}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-md shadow-sm">{log.action}</span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                         <div className="flex items-center gap-2 text-xs text-slate-400">
+                            <span className="text-blue-400 font-medium">{log.entityType}</span>
+                            <span className="text-[10px] opacity-40">[{log.entityId.substring(0,8).toUpperCase()}]</span>
                          </div>
-                         <span className="text-sm font-medium text-slate-100">{log.userName}</span>
-                       </div>
-                     </td>
-                     <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                           {getSeverityIcon(log.severity)}
-                           <span className="text-xs font-bold uppercase tracking-wider text-slate-100">{log.action}</span>
-                        </div>
-                     </td>
-                     <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-xs text-[#8b9bb4]">
-                           <Activity className="w-3 h-3 opacity-50" />
-                           <span className="font-mono text-white/70">{log.entityType}</span>
-                           <span className="text-[10px] opacity-40">({log.entityId.substring(0,8)})</span>
-                        </div>
-                     </td>
-                     <td className="px-6 py-4">
-                        <div className="text-xs text-white/50 line-clamp-1 group-hover:line-clamp-none transition-all duration-300 max-w-md group-hover:text-white/90">
-                           {log.details}
-                        </div>
-                     </td>
-                   </tr>
-                 ))
-               )}
-             </tbody>
-           </table>
-         </div>
-      </GlassCard>
+                      </td>
+                      <td className="px-6 py-4">
+                         <div className="flex justify-between items-center gap-4 w-full">
+                           <div className="text-xs text-slate-500 truncate max-w-lg group-hover:text-slate-300 transition-colors">
+                              {log.details}
+                           </div>
+                           {getSeverityBadge(log.severity)}
+                         </div>
+                      </td>
+                    </motion.tr>
+                  ))
+                )}
+              </AnimatePresence>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

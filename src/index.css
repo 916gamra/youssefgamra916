@@ -8,7 +8,7 @@
 
 @layer base {
   :root {
-    --bg-base: #0f1117;
+    --bg-base: #0a0b10;
     --glass-bg: rgba(255, 255, 255, 0.03);
     --glass-border: rgba(255, 255, 255, 0.08);
     --accent: #2563eb; /* Industrial Blue 600 */
@@ -20,9 +20,6 @@
   body {
     background-color: var(--bg-base);
     color: var(--text-bright);
-    background-image: 
-      radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
-      radial-gradient(circle at 100% 0%, rgba(30, 41, 59, 0.2) 0%, transparent 40%);
     background-attachment: fixed;
     @apply antialiased selection:bg-blue-500/30 selection:text-blue-100;
   }

@@ -20,7 +20,7 @@ export function PortalSidebarItem({ icon, isActive, onClick, title }: PortalSide
       className={cn(
         "w-14 h-14 flex-shrink-0 flex items-center justify-center rounded-[1.25rem] transition-all duration-500 border relative group",
         isActive 
-          ? "bg-current/15 border-current shadow-[0_0_20px_rgba(34,211,238,0.2)]" 
+          ? "bg-current/15 border-current shadow-[inset_0_0_12px_currentColor,0_0_12px_currentColor]" 
           : "bg-transparent text-[#8b9bb4]/40 border-transparent hover:bg-white/5 hover:text-white/80 hover:scale-105"
       )}
     >

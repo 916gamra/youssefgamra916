@@ -134,7 +134,7 @@ export function DataCoreView({ user }: { user: User | null }) {
   const progressPercentage = progressData.total > 0 ? Math.round((progressData.completed / progressData.total) * 100) : 0;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-10 pb-12 pt-4 px-6 md:px-0 bg-[#0a0a0f]">
+    <div className="max-w-6xl mx-auto space-y-10 pb-12 pt-4 px-6 md:px-0 bg-transparent">
       <header className="flex flex-col gap-2 relative">
         <div className="absolute -top-10 -left-10 w-96 h-96 bg-rose-500/5 blur-[120px] rounded-full pointer-events-none" />
         <h1 className="text-3xl font-bold text-white tracking-tight mb-2 flex items-center gap-4 uppercase">

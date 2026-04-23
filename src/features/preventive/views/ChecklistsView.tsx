@@ -158,13 +158,13 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
       {/* LEFT PANEL: Checklists Catalog */}
       <div className="w-full md:w-1/3 flex flex-col h-full titan-card overflow-hidden shrink-0">
         <div className="p-5 border-b border-white/5 flex justify-between items-center bg-emerald-500/5">
-            <h2 className="text-blue-400 font-bold tracking-widest text-xs uppercase flex items-center gap-2">
+            <h2 className="text-emerald-400 font-bold tracking-widest text-xs uppercase flex items-center gap-2">
               <LayoutList className="w-4 h-4" />
               Maintenance Protocols
             </h2>
             <button 
               onClick={() => setIsCreatingList(!isCreatingList)}
-              className="p-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-all active:scale-95 border border-blue-500/20"
+              className="p-2 bg-emerald-500/20 text-emerald-300 rounded-lg hover:bg-emerald-500/30 transition-all active:scale-95 border border-emerald-500/20"
             >
             <Plus className="w-4 h-4" />
           </button>

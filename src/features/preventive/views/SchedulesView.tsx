@@ -167,24 +167,24 @@ export function SchedulesView({ user }: SchedulesViewProps) {
   const isDataReady = (machines?.length ?? 0) > 0 && (checklists?.length ?? 0) > 0;
 
   return (
-    <div className="w-full h-full p-6 lg:p-8 flex flex-col overflow-hidden bg-[#0a0a0f]">
+    <div className="w-full h-full p-6 lg:p-8 flex flex-col overflow-hidden bg-transparent">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight flex items-center gap-3 uppercase">
-            <CalendarClock className="w-8 h-8 text-blue-500" />
+            <CalendarClock className="w-8 h-8 text-emerald-500" />
             PM Scheduler
           </h1>
           <p className="text-slate-400 uppercase tracking-widest text-xs mt-2 font-semibold flex items-center gap-2 mb-4">
-            <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
             Automated Maintenance Assignments
           </p>
         </div>
         <button 
           onClick={() => setIsCreating(!isCreating)}
           disabled={!isDataReady}
-          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shrink-0 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shrink-0 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
         >
           <Plus className="w-4 h-4" /> Initialize Schedule
         </button>
@@ -309,7 +309,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                         <div className={cn(
                           "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 group-hover:scale-105",
                           schedule.isActive 
-                            ? (isOverdue ? "bg-rose-500/10 border-rose-500/30 text-rose-400" : "bg-blue-500/10 border-blue-500/30 text-blue-500") 
+                            ? (isOverdue ? "bg-rose-500/10 border-rose-500/30 text-rose-400" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500") 
                             : "bg-white/5 border-white/10 text-white/20 shadow-inner"
                         )}>
                           <Briefcase className="w-6 h-6" />
@@ -355,7 +355,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                         </div>
                         <div className="flex-1">
                           <p className="text-[9px] uppercase tracking-widest text-[#8b9bb4] font-bold mb-1 opacity-50">Next Service Due</p>
-                          <p className={cn("text-sm font-bold", isOverdue && schedule.isActive ? "text-rose-400" : "text-blue-400")}>
+                          <p className={cn("text-sm font-bold", isOverdue && schedule.isActive ? "text-rose-400" : "text-emerald-400")}>
                             {dueDate.toLocaleDateString()}
                           </p>
                         </div>
@@ -370,7 +370,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                           "w-full py-3 font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 transition-all duration-300 border relative",
                           isOverdue && schedule.isActive 
                             ? "bg-rose-500 hover:bg-rose-600 text-white border-rose-400 shadow-md shadow-rose-500/20" 
-                            : "bg-blue-600 hover:bg-blue-500 text-white border-blue-500/50 shadow-md shadow-blue-500/20"
+                            : "bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500/50 shadow-md shadow-emerald-500/20"
                         )}
                       >
                         <Zap className="w-4 h-4" />

@@ -15,9 +15,9 @@ export function PortalCanvas({ componentMap, user, onLogout }: { componentMap: R
   };
 
   return (
-        <main className="flex-1 flex flex-col min-w-0 relative z-10 bg-[#0a0a0f] overflow-hidden">
+        <main className="flex-1 flex flex-col min-w-0 relative z-10 bg-transparent overflow-hidden">
           {/* Top Bar (Chrome-like Tabs) */}
-          <header className="h-[44px] md:h-[50px] bg-black/40 border-b border-[var(--glass-border)] flex items-end px-2 gap-1 shrink-0 w-full overflow-x-auto custom-scrollbar lg:pr-64 pr-20">
+          <header className="h-[44px] md:h-[50px] bg-black/40 border-b border-white/10 flex items-end px-2 gap-1 shrink-0 w-full overflow-x-auto custom-scrollbar lg:pr-64 pr-20">
             {tabs.map((tab) => (
               <div
                 key={tab.id}
@@ -25,8 +25,8 @@ export function PortalCanvas({ componentMap, user, onLogout }: { componentMap: R
                 className={cn(
                   "group relative flex items-center h-[36px] md:h-[42px] px-3 md:px-4 min-w-[120px] max-w-[200px] md:min-w-[160px] md:max-w-[240px] rounded-t-lg cursor-pointer transition-all select-none border border-b-0 text-[11px] md:text-xs gap-2 shrink-0",
                   tab.isActive 
-                    ? "bg-[var(--glass-bg)] text-[var(--text-bright)] border-[var(--glass-border)] border-t-2 border-t-[var(--accent)] z-10" 
-                    : "bg-white/[0.03] text-[var(--text-dim)] border-[var(--glass-border)] hover:bg-white/5"
+                    ? "bg-white/[0.08] text-white border-white/20 z-10 shadow-[0_4px_14px_0_rgba(255,255,255,0.05)]" 
+                    : "bg-white/[0.02] text-white/50 border-white/5 hover:bg-white/5 hover:text-white/80"
                 )}
               >
                 <span className="truncate flex-1">{tab.title}</span>
@@ -64,7 +64,7 @@ export function PortalCanvas({ componentMap, user, onLogout }: { componentMap: R
             </AnimatePresence>
             
             {tabs.length === 0 && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-[var(--text-dim)] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/10 via-[#0a0a0f] to-[#0a0a0f] px-6 text-center">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-[var(--text-dim)] px-6 text-center">
                 <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-white/5 flex items-center justify-center border border-white/10 mb-6 shadow-2xl">
                     <Package className="w-10 h-10 md:w-12 md:h-12 text-white/20" />
                 </div>

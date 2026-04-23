@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ClipboardCheck, KanbanSquare, CalendarClock, HardHat, FileSpreadsheet, LayoutDashboard } from 'lucide-react';
+import { ClipboardCheck, KanbanSquare, CalendarClock, HardHat, LayoutDashboard } from 'lucide-react';
 import { useTabStore } from '@/app/store';
 import { PortalCanvas } from '@/app/layout/PortalCanvas';
 import { PortalSidebar } from '@/app/layout/PortalSidebar';
@@ -10,14 +10,12 @@ import { PreventiveDashboard } from '../views/PreventiveDashboard';
 import { ChecklistsView } from '../views/ChecklistsView';
 import { SchedulesView } from '../views/SchedulesView';
 import { WorkOrdersView } from '../views/WorkOrdersView';
-import { PmExcelHubView } from '../views/PmExcelHubView';
 
 const PREVENTIVE_COMPONENTS = {
   'pm-dashboard': PreventiveDashboard,
   'pm-checklists': ChecklistsView,
   'pm-schedules': SchedulesView,
   'pm-work-orders': WorkOrdersView,
-  'pm-excel': PmExcelHubView,
 };
 
 export function PreventiveLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
@@ -34,9 +32,9 @@ export function PreventiveLayout({ user, onLogout }: { user: User | null, onLogo
       <PortalSidebar 
         portalName="Maintenance Ops"
         portalIcon={<ClipboardCheck />}
-        colorClass="text-blue-500 bg-blue-500/20"
-        borderClass="border-blue-500/30"
-        textClass="text-blue-400"
+        colorClass="bg-emerald-500/10 text-emerald-500"
+        borderClass="border-emerald-500/30"
+        textClass="text-emerald-400"
       >
         <PortalSidebarItem 
           icon={<LayoutDashboard />} 
@@ -61,12 +59,6 @@ export function PreventiveLayout({ user, onLogout }: { user: User | null, onLogo
           isActive={activeTabId === 'pm-work-orders'} 
           onClick={() => openTab({ id: 'pm-work-orders', title: 'Work Orders', component: 'pm-work-orders' })}
           title="Work Orders"
-        />
-        <PortalSidebarItem 
-          icon={<FileSpreadsheet />} 
-          isActive={activeTabId === 'pm-excel'} 
-          onClick={() => openTab({ id: 'pm-excel', title: 'Data Import/Export', component: 'pm-excel' })}
-          title="Excel Data Hub"
         />
       </PortalSidebar>
 

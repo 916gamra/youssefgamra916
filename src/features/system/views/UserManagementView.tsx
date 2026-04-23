@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GlassCard } from '@/shared/components/GlassCard';
-import { ShieldCheck, UserCog, Plus, KeyRound, AlertCircle, Save, X, Trash2, Lock } from 'lucide-react';
+import { ShieldCheck, UserCog, Plus, KeyRound, AlertCircle, Save, X, Trash2, Lock, Fingerprint, Info, CheckCircle2 } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/core/db';
 import type { User } from '@/core/db';
@@ -13,12 +13,12 @@ import { useAuthStore } from '@/app/store/useAuthStore';
 import { isUserAdmin } from '@/core/permissions';
 
 const AVAILABLE_PORTALS = [
-  { id: 'PDR', name: 'PDR Engine', color: 'text-cyan-400' },
-  { id: 'PREVENTIVE', name: 'Maintenance', color: 'text-emerald-400' },
-  { id: 'ORGANIZATION', name: 'Part Catalog', color: 'text-amber-400' },
-  { id: 'FACTORY', name: 'Factory Admin', color: 'text-indigo-400' },
-  { id: 'ANALYTICS', name: 'Analytics Hub', color: 'text-purple-400' },
-  { id: 'SETTINGS', name: 'System Config', color: 'text-blue-400' }
+  { id: 'PDR', name: 'PDR Engine', color: 'text-cyan-400', bg: 'bg-cyan-500', border: 'border-cyan-500' },
+  { id: 'PREVENTIVE', name: 'Maintenance', color: 'text-emerald-400', bg: 'bg-emerald-500', border: 'border-emerald-500' },
+  { id: 'ORGANIZATION', name: 'Part Catalog', color: 'text-amber-400', bg: 'bg-amber-500', border: 'border-amber-500' },
+  { id: 'FACTORY', name: 'Factory Admin', color: 'text-indigo-400', bg: 'bg-indigo-500', border: 'border-indigo-500' },
+  { id: 'ANALYTICS', name: 'Analytics Hub', color: 'text-purple-400', bg: 'bg-purple-500', border: 'border-purple-500' },
+  { id: 'SETTINGS', name: 'System Config', color: 'text-blue-400', bg: 'bg-blue-500', border: 'border-blue-500' }
 ];
 
 const DEFAULT_PORTALS_ADMIN = ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS'];
@@ -26,21 +26,20 @@ const DEFAULT_PORTALS_TECH = ['PDR', 'PREVENTIVE'];
 
 export function UserManagementView() {
   const { currentUser } = useAuthStore();
-  const users = useLiveQuery(() => db.users.toArray());
+  const users = useLiveQuery(() => db.users.toArray(), [], []);
   const { showSuccess, showError, showWarning } = useNotifications();
 
   // SECURITY GUARD: Absolute gate for non-admins
   if (!isUserAdmin(currentUser)) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-black/60 rounded-[3rem] border border-blue-500/20 md:min-h-[500px]">
-         <div className="w-24 h-24 rounded-full bg-blue-500/10 flex items-center justify-center mb-8 border border-blue-500/20">
-            <Lock className="w-10 h-10 text-blue-500" />
+      <div className="flex-1 flex flex-col items-center justify-center p-12 text-center bg-black/40 rounded-[2rem] border border-rose-500/10 md:min-h-[500px] relative overflow-hidden backdrop-blur-xl">
+         <div className="w-20 h-20 rounded-2xl bg-rose-500/10 flex items-center justify-center mb-6 border border-rose-500/20 shadow-inner">
+            <Lock className="w-8 h-8 text-rose-500" />
          </div>
-         <h1 className="text-4xl font-bold text-slate-100 uppercase tracking-tight mb-4 " >Clearance Required</h1>
-         <p className="max-w-md text-slate-400 font-medium leading-relaxed">
-            Your current authorization level does not permit access to system configuration nodes.
+         <h1 className="text-3xl font-semibold text-rose-500 tracking-tight mb-2 relative z-10" >Access Restrictions Applied</h1>
+         <p className="max-w-md text-slate-400 text-sm leading-relaxed relative z-10">
+            Your current authorization level prevents viewing or modifying identity configurations. Administrative privileges are mandatory.
          </p>
-         <div className="mt-8 text-[10px] font-bold text-blue-500/50 uppercase tracking-widest">Access Denied</div>
       </div>
     );
   }
@@ -54,7 +53,6 @@ export function UserManagementView() {
   const [editPortals, setEditPortals] = useState<string[]>([]);
 
   const openEditModal = (user: User) => {
-    // SECURITY: Non-primaries cannot edit the primary founder
     if (user.isPrimary && !currentUser?.isPrimary) {
       showError('Restricted', 'Access Denied: The primary administrator profile is write-protected.');
       return;
@@ -72,7 +70,6 @@ export function UserManagementView() {
     e.preventDefault();
     if (!editingUser || !currentUser) return;
 
-    // Final security check
     if (!isUserAdmin(currentUser)) {
       showError('Operation Void', 'Administrative signature required to write changes.');
       return;
@@ -99,34 +96,20 @@ export function UserManagementView() {
         await db.users.update(editingUser.id!, updates);
       });
 
-      showSuccess('User Map Synchronized', `Permissions for ${editName} updated.`);
+      showSuccess('Profile Synchronized', `Account settings for ${editName} updated successfully.`);
       setEditingUser(null);
     } catch (err: any) {
       showError('Sync Failure', err.message);
     }
   };
 
-
-  // ... rest of the component ...
-
-
   const toggleEditPortal = (portalId: string) => {
-    if (editingUser?.isPrimary) return; // Primary always has all
+    if (editingUser?.isPrimary) return; 
     setEditPortals(prev => 
       prev.includes(portalId) ? prev.filter(p => p !== portalId) : [...prev, portalId]
     );
   };
-
-  const handleQuickPortalToggle = async (userId: number, currentPortals: string[], portalId: string, isPrimary?: boolean) => {
-    if (isPrimary) {
-      showWarning('Restricted', 'Primary account portals cannot be modified.');
-      return;
-    }
-    const newPortals = currentPortals.includes(portalId) 
-      ? currentPortals.filter(p => p !== portalId)
-      : [...currentPortals, portalId];
-    await handleUpdatePortals(userId, newPortals);
-  };
+  
   // New user form state
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState('');
@@ -146,10 +129,7 @@ export function UserManagementView() {
     e.preventDefault();
     if (!newName || !newPin) return;
 
-    logger.info({ newName, newRole }, 'Attempting to register new user');
-
     try {
-      // 1. Zod Validation
       const validatedData = userSchema.parse({
         name: newName,
         pin: newPin,
@@ -158,7 +138,6 @@ export function UserManagementView() {
         allowedPortals
       });
 
-      // 2. Perform DB operation inside Performance Monitor
       await measureOperation('RegisterUser', async () => {
         const { hashPin } = await import('@/core/security');
         const hashedPin = await hashPin(validatedData.pin);
@@ -174,62 +153,58 @@ export function UserManagementView() {
           allowedPortals: validatedData.allowedPortals
         };
 
-        const result = await db.users.add(userToSave);
-        logger.info({ userId: result }, 'User registered successfully to IndexedDB');
+        await db.users.add(userToSave);
       });
 
-      showSuccess('User Added', `User ${newName} added.`);
+      showSuccess('Identity Created', `${newName} has been successfully registered.`);
       setNewName('');
       setNewPin('');
       setIsAdding(false);
     } catch (err: any) {
       if (err.name === 'ZodError') {
-        const firstError = err.errors[0].message;
-        logger.warn({ errors: err.errors }, 'Input validation failed');
-        showWarning('Validation Error', firstError);
+        showWarning('Validation Error', err.errors[0].message);
       } else {
-        showError('Failed to register user', err.message || 'Database error occurred.');
+        showError('Registration Failed', err.message || 'Database error occurred.');
       }
     }
   };
 
   const handleDeleteUser = async (userId: number, isPrimary?: boolean) => {
     if (isPrimary) {
-      showError('System Failure', 'Cannot delete the Primary Founder account.');
+      showError('System Failure', 'The Founder/Primary profile cannot be deleted.');
       return;
     }
     
-    if (window.confirm('WARNING: Are you sure you want to revoke this user\'s access and delete their profile completely?')) {
+    if (window.confirm('WARNING: Are you absolutely sure you want to permanently revoke this identity and delete their profile?')) {
       try {
         await measureOperation('DeleteUser', async () => {
            await db.users.delete(userId);
         });
-        showSuccess('User access revoked and deleted.');
+        showSuccess('Identity Revoked', 'The user profile has been permanently purged.');
       } catch (err: any) {
-        showError('Failed to delete user', err.message);
+        showError('Purge Failed', err.message);
       }
     }
   };
 
-  const handleUpdatePortals = async (userId: number, portals: string[]) => {
-    await db.users.update(userId, { allowedPortals: portals });
-  };
-
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-12">
+    <div className="max-w-7xl mx-auto space-y-6 pb-12 w-full">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
         <div>
           <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
-            <UserCog className="w-8 h-8 text-blue-500" /> User Management
+            <UserCog className="w-8 h-8 text-blue-500" /> 
+            Identity Control
           </h1>
-          <p className="text-slate-400 text-sm">Manage system users, roles, and functional constraints.</p>
+          <p className="text-slate-400 text-sm max-w-2xl leading-relaxed">
+            Manage system access, assign roles, and precisely orchestrate functional clearance across all enterprise hubs.
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => { setIsAdding(true); setAllowedPortals(DEFAULT_PORTALS_TECH); }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(37,99,235,0.3)] shrink-0 active:scale-95"
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-medium text-sm transition-all shadow-lg hover:shadow-blue-500/20 shrink-0 active:scale-95 border border-transparent"
           >
-            <Plus className="w-4 h-4" /> Add User
+            <Plus className="w-4 h-4" /> Add Identity
           </button>
         </div>
       </header>
@@ -237,32 +212,40 @@ export function UserManagementView() {
       <AnimatePresence>
         {isAdding && (
           <motion.div
-            initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-            animate={{ opacity: 1, height: 'auto', marginBottom: 24 }}
-            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+            initial={{ opacity: 0, height: 0, scale: 0.98 }}
+            animate={{ opacity: 1, height: 'auto', scale: 1 }}
+            exit={{ opacity: 0, height: 0, scale: 0.98 }}
+            transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <GlassCard className="p-6 border-blue-500/20 bg-blue-500/[0.02] relative overflow-hidden">
-               <h3 className="text-lg font-medium text-white mb-4 flex items-center gap-2 relative z-10">
-                 <ShieldCheck className="w-5 h-5 text-blue-500" /> New System User
-               </h3>
+            <GlassCard className="p-6 border border-white/10 bg-white/[0.02] shadow-2xl relative overflow-hidden rounded-2xl mb-8">
+               <div className="flex items-start gap-4 mb-6 relative z-10">
+                 <div className="p-3 rounded-2xl bg-black/40 border border-white/5 shadow-inner">
+                    <Fingerprint className="w-6 h-6 text-blue-400" />
+                 </div>
+                 <div>
+                    <h3 className="text-xl font-bold text-slate-200">Initialize New Agent</h3>
+                    <p className="text-sm text-slate-400 mt-1">Configure credentials and assign module clearances.</p>
+                 </div>
+               </div>
+
                <form onSubmit={handleCreateUser} className="space-y-6 relative z-10">
-                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                    <div>
-                     <label className="titan-label">Full Name</label>
-                     <input type="text" required value={newName} onChange={e => setNewName(e.target.value)} className="titan-input" />
+                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Full Name</label>
+                     <input type="text" required value={newName} onChange={e => setNewName(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 transition-all placeholder:text-slate-600 shadow-inner" placeholder="E.g., John Doe" />
                    </div>
                    <div>
-                     <label className="titan-label">Security PIN</label>
-                     <input type="password" required maxLength={6} value={newPin} onChange={e => setNewPin(e.target.value)} placeholder="e.g. 1234" className="titan-input font-mono tracking-widest" />
+                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Access PIN</label>
+                     <input type="password" required maxLength={6} value={newPin} onChange={e => setNewPin(e.target.value)} placeholder="••••" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 shadow-inner tracking-[0.25em] font-mono transition-all" />
                    </div>
                    <div>
-                     <label className="titan-label">Role Title</label>
+                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Role Classification</label>
                      <select value={newRole} onChange={e => {
                         setNewRole(e.target.value);
                         if (e.target.value === 'Admin' || e.target.value === 'Manager') setAllowedPortals(DEFAULT_PORTALS_ADMIN);
                         else setAllowedPortals(DEFAULT_PORTALS_TECH);
-                     }} className="titan-input appearance-none">
+                     }} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 appearance-none shadow-inner transition-all">
                        <option>Technician</option>
                        <option>Engineer</option>
                        <option>Manager</option>
@@ -270,8 +253,8 @@ export function UserManagementView() {
                      </select>
                    </div>
                    <div>
-                     <label className="titan-label">Interface Color</label>
-                     <select value={newColor} onChange={e => setNewColor(e.target.value)} className="titan-input appearance-none">
+                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Visual Tag Color</label>
+                     <select value={newColor} onChange={e => setNewColor(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/20 appearance-none shadow-inner transition-all">
                        <option value="bg-cyan-500">Cyan Energy</option>
                        <option value="bg-emerald-500">Emerald Green</option>
                        <option value="bg-rose-500">Crimson Red</option>
@@ -281,24 +264,26 @@ export function UserManagementView() {
                    </div>
                  </div>
                  
-                 <div className="pt-2 border-t border-white/5">
-                   <label className="titan-label mb-3 flex items-center gap-2">
-                     <KeyRound className="w-4 h-4 text-blue-500" /> System Features
+                 <div className="pt-2">
+                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+                     <ShieldCheck className="w-4 h-4 text-slate-400" /> Module Privileges
                    </label>
                    <div className="flex flex-wrap gap-3">
                      {AVAILABLE_PORTALS.map(portal => (
-                       <label key={portal.id} className={cn("flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer select-none transition-colors", allowedPortals.includes(portal.id) ? "bg-white/10 border-blue-500/50 shadow-sm" : "bg-black/20 border-white/5 opacity-50")}>
+                       <label key={portal.id} className={cn("flex items-center gap-2.5 px-4 py-2.5 rounded-xl border cursor-pointer select-none transition-all duration-200", allowedPortals.includes(portal.id) ? "bg-white/[0.05] border-white/20 shadow-sm" : "bg-black/20 border-white/5 opacity-60 hover:opacity-100 hover:bg-black/40")}>
                           <input type="checkbox" checked={allowedPortals.includes(portal.id)} onChange={() => togglePortal(portal.id)} className="hidden" />
-                          <div className={cn("w-3 h-3 rounded-full border", allowedPortals.includes(portal.id) ? "bg-blue-500 border-blue-400" : "bg-transparent border-white/20")} />
-                          <span className={cn("text-xs font-bold uppercase tracking-widest", portal.color)}>{portal.name}</span>
+                          <div className={cn("w-4 h-4 rounded-md border flex items-center justify-center transition-all", allowedPortals.includes(portal.id) ? `${portal.bg} ${portal.border}` : "bg-black/50 border-white/20")}>
+                             {allowedPortals.includes(portal.id) && <CheckCircle2 className="w-3 h-3 text-white" />}
+                          </div>
+                          <span className={cn("text-[11px] font-bold uppercase tracking-widest", allowedPortals.includes(portal.id) ? "text-slate-200" : "text-slate-500")}>{portal.name}</span>
                        </label>
                      ))}
                    </div>
                  </div>
 
-                 <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
-                    <button type="button" onClick={() => setIsAdding(false)} className="px-5 py-2.5 rounded-xl border border-white/10 text-sm font-medium hover:bg-white/5 uppercase tracking-widest transition-all">Cancel</button>
-                    <button type="submit" className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold uppercase tracking-widest transition-all active:scale-95">Create User</button>
+                 <div className="flex justify-end gap-3 pt-6 border-t border-white/5">
+                    <button type="button" onClick={() => setIsAdding(false)} className="px-5 py-2.5 bg-black/40 hover:bg-white/10 text-slate-300 rounded-xl font-medium text-sm transition-colors border border-white/10 shadow-inner">Cancel</button>
+                    <button type="submit" className="px-6 py-2.5 bg-white text-black hover:bg-slate-200 rounded-xl font-semibold text-sm transition-all active:scale-95 shadow-[0_4px_14px_0_rgba(255,255,255,0.2)]">Execute Profile</button>
                  </div>
                </form>
             </GlassCard>
@@ -312,41 +297,46 @@ export function UserManagementView() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4"
           >
             <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
+              initial={{ scale: 0.95, y: 10, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 10, opacity: 0 }}
+              transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
               className="w-full max-w-2xl"
             >
-              <GlassCard className="p-6 border-white/10 glass-panel-heavy overflow-hidden shadow-2xl relative">
-                 {/* Top Glare Edge */}
-                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <GlassCard className="p-8 border border-white/10 bg-[#121318]/90 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] relative rounded-3xl" style={{ backdropFilter: 'blur(30px)' }}>
+                 <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-50" />
                  
-                 <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-                 <div className="flex justify-between items-center mb-6 relative z-10">
-                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                     <UserCog className="w-6 h-6 text-cyan-400" /> User Configuration
-                   </h3>
-                   <button onClick={() => setEditingUser(null)} className="p-2 rounded-xl hover:bg-white/10 transition-colors text-white/50 hover:text-white">
+                 <div className="flex justify-between items-start mb-6 border-b border-white/5 pb-5">
+                   <div className="flex items-center gap-4">
+                     <div className={cn("w-12 h-12 rounded-[0.8rem] flex items-center justify-center text-xl font-bold text-white shadow-inner border border-white/10", editColor || 'bg-slate-800')}>
+                       {editName.substring(0,2).toUpperCase()}
+                     </div>
+                     <div>
+                       <h3 className="text-xl font-semibold text-white tracking-tight">Modify Identity</h3>
+                       <p className="text-sm text-slate-400">Updating configuration for {editName}</p>
+                     </div>
+                   </div>
+                   <button onClick={() => setEditingUser(null)} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-slate-400 hover:text-white border border-white/5 shadow-inner">
                      <X className="w-5 h-5" />
                    </button>
                  </div>
                  
-                 <form onSubmit={handleUpdateUser} className="space-y-6 relative z-10">
+                 <form onSubmit={handleUpdateUser} className="space-y-6">
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                      <div>
-                       <label className="titan-label">Full Name</label>
-                       <input type="text" required value={editName} onChange={e => setEditName(e.target.value)} className="titan-input" />
+                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Display Name</label>
+                       <input type="text" required value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 focus:ring-1 focus:ring-white/10 transition-all shadow-inner" />
                      </div>
                      <div>
-                       <label className="titan-label">Security PIN (Leave blank to keep)</label>
-                       <input type="password" maxLength={6} value={editPin} onChange={e => setEditPin(e.target.value)} placeholder="••••" className="titan-input font-mono tracking-widest" />
+                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">PIN Override <span className="text-[9px] opacity-70">(Leave blank to keep)</span></label>
+                       <input type="password" maxLength={6} value={editPin} onChange={e => setEditPin(e.target.value)} placeholder="••••••••" className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 focus:ring-1 focus:ring-white/10 font-mono tracking-[0.25em] transition-all shadow-inner" />
                      </div>
                      <div>
-                       <label className="titan-label">Role Title</label>
-                       <select value={editRole} onChange={e => setEditRole(e.target.value)} disabled={editingUser.isPrimary} className={cn("titan-input appearance-none", editingUser.isPrimary && "opacity-50 cursor-not-allowed")}>
+                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Role Classification</label>
+                       <select value={editRole} onChange={e => setEditRole(e.target.value)} disabled={editingUser.isPrimary} className={cn("w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 focus:ring-1 focus:ring-white/10 appearance-none transition-all shadow-inner", editingUser.isPrimary && "opacity-50 cursor-not-allowed")}>
                          <option>Technician</option>
                          <option>Engineer</option>
                          <option>Manager</option>
@@ -355,37 +345,41 @@ export function UserManagementView() {
                        </select>
                      </div>
                      <div>
-                       <label className="titan-label">Avatar Color</label>
-                       <select value={editColor} onChange={e => setEditColor(e.target.value)} className="titan-input appearance-none">
-                         <option value="bg-cyan-600">Cyan</option>
-                         <option value="bg-emerald-600">Emerald</option>
-                         <option value="bg-rose-600">Red</option>
-                         <option value="bg-amber-600">Amber</option>
-                         <option value="bg-indigo-600">Indigo</option>
+                       <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Avatar Aura</label>
+                       <select value={editColor} onChange={e => setEditColor(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-white/30 focus:ring-1 focus:ring-white/10 appearance-none transition-all shadow-inner">
+                         <option value="bg-cyan-500">Cyan</option>
+                         <option value="bg-emerald-500">Emerald</option>
+                         <option value="bg-rose-500">Red</option>
+                         <option value="bg-amber-500">Amber</option>
+                         <option value="bg-indigo-500">Indigo</option>
                        </select>
                      </div>
                    </div>
                    
-                   <div className="pt-4 border-t border-white/5">
-                     <label className="titan-label mb-4 flex items-center gap-2">
-                       <KeyRound className="w-4 h-4 text-blue-500" /> System Features
+                   <div className="pt-2">
+                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+                       <ShieldCheck className="w-4 h-4 text-slate-400" /> Module Privileges
                      </label>
-                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                       {AVAILABLE_PORTALS.map(portal => (
-                         <label key={portal.id} className={cn("flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer select-none transition-all duration-300", editPortals.includes(portal.id) ? "bg-white/10 border-blue-500/50 shadow-sm bg-white/[0.05]" : "bg-black/40 border-white/5 opacity-60 hover:opacity-100")}>
-                            <input type="checkbox" checked={editPortals.includes(portal.id)} onChange={() => toggleEditPortal(portal.id)} className="hidden" disabled={editingUser.isPrimary} />
-                            <div className={cn("w-4 h-4 rounded border flex items-center justify-center transition-colors shadow-inner", editPortals.includes(portal.id) ? "bg-blue-500 border-blue-400" : "bg-black/50 border-white/20")}>
-                               {editPortals.includes(portal.id) && <ShieldCheck className="w-3 h-3 text-white" />}
+                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                       {AVAILABLE_PORTALS.map(portal => {
+                         const isActive = editPortals.includes(portal.id);
+                         return (
+                         <label key={portal.id} className={cn("flex flex-col gap-2 p-3 rounded-xl border cursor-pointer select-none transition-all duration-200", isActive ? "bg-white/[0.05] border-white/20 shadow-sm" : "bg-black/20 border-white/5 opacity-60 hover:opacity-100 hover:bg-black/40")}>
+                            <input type="checkbox" checked={isActive} onChange={() => toggleEditPortal(portal.id)} className="hidden" disabled={editingUser.isPrimary} />
+                            <div className="flex items-center justify-between">
+                              <div className={cn("w-4 h-4 rounded-md border flex items-center justify-center transition-all", isActive ? `${portal.bg} ${portal.border}` : "bg-black/50 border-white/20")}>
+                                 {isActive && <CheckCircle2 className="w-3 h-3 text-white" />}
+                              </div>
                             </div>
-                            <span className={cn("text-xs font-bold uppercase tracking-widest", editPortals.includes(portal.id) ? portal.color : "text-slate-500")}>{portal.name}</span>
+                            <span className={cn("text-xs font-bold tracking-tight", isActive ? "text-slate-200" : "text-slate-500")}>{portal.name}</span>
                          </label>
-                       ))}
+                       )})}
                      </div>
                    </div>
 
-                   <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
-                      <button type="button" onClick={() => setEditingUser(null)} className="px-6 py-3 rounded-xl border border-white/10 text-sm font-bold text-white hover:bg-white/10 uppercase tracking-widest transition-colors">Cancel</button>
-                      <button type="submit" className="px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold uppercase tracking-widest shadow-sm transition-all active:scale-95">Save Changes</button>
+                   <div className="flex justify-end gap-3 pt-6 border-t border-white/5">
+                      <button type="button" onClick={() => setEditingUser(null)} className="px-6 py-3 bg-black/40 hover:bg-white/10 text-slate-300 rounded-xl font-medium text-sm transition-colors border border-white/10 shadow-inner">Cancel</button>
+                      <button type="submit" className="px-8 py-3 bg-white text-black hover:bg-slate-200 rounded-xl font-semibold text-sm transition-all active:scale-95 shadow-[0_4px_14px_0_rgba(255,255,255,0.2)]">Save Changes</button>
                    </div>
                  </form>
               </GlassCard>
@@ -394,81 +388,69 @@ export function UserManagementView() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {users?.filter(u => {
-          // Rule: If you are NOT the primary founder, you CANNOT see the founder account.
-          if (u.isPrimary && (!currentUser || !currentUser.isPrimary)) {
-            return false;
-          }
+          if (u.isPrimary && (!currentUser || !currentUser.isPrimary)) { return false; }
           return true;
         }).map(u => {
           const userPortals = u.isPrimary ? DEFAULT_PORTALS_ADMIN : ((u as any).allowedPortals || (u.role === 'Admin' || u.role === 'Super Administrator' || u.role === 'Manager' ? DEFAULT_PORTALS_ADMIN : DEFAULT_PORTALS_TECH));
 
           return (
-            <GlassCard key={u.id} className="relative overflow-hidden group flex flex-col p-0 border border-white/5 hover:border-white/20 transition-all bg-white/[0.02] hover:bg-white/[0.04]">
-               <div 
-                  className="p-5 border-b border-white/5 relative cursor-pointer"
-                  onClick={() => openEditModal(u as User)}
-               >
-                  {u.isPrimary && <div className="absolute top-3 right-3 px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-400 text-[9px] uppercase font-bold border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]">Founder</div>}
-                  {/* Delete Button (Only for non-primary) */}
-                  {!u.isPrimary && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); u.id && handleDeleteUser(u.id, u.isPrimary); }}
-                      className="absolute top-4 right-4 p-1.5 rounded-md bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100 z-10"
-                      title="Revoke & Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-
-                  <div className="flex items-center gap-4 mb-3">
-                     <div className={cn("w-14 h-14 rounded-[1.25rem] flex items-center justify-center text-xl font-bold text-white shadow-inner border border-white/10 transition-transform group-hover:scale-105", u.color || 'bg-gray-700')}>
+            <GlassCard key={u.id} className="relative overflow-hidden group flex flex-col p-6 border border-white/5 hover:border-white/20 transition-all bg-white/[0.02] hover:bg-white/[0.04] rounded-2xl shadow-lg hover:shadow-2xl translate-y-0 hover:-translate-y-1 duration-300 cursor-pointer" onClick={() => openEditModal(u as User)}>
+               <div className="flex items-start justify-between mb-6 relative">
+                  <div className="flex items-center gap-4">
+                     <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold text-white shadow-inner border border-white/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shrink-0", u.color || 'bg-slate-800')}>
                        {u.initials}
                      </div>
-                     <div>
-                        <h3 className="text-xl font-bold text-slate-100 leading-tight">{u.name}</h3>
-                        <div className="text-[10px] font-mono mt-2 px-2.5 py-1 bg-black/40 rounded-md border border-white/10 w-fit text-slate-400 uppercase tracking-widest">{u.role}</div>
+                     <div className="min-w-0">
+                        <h3 className="text-lg font-bold text-slate-100 tracking-tight truncate group-hover:text-white transition-colors">{u.name}</h3>
+                        <p className="text-sm font-medium text-slate-500 truncate mt-0.5">{u.role}</p>
                      </div>
                   </div>
-                  <div className="text-xs text-white/30 mt-4 flex items-center gap-1 group-hover:text-cyan-400/80 transition-colors">
-                     <span>Click to configure profile</span>
-                  </div>
                </div>
+
+               {u.isPrimary && <div className="absolute top-4 right-4 px-2.5 py-1 rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-widest shadow-sm">Founder</div>}
                
-               <div className="p-5 flex-1 bg-black/40 border-t border-white/5">
-                  <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-1.5"><KeyRound className="w-3.5 h-3.5 text-white/30" /> System Access</h4>
-                  <div className="space-y-2">
+               {!u.isPrimary && (
+                 <button 
+                   onClick={(e) => { e.stopPropagation(); u.id && handleDeleteUser(u.id, u.isPrimary); }}
+                   className="absolute top-4 right-4 p-2 rounded-xl border border-rose-500/20 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100 z-10 shadow-sm"
+                   title="Delete User"
+                 >
+                   <Trash2 className="w-4 h-4" />
+                 </button>
+               )}
+
+               <div className="mt-auto border-t border-white/5 pt-4">
+                  <div className="flex flex-wrap gap-2">
                      {AVAILABLE_PORTALS.map(portal => {
                         const hasAccess = userPortals.includes(portal.id);
+                        if (!hasAccess) return null;
                         return (
-                          <div key={portal.id} className={cn("flex items-center justify-between px-3 py-2.5 rounded-xl border text-sm transition-all", hasAccess ? `border-${portal.color.replace('text-', '')}/20 bg-white/5 shadow-[inset_0_1px_rgba(255,255,255,0.05)]` : "border-white/5 bg-transparent")}>
-                             <span className={cn("text-[11px] uppercase font-bold tracking-wider", hasAccess ? portal.color : "text-[#8b9bb4]")}>{portal.name}</span>
-                             <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleQuickPortalToggle(u.id!, userPortals, portal.id, u.isPrimary);
-                                }}
-                                disabled={u.isPrimary}
-                                className={cn(
-                                  "w-9 h-5 rounded-full relative transition-colors duration-300 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] outline-none",
-                                  hasAccess ? "bg-emerald-500" : "bg-black/50 border border-white/10",
-                                  u.isPrimary ? "opacity-50 cursor-not-allowed" : "cursor-pointer hover:ring-2 hover:ring-white/20"
-                                )}
-                             >
-                               <div className={cn(
-                                 "absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform duration-300 shadow-sm",
-                                 hasAccess ? "translate-x-4.5 left-[1px]" : "translate-x-0.5"
-                               )} />
-                             </button>
+                          <div key={portal.id} className="flex items-center px-2 py-1 rounded bg-black/40 border border-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-300 shadow-inner whitespace-nowrap">
+                             {portal.name}
                           </div>
                         )
                      })}
                   </div>
                </div>
+               
+               <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </GlassCard>
           )
         })}
+      </div>
+      
+      <div className="mt-8 p-5 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex gap-4">
+        <Info className="w-6 h-6 text-blue-400 shrink-0" />
+        <div>
+           <h4 className="font-bold text-blue-400 uppercase tracking-widest text-sm mb-1">Identity Federation Architecture</h4>
+           <p className="text-slate-300 text-[13px] leading-relaxed max-w-4xl">
+             User accounts are locally encrypted and bound to this application instance. 
+             Modifying system roles dynamically updates interface availability across all active sessions. 
+             Administrative (Founder) profiles possess immutable root capabilities.
+           </p>
+        </div>
       </div>
     </div>
   );

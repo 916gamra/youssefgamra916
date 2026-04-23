@@ -82,20 +82,20 @@ export function AddInventoryModal({ isOpen, onClose }: { isOpen: boolean, onClos
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
                     transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-                    className="w-full max-w-md bg-[var(--bg-base)]/95 backdrop-blur-3xl border border-[var(--glass-border)] shadow-2xl rounded-2xl overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] relative"
+                    className="w-full max-w-md bg-transparent/95 backdrop-blur-3xl border border-white/10 shadow-2xl rounded-2xl overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] relative"
                   >
                     <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-cyan-400/30 to-transparent" />
                     
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-6">
-                        <Dialog.Title className="text-xl font-semibold text-[var(--text-bright)] flex items-center gap-2">
+                        <Dialog.Title className="text-xl font-semibold text-white flex items-center gap-2">
                           <div className="p-2 bg-cyan-500/10 rounded-lg text-cyan-400">
                              <PackagePlus className="w-5 h-5" />
                           </div>
                           Track New Blueprint
                         </Dialog.Title>
                         <Dialog.Close asChild>
-                          <button className="p-1.5 rounded-md hover:bg-white/10 text-[var(--text-dim)] hover:text-[var(--text-bright)] transition-colors">
+                          <button className="p-1.5 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
                             <X className="w-4 h-4" />
                           </button>
                         </Dialog.Close>
@@ -110,7 +110,7 @@ export function AddInventoryModal({ isOpen, onClose }: { isOpen: boolean, onClos
 
                       <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                           <label className="block text-[11px] text-[var(--text-dim)] uppercase tracking-wider mb-1">Select Blueprint from Catalog</label>
+                           <label className="block text-[11px] text-slate-400 uppercase tracking-wider mb-1">Select Blueprint from Catalog</label>
                            <select required value={blueprintId} onChange={e => setBlueprintId(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50">
                               <option value="">-- Master Catalog --</option>
                               {blueprints?.map(bp => {
@@ -125,22 +125,22 @@ export function AddInventoryModal({ isOpen, onClose }: { isOpen: boolean, onClos
                         </div>
 
                         <div>
-                           <label className="block text-[11px] text-[var(--text-dim)] uppercase tracking-wider mb-1">Warehouse / Area</label>
+                           <label className="block text-[11px] text-slate-400 uppercase tracking-wider mb-1">Warehouse / Area</label>
                            <input required value={warehouseId} onChange={e => setWarehouseId(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50" placeholder="e.g. WH-A1" />
                         </div>
 
                         <div>
-                           <label className="block text-[11px] text-[var(--text-dim)] uppercase tracking-wider mb-1">Physical Location (Aisle/Shelf)</label>
+                           <label className="block text-[11px] text-slate-400 uppercase tracking-wider mb-1">Physical Location (Aisle/Shelf)</label>
                            <input value={locationDetails} onChange={e => setLocationDetails(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50" placeholder="e.g. Aisle 4, Shelf B-12" />
                         </div>
 
                         <div>
-                           <label className="block text-[11px] text-[var(--text-dim)] uppercase tracking-wider mb-1">Initial Quantity Found</label>
+                           <label className="block text-[11px] text-slate-400 uppercase tracking-wider mb-1">Initial Quantity Found</label>
                            <input type="number" step="any" min="0" required value={quantity} onChange={e => setQuantity(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50" placeholder="0.00" />
                         </div>
 
                         <div className="pt-4 flex justify-end gap-3">
-                           <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-xl border border-[var(--glass-border)] text-[var(--text-dim)] hover:text-white hover:bg-white/5 transition-all text-sm font-medium">Cancel</button>
+                           <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-all text-sm font-medium">Cancel</button>
                            <button type="submit" className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-black shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all font-semibold text-sm flex items-center gap-2">
                               <PackagePlus className="w-4 h-4" /> Start Tracking
                            </button>

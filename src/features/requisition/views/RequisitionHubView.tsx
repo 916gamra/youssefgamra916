@@ -105,7 +105,7 @@ export function RequisitionHubView() {
   };
 
   if (isLoading) {
-    return <div className="p-8 text-[var(--text-dim)] flex items-center gap-3"><Loader2 className="w-5 h-5 animate-spin" /> Booting Requisition Hub...</div>;
+    return <div className="p-8 text-slate-400 flex items-center gap-3"><Loader2 className="w-5 h-5 animate-spin" /> Booting Requisition Hub...</div>;
   }
 
   const isValidCart = cart.length > 0 && selectedTechId && selectedMachineId;
@@ -131,10 +131,10 @@ export function RequisitionHubView() {
       </AnimatePresence>
 
       <header className="mb-8 pt-2">
-        <h1 className="text-3xl font-semibold text-[var(--text-bright)] tracking-tight mb-2 flex items-center gap-3">
+        <h1 className="text-3xl font-semibold text-white tracking-tight mb-2 flex items-center gap-3">
           <ClipboardCheck className="w-8 h-8 text-cyan-400" /> Requisition Hub
         </h1>
-        <p className="text-[var(--text-dim)] text-lg">Central hub to request and deduct spare parts from inventory.</p>
+        <p className="text-slate-400 text-lg">Central hub to request and deduct spare parts from inventory.</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -143,15 +143,15 @@ export function RequisitionHubView() {
         <div className="lg:col-span-4 space-y-6">
           <GlassCard className="relative overflow-hidden group border-indigo-500/20 bg-indigo-500/5">
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl" />
-            <h2 className="text-lg font-semibold text-[var(--text-bright)] flex items-center gap-2 mb-4 relative z-10">
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4 relative z-10">
               <User className="w-5 h-5 text-indigo-400" /> Requester Context
             </h2>
             <div className="space-y-4 relative z-10">
               <div className="space-y-1.5">
-                 <label className="text-xs uppercase font-semibold text-[var(--text-dim)] tracking-wider">Select Technician</label>
+                 <label className="text-xs uppercase font-semibold text-slate-400 tracking-wider">Select Technician</label>
                  <select
                    value={selectedTechId} onChange={e => setSelectedTechId(e.target.value)}
-                   className="w-full bg-black/40 border border-[var(--glass-border)] rounded-xl px-4 py-3 text-sm font-medium text-[var(--text-bright)] focus:border-indigo-500/50 outline-none appearance-none"
+                   className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:border-indigo-500/50 outline-none appearance-none"
                  >
                    <option value="">-- Choose Personnel --</option>
                    {technicians.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -159,13 +159,13 @@ export function RequisitionHubView() {
               </div>
 
               <div className="space-y-1.5">
-                 <label className="text-xs uppercase font-semibold text-[var(--text-dim)] tracking-wider flex items-center gap-2 cursor-help" title="Machines are filtered by the selected technician's sector.">
-                   Target Machine <AlertCircle className="w-3 h-3 text-[var(--text-dim)]" />
+                 <label className="text-xs uppercase font-semibold text-slate-400 tracking-wider flex items-center gap-2 cursor-help" title="Machines are filtered by the selected technician's sector.">
+                   Target Machine <AlertCircle className="w-3 h-3 text-slate-400" />
                  </label>
                  <select
                    value={selectedMachineId} onChange={e => setSelectedMachineId(e.target.value)}
                    disabled={!selectedTechId}
-                   className="w-full bg-black/40 border border-[var(--glass-border)] rounded-xl px-4 py-3 text-sm font-medium text-[var(--text-bright)] focus:border-indigo-500/50 outline-none appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
+                   className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm font-medium text-white focus:border-indigo-500/50 outline-none appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
                  >
                    <option value="">{selectedTechId ? '-- Select Machine --' : 'Select Technician First'}</option>
                    {filteredMachines.map(m => (
@@ -179,25 +179,25 @@ export function RequisitionHubView() {
           {/* Cart Summary Header */}
           <GlassCard className="p-4 bg-cyan-500/5 border-cyan-500/20">
              <h3 className="text-lg font-bold text-cyan-400 mb-2">Requisition Cart</h3>
-             <p className="text-sm text-[var(--text-dim)] pb-4 border-b border-[var(--glass-border)]">
+             <p className="text-sm text-slate-400 pb-4 border-b border-white/10">
                Items to be deducted from inventory and assigned to the selected machine.
              </p>
              <div className="mt-4 space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 {cart.length === 0 ? (
-                  <div className="text-center py-6 text-[var(--text-dim)] text-sm">Cart is empty. Select parts from the right panel.</div>
+                  <div className="text-center py-6 text-slate-400 text-sm">Cart is empty. Select parts from the right panel.</div>
                 ) : (
                   <AnimatePresence>
                     {cart.map((item) => (
-                      <motion.div key={item.blueprintId} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, height: 0, shrink: 1 }} className="flex items-center justify-between p-3 rounded-lg bg-black/40 border border-[var(--glass-border)]">
+                      <motion.div key={item.blueprintId} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, height: 0, shrink: 1 }} className="flex items-center justify-between p-3 rounded-lg bg-black/40 border border-white/10">
                          <div>
-                           <div className="font-mono text-sm text-[var(--text-bright)]">{item.reference}</div>
-                           <div className="text-xs text-[var(--text-dim)]">Stock available: {item.available}</div>
+                           <div className="font-mono text-sm text-white">{item.reference}</div>
+                           <div className="text-xs text-slate-400">Stock available: {item.available}</div>
                          </div>
                          <div className="flex items-center gap-3">
                            <div className="flex items-center gap-1 bg-white/5 rounded-md p-1 border border-white/10">
-                              <button onClick={() => updateCartQty(item.blueprintId, -1)} className="p-1 hover:bg-white/10 rounded text-[var(--text-dim)] hover:text-white transition-colors"><Minus className="w-3 h-3"/></button>
-                              <span className="w-6 text-center text-sm font-bold text-[var(--text-bright)]">{item.quantity}</span>
-                              <button onClick={() => updateCartQty(item.blueprintId, 1)} className="p-1 hover:bg-white/10 rounded text-[var(--text-dim)] hover:text-white transition-colors"><Plus className="w-3 h-3"/></button>
+                              <button onClick={() => updateCartQty(item.blueprintId, -1)} className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white transition-colors"><Minus className="w-3 h-3"/></button>
+                              <span className="w-6 text-center text-sm font-bold text-white">{item.quantity}</span>
+                              <button onClick={() => updateCartQty(item.blueprintId, 1)} className="p-1 hover:bg-white/10 rounded text-slate-400 hover:text-white transition-colors"><Plus className="w-3 h-3"/></button>
                            </div>
                            <button onClick={() => removeFromCart(item.blueprintId)} className="p-1.5 hover:bg-red-500/20 text-red-400/50 hover:text-red-400 rounded-md transition-colors"><Trash2 className="w-4 h-4"/></button>
                          </div>
@@ -212,13 +212,13 @@ export function RequisitionHubView() {
         {/* Right Panel: Parts Selection */}
         <div className="lg:col-span-8 flex flex-col">
           <div className="flex items-center justify-between mb-4">
-             <h2 className="text-lg font-medium text-[var(--text-bright)]">Available Spare Parts</h2>
+             <h2 className="text-lg font-medium text-white">Available Spare Parts</h2>
              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-dim)]" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input 
                   type="text" placeholder="Search by reference..." 
                   value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
-                  className="bg-black/20 border border-[var(--glass-border)] rounded-lg pl-9 pr-4 py-2 text-sm text-[var(--text-bright)] focus:outline-none focus:border-cyan-500/50 transition-all w-64"
+                  className="bg-black/20 border border-white/10 rounded-lg pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500/50 transition-all w-64"
                 />
              </div>
           </div>
@@ -226,14 +226,14 @@ export function RequisitionHubView() {
           <GlassCard className="flex-1 overflow-hidden p-0 flex flex-col h-[500px]">
              <div className="overflow-y-auto p-2">
                 <table className="w-full text-left border-collapse">
-                  <thead className="sticky top-0 bg-[var(--bg-base)]/80 backdrop-blur-md z-10">
-                    <tr className="border-b border-[var(--glass-border)]">
-                      <th className="px-4 py-3 font-semibold text-[var(--text-dim)] text-xs uppercase tracking-wider">Reference</th>
-                      <th className="px-4 py-3 font-semibold text-[var(--text-dim)] text-xs uppercase tracking-wider text-center">Available Stock</th>
-                      <th className="px-4 py-3 font-semibold text-[var(--text-dim)] text-xs uppercase tracking-wider text-right">Action</th>
+                  <thead className="sticky top-0 bg-transparent/80 backdrop-blur-md z-10">
+                    <tr className="border-b border-white/10">
+                      <th className="px-4 py-3 font-semibold text-slate-400 text-xs uppercase tracking-wider">Reference</th>
+                      <th className="px-4 py-3 font-semibold text-slate-400 text-xs uppercase tracking-wider text-center">Available Stock</th>
+                      <th className="px-4 py-3 font-semibold text-slate-400 text-xs uppercase tracking-wider text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--glass-border)]">
+                  <tbody className="divide-y divide-white/10">
                     {availableParts.map((part) => {
                        const inCart = cart.find(c => c.blueprintId === part.id);
                        const remaining = part.available - (inCart?.quantity || 0);
@@ -241,7 +241,7 @@ export function RequisitionHubView() {
 
                        return (
                          <tr key={part.id} className="group hover:bg-white/[0.02] transition-colors">
-                           <td className="px-4 py-3 text-sm font-mono text-[var(--text-bright)]">{part.reference}</td>
+                           <td className="px-4 py-3 text-sm font-mono text-white">{part.reference}</td>
                            <td className="px-4 py-3 text-center">
                               <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-bold ${remaining > 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-500 border border-red-500/20'}`}>
                                 {remaining} {part.unit}
@@ -260,7 +260,7 @@ export function RequisitionHubView() {
                        );
                     })}
                     {availableParts.length === 0 && (
-                      <tr><td colSpan={3} className="py-8 text-center text-sm text-[var(--text-dim)]">No available parts match your search.</td></tr>
+                      <tr><td colSpan={3} className="py-8 text-center text-sm text-slate-400">No available parts match your search.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -270,9 +270,9 @@ export function RequisitionHubView() {
       </div>
 
       {/* Floating Action Button Bar */}
-      <div className="fixed bottom-0 left-[72px] right-0 bg-black/60 backdrop-blur-xl border-t border-[var(--glass-border)] p-4 flex justify-end z-40">
+      <div className="fixed bottom-0 left-[72px] right-0 bg-black/60 backdrop-blur-xl border-t border-white/10 p-4 flex justify-end z-40">
          <div className="max-w-7xl mx-auto w-full flex justify-between items-center px-4">
-            <div className="text-sm font-medium text-[var(--text-dim)]">
+            <div className="text-sm font-medium text-slate-400">
               {cart.length > 0 ? (
                 <span className="text-cyan-400">{cart.length} distinct items ready for checkout.</span>
               ) : "Cart is empty. Select parts to begin."}
@@ -282,7 +282,7 @@ export function RequisitionHubView() {
                disabled={!isValidCart || isSubmitting}
                className={isValidCart 
                  ? "px-8 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-black font-bold shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-all flex items-center gap-2"
-                 : "px-8 py-3 rounded-xl bg-white/5 text-[var(--text-dim)] font-bold cursor-not-allowed border border-white/10 flex items-center gap-2"}
+                 : "px-8 py-3 rounded-xl bg-white/5 text-slate-400 font-bold cursor-not-allowed border border-white/10 flex items-center gap-2"}
             >
                {isSubmitting ? (
                  <><Loader2 className="w-5 h-5 animate-spin" /> Processing Transaction...</>

@@ -56,299 +56,293 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <Activity className="w-10 h-10 text-blue-500 animate-spin opacity-50" />
-        <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Loading Warehouse Data...</p>
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 w-full h-full">
+        <Activity className="w-8 h-8 text-cyan-500 animate-spin opacity-50" />
+        <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-cyan-500/50">Initializing Telemetry...</p>
       </div>
     );
   }
 
-  const recentMovements = movements.slice(0, 8);
+  const recentMovements = movements.slice(0, 50);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="max-w-7xl mx-auto space-y-8 pb-12"
-    >
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-3 uppercase">
-            <TrendingUp className="w-8 h-8 text-blue-500" /> Stock Dashboard
-          </h1>
-          <p className="text-slate-400 text-lg font-medium opacity-80">Inventory management and industrial asset tracking overview.</p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <AnimatePresence>
-            {(outOfStockItems.length > 0 || lowStockItems.length > 0) && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                onClick={handleAutoProcure}
-                className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-blue-500/20 shrink-0"
-              >
-                <TrendingUp className="w-4 h-4" />
-                Auto-Procure
-              </motion.button>
-            )}
-          </AnimatePresence>
-
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            New Entry
-          </button>
-
-          <button
-            onClick={() => { setPreselectedStockId(undefined); setIsModalOpen(true); }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 border border-blue-600/20 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shrink-0"
-          >
-            <Activity className="w-4 h-4" />
-            Stock Movement
-          </button>
-        </div>
-      </header>
-
-      {/* KPI Radar */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <GlassCard className="flex flex-col relative overflow-hidden group border-white/5 !p-8">
-          <div className="flex justify-between items-start mb-6 relative z-10">
-            <div>
-              <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Inventory</p>
-              <h2 className="text-4xl font-bold text-white mt-2 tracking-tight tabular-nums">{inventory.length}</h2>
-            </div>
-            <div className="p-4 bg-blue-500/10 rounded-xl border border-blue-500/20 text-blue-400">
-              <Box className="w-8 h-8" />
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-[10px] font-bold text-emerald-400 relative z-10 uppercase tracking-widest bg-emerald-400/5 px-3 py-1.5 rounded-lg w-fit">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Synchronized
-          </div>
-          <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl pointer-events-none" />
-        </GlassCard>
-
-        <motion.div
-          animate={lowStockItems.length > 0 ? {
-            boxShadow: ['0 0 20px rgba(245, 158, 11, 0.1)', '0 0 40px rgba(245, 158, 11, 0.25)', '0 0 20px rgba(245, 158, 11, 0.1)']
-          } : {}}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          className={cn(
-            "bg-white/[0.02] backdrop-blur-3xl rounded-[2rem] p-8 relative overflow-hidden border transition-all duration-700",
-            lowStockItems.length > 0 ? "border-amber-500/30 ring-1 ring-amber-500/10" : "border-white/10"
-          )}
-        >
-          <div className="flex justify-between items-start mb-6 relative z-10">
-            <div>
-              <p className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-widest">Warning Threshold</p>
-              <h2 className={cn("text-5xl font-bold mt-2 tracking-tight tabular-nums", lowStockItems.length > 0 ? "text-amber-400 " : "text-[var(--text-bright)]")}>
-                {lowStockItems.length}
-              </h2>
-            </div>
-            <div className={cn("p-4 rounded-2xl border transition-all", lowStockItems.length > 0 ? "bg-amber-500/10 border-amber-500/30 text-amber-500" : "bg-white/5 border-white/10 text-[var(--text-dim)]")}>
-              <AlertTriangle className="w-8 h-8" />
-            </div>
-          </div>
-          <p className="text-xs font-bold text-[var(--text-dim)] relative z-10 uppercase tracking-widest opacity-60">Approaching system minima</p>
-          {lowStockItems.length > 0 && <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />}
-        </motion.div>
-
-        <div
-          className={cn(
-            "bg-white/[0.02] backdrop-blur-3xl rounded-3xl p-8 relative overflow-hidden border transition-all duration-500",
-            outOfStockItems.length > 0 ? "border-red-500/40 bg-red-500/[0.03]" : "border-white/10"
-          )}
-        >
-          <div className="flex justify-between items-start mb-6 relative z-10">
-            <div>
-              <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Critical Depletion</p>
-              <h2 className={cn("text-4xl font-bold mt-2 tracking-tight tabular-nums", outOfStockItems.length > 0 ? "text-red-500" : "text-white")}>
-                {outOfStockItems.length}
-              </h2>
-            </div>
-            <div className={cn("p-4 rounded-xl border transition-all shadow-xl", outOfStockItems.length > 0 ? "bg-red-500/20 border-red-500/40 text-red-500" : "bg-white/5 border-white/10 text-slate-500")}>
-              <AlertOctagon className="w-8 h-8" />
-            </div>
-          </div>
-          <p className={cn("text-[10px] font-bold relative z-10 uppercase tracking-widest", outOfStockItems.length > 0 ? "text-red-400" : "text-slate-500 opacity-60")}>Out of Stock Items</p>
-        </div>
+    <div className="flex flex-col h-full w-full relative bg-transparent custom-scrollbar">
+      
+      {/* SCADA Background Vignette */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.10] mix-blend-overlay" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Inventory Grid */}
-        <GlassCard className="lg:col-span-3 flex flex-col p-0 overflow-hidden h-[650px] shadow-2xl border-white/5 rounded-3xl">
-          <div className="p-8 border-b border-white/5 bg-white/[0.01] flex flex-col sm:flex-row sm:items-center justify-between gap-6 shrink-0">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
-                <ListFilter className="w-6 h-6 text-blue-400" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white uppercase tracking-tight">Inventory Records</h2>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Global Asset List</p>
-              </div>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="relative z-10 max-w-[1600px] w-full mx-auto p-4 md:p-8 flex flex-col gap-8 h-full"
+      >
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/[0.05] pb-6 shrink-0">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_12px_rgba(6,182,212,0.8)] animate-pulse" />
+              <span className="text-[10px] font-mono font-bold text-cyan-500 uppercase tracking-widest">Node-01 Online</span>
             </div>
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Find item..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="titan-input pl-11 w-full sm:w-80 shadow-none"
-              />
-            </div>
+            <h1 className="text-3xl font-bold text-slate-100 tracking-tight uppercase flex items-center gap-3">
+              Stock Radar
+            </h1>
+            <p className="text-[11px] text-slate-500 font-mono uppercase tracking-[0.2em] mt-1">Live Asset Telemetry & Inventory Control</p>
           </div>
           
-          <div className="flex-1 overflow-auto bg-black/5">
-            <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 bg-[#1a1c23]/90 backdrop-blur-xl z-20 border-b border-white/5">
-                <tr>
-                  <th className="px-8 py-5 font-bold text-slate-500 uppercase tracking-widest text-[10px]">Item Reference</th>
-                  <th className="px-8 py-5 font-bold text-slate-500 uppercase tracking-widest text-[10px]">Location</th>
-                  <th className="px-8 py-5 font-bold text-slate-500 uppercase tracking-widest text-[10px]">Stock Level</th>
-                  <th className="px-8 py-5 font-bold text-slate-500 uppercase tracking-widest text-[10px]">State</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.03]">
-                <AnimatePresence mode="popLayout">
-                  {filteredInventory.map((item, idx) => (
-                    <motion.tr 
-                      key={item.id}
-                      onClick={() => { setPreselectedStockId(item.id); setIsModalOpen(true); }}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.2, delay: idx * 0.01 }}
-                      className="group hover:bg-white/[0.02] transition-all cursor-pointer"
-                    >
-                      <td className="px-8 py-6">
-                        <div className="font-mono font-medium text-white text-sm tracking-tight">{item.blueprintReference}</div>
-                        <div className="text-[9px] font-bold text-slate-500 uppercase tracking-wider mt-1">ID: {item.id.substring(0, 8).toUpperCase()}</div>
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="flex items-center gap-2 text-white font-semibold text-sm group-hover:text-blue-400 transition-colors">
-                          <MapPin className="w-4 h-4 opacity-40" />
-                          {item.warehouseId}
-                        </div>
-                        {item.locationDetails && (
-                          <div className="text-[10px] font-medium text-slate-500 mt-1.5 ml-6">
-                            {item.locationDetails}
-                          </div>
-                        )}
-                      </td>
-                      <td className="px-8 py-6">
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-xl font-bold text-white tracking-tight tabular-nums">{item.quantityCurrent}</span>
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{item.unit}</span>
-                        </div>
-                      </td>
-                      <td className="px-8 py-6">
-                        {item.isOutOfStock ? (
-                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-[9px] font-bold uppercase tracking-widest text-red-400">
-                            <AlertOctagon className="w-3 h-3" /> Depleted
-                          </div>
-                        ) : item.isLowStock ? (
-                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[9px] font-bold uppercase tracking-widest text-amber-400">
-                            <AlertTriangle className="w-3 h-3" /> Low
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-bold uppercase tracking-widest text-emerald-400">
-                            <CheckCircle2 className="w-3 h-3" /> Satisfactory
-                          </div>
-                        )}
-                      </td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-                {filteredInventory.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="px-8 py-32 text-center">
-                      <div className="flex flex-col items-center opacity-20">
-                        <Box className="w-16 h-16 mb-4 text-white" />
-                        <p className="text-lg font-bold uppercase tracking-widest text-white">No items found</p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </GlassCard>
+          <div className="flex flex-wrap items-center gap-3">
+            <AnimatePresence>
+              {(outOfStockItems.length > 0 || lowStockItems.length > 0) && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  onClick={handleAutoProcure}
+                  className="flex items-center gap-2 px-4 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg font-bold text-[10px] uppercase tracking-widest transition-all shadow-[0_0_15px_rgba(244,63,94,0.15)] shrink-0"
+                >
+                  <Zap className="w-3.5 h-3.5" /> Auto-Procure
+                </motion.button>
+              )}
+            </AnimatePresence>
 
-        {/* Activity Stream */}
-        <div className="flex flex-col gap-6 h-[650px]">
-           <GlassCard className="flex-1 flex flex-col p-0 overflow-hidden border-white/5 rounded-3xl bg-white/[0.01]">
-            <div className="p-6 border-b border-white/5 bg-white/[0.02] flex items-center gap-4">
-              <div className="p-2.5 bg-blue-500/10 rounded-xl">
-                <Activity className="w-5 h-5 text-blue-400" />
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white/[0.02] hover:bg-white/[0.05] text-slate-300 border border-white/10 rounded-lg font-bold text-[10px] uppercase tracking-widest transition-all shrink-0"
+            >
+              <Plus className="w-3.5 h-3.5" /> Initial Entry
+            </button>
+
+            <button
+              onClick={() => { setPreselectedStockId(undefined); setIsModalOpen(true); }}
+              className="flex items-center gap-2 px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-500 border border-cyan-500/30 rounded-lg font-bold text-[10px] uppercase tracking-widest transition-all shrink-0"
+            >
+              <Activity className="w-3.5 h-3.5" /> Log Movement
+            </button>
+          </div>
+        </header>
+
+        {/* Telemetry Strip */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
+          <GlassCard className="flex flex-col relative overflow-hidden group border border-white/5 bg-white/[0.01] p-5">
+            <div className="flex justify-between items-start mb-2 relative z-10">
+              <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-slate-500 tracking-widest mt-1">
+                <Box className="w-3.5 h-3.5 text-cyan-500" /> Active Registry
               </div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-widest">Movement Log</h2>
+              <span className="text-[9px] text-slate-600 font-mono border border-white/5 px-1.5 py-0.5 rounded">SYS.COUNT</span>
             </div>
-            <div className="flex-1 overflow-auto p-4 space-y-4">
+            <div className="flex items-baseline gap-3 relative z-10 mt-1">
+              <h2 className="text-4xl font-light text-slate-100 font-mono tabular-nums">{inventory.length}</h2>
+              <span className="text-[9px] font-mono font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 uppercase tracking-widest">Sync Ok</span>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          </GlassCard>
+
+          <motion.div
+            animate={lowStockItems.length > 0 ? {
+              boxShadow: ['0 0 10px rgba(245, 158, 11, 0.05)', '0 0 20px rgba(245, 158, 11, 0.15)', '0 0 10px rgba(245, 158, 11, 0.05)']
+            } : {}}
+            transition={{ duration: 2, repeat: Infinity }}
+            className={cn(
+              "flex flex-col relative overflow-hidden group p-5 rounded-2xl border transition-all duration-500 bg-white/[0.01]",
+              lowStockItems.length > 0 ? "border-amber-500/20 bg-amber-500/[0.02]" : "border-white/5"
+            )}
+          >
+            <div className="flex justify-between items-start mb-2 relative z-10">
+              <div className={cn("flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest mt-1", lowStockItems.length > 0 ? "text-amber-500" : "text-slate-500")}>
+                <AlertTriangle className="w-3.5 h-3.5" /> Warning Levels
+              </div>
+              <span className={cn("text-[9px] font-mono border px-1.5 py-0.5 rounded", lowStockItems.length > 0 ? "border-amber-500/20 text-amber-500/50" : "border-white/5 text-slate-600")}>SYS.WARN</span>
+            </div>
+            <div className="flex items-baseline gap-3 relative z-10 mt-1">
+              <h2 className={cn("text-4xl font-light font-mono tabular-nums", lowStockItems.length > 0 ? "text-amber-500" : "text-slate-100")}>{lowStockItems.length}</h2>
+              {lowStockItems.length > 0 && <span className="text-[9px] font-mono font-bold text-amber-500 opacity-80 uppercase tracking-widest">Approaching Minima</span>}
+            </div>
+          </motion.div>
+
+          <GlassCard className={cn(
+            "flex flex-col relative overflow-hidden group p-5 border transition-all duration-500",
+            outOfStockItems.length > 0 ? "border-rose-500/30 bg-rose-500/[0.05]" : "border-white/5 bg-white/[0.01]"
+          )}>
+            <div className="flex justify-between items-start mb-2 relative z-10">
+              <div className={cn("flex items-center gap-2 text-[10px] uppercase font-bold tracking-widest mt-1", outOfStockItems.length > 0 ? "text-rose-500" : "text-slate-500")}>
+                <AlertOctagon className="w-3.5 h-3.5" /> Critical Depletion
+              </div>
+              <span className={cn("text-[9px] font-mono border px-1.5 py-0.5 rounded", outOfStockItems.length > 0 ? "border-rose-500/20 text-rose-500/50" : "border-white/5 text-slate-600")}>SYS.CRIT</span>
+            </div>
+            <div className="flex items-baseline gap-3 relative z-10 mt-1">
+              <h2 className={cn("text-4xl font-light font-mono tabular-nums", outOfStockItems.length > 0 ? "text-rose-500" : "text-slate-100")}>{outOfStockItems.length}</h2>
+              {outOfStockItems.length > 0 && <span className="text-[9px] font-mono font-bold text-rose-500 opacity-80 uppercase tracking-widest">Out of Stock</span>}
+            </div>
+          </GlassCard>
+        </div>
+
+        <div className="flex-1 min-h-0 flex flex-col lg:flex-row gap-6">
+          {/* Main Registry Matrix */}
+          <div className="flex-1 flex flex-col bg-white/[0.01] border border-white/[0.05] rounded-2xl overflow-hidden shadow-2xl relative">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+            
+            <div className="p-4 border-b border-white/[0.05] bg-black/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+              <div className="flex items-center gap-3">
+                <ListFilter className="w-4 h-4 text-cyan-500" />
+                <h2 className="text-[11px] font-bold text-slate-300 uppercase tracking-widest">Global Asset List</h2>
+              </div>
+              <div className="relative group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 group-focus-within:text-cyan-500 transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder="Query reference or location..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full sm:w-64 bg-black/60 border border-white/10 rounded-md py-1.5 pl-9 pr-3 text-xs text-slate-200 outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/20 transition-all placeholder:text-slate-600 font-mono"
+                />
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-auto custom-scrollbar bg-[#050608]">
+              <table className="w-full text-left border-collapse whitespace-nowrap">
+                <thead className="sticky top-0 bg-transparent z-20 border-b border-white/[0.08]">
+                  <tr>
+                    <th className="px-5 py-3 font-mono font-bold text-slate-500 uppercase tracking-widest text-[9px]">PDR.REF</th>
+                    <th className="px-5 py-3 font-mono font-bold text-slate-500 uppercase tracking-widest text-[9px]">LOC.VECTOR</th>
+                    <th className="px-5 py-3 font-mono font-bold text-slate-500 uppercase tracking-widest text-[9px] text-right">QTY.BAL</th>
+                    <th className="px-5 py-3 font-mono font-bold text-slate-500 uppercase tracking-widest text-[9px]">SYS.STATE</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.02]">
+                  <AnimatePresence mode="popLayout">
+                    {filteredInventory.map((item, idx) => (
+                      <motion.tr 
+                        key={item.id}
+                        onClick={() => { setPreselectedStockId(item.id); setIsModalOpen(true); }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: Math.min(idx * 0.01, 0.2) }}
+                        className="group hover:bg-white/[0.02] cursor-pointer transition-colors"
+                      >
+                        <td className="px-5 py-3">
+                          <div className="font-mono font-semibold text-cyan-500 text-sm tracking-tight group-hover:text-cyan-400 transition-colors">
+                            {item.blueprintReference}
+                          </div>
+                          <div className="text-[9px] font-mono text-slate-600 uppercase mt-0.5">ID:{item.id.substring(0, 8)}</div>
+                        </td>
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-2 text-slate-300 text-[11px] font-mono">
+                            <MapPin className="w-3 h-3 text-slate-500" />
+                            <span>{item.warehouseId}</span>
+                          </div>
+                          {item.locationDetails && (
+                            <div className="text-[9px] font-mono text-slate-500 mt-1 ml-5">
+                              {item.locationDetails}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-5 py-3 text-right">
+                          <div className="flex items-baseline justify-end gap-1.5">
+                            <span className="text-lg font-mono text-white tabular-nums">{item.quantityCurrent.toFixed(1).replace('.0', '')}</span>
+                            <span className="text-[9px] font-mono text-slate-500 uppercase">{item.unit}</span>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3">
+                          {item.isOutOfStock ? (
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-rose-500/30 bg-rose-500/10 text-[9px] font-mono uppercase text-rose-500">
+                              <AlertOctagon className="w-3 h-3" /> DEPLETED
+                            </div>
+                          ) : item.isLowStock ? (
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-amber-500/30 bg-amber-500/10 text-[9px] font-mono uppercase text-amber-500">
+                              <AlertTriangle className="w-3 h-3" /> LOW_LVL
+                            </div>
+                          ) : (
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded border border-emerald-500/20 bg-emerald-500/5 text-[9px] font-mono uppercase text-emerald-500">
+                              <CheckCircle2 className="w-3 h-3" /> OPTIMAL
+                            </div>
+                          )}
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </AnimatePresence>
+                  {filteredInventory.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-20 text-center">
+                        <div className="flex flex-col items-center">
+                          <Box className="w-8 h-8 mb-3 text-slate-700" />
+                          <p className="text-[11px] font-mono uppercase tracking-widest text-slate-600">ZERO_MATCHES_FOUND</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Activity Stream Sidebar */}
+          <div className="w-full lg:w-80 xl:w-96 flex flex-col bg-white/[0.01] border border-white/[0.05] rounded-2xl overflow-hidden shadow-2xl relative shrink-0">
+            <div className="p-4 border-b border-white/[0.05] bg-black/40 flex items-center justify-between gap-4 shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                <h2 className="text-[11px] font-bold text-slate-300 uppercase tracking-widest">Network Log</h2>
+              </div>
+              <span className="text-[9px] font-mono text-slate-600 border border-white/5 px-1.5 py-0.5 rounded">STREAM.TX</span>
+            </div>
+            
+            <div className="flex-1 overflow-auto custom-scrollbar p-3 space-y-2 bg-[#050608]">
               <AnimatePresence mode="popLayout">
                 {recentMovements.length === 0 ? (
-                  <div className="py-20 text-center text-slate-500 text-xs opacity-40">No recent activity detected...</div>
+                  <div className="py-12 text-center text-[10px] font-mono text-slate-600 uppercase">NO_ACTIVITY</div>
                 ) : (
                   recentMovements.map((movement, idx) => (
                     <motion.div 
                       key={movement.id}
-                      initial={{ opacity: 0, x: 10 }}
+                      initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.03 }}
-                      className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-blue-500/20 hover:bg-white/[0.04] transition-all group relative overflow-hidden"
+                      className="p-3 rounded-lg bg-white/[0.01] border border-white/[0.03] hover:border-white/10 transition-colors flex flex-col gap-2 relative overflow-hidden group"
                     >
-                      <div className="flex justify-between items-start mb-3 relative z-10">
-                        <div className="flex items-center gap-2">
-                          <div className={cn(
-                            "p-2 rounded-lg transition-all",
-                            movement.type === 'IN' ? "bg-emerald-500/10 text-emerald-400" : 
-                            movement.type === 'OUT' ? "bg-amber-500/10 text-amber-400" : 
-                            "bg-blue-500/10 text-blue-400"
-                          )}>
-                            {movement.type === 'IN' ? <ArrowDownRight className="w-4 h-4" /> : 
-                             movement.type === 'OUT' ? <ArrowUpRight className="w-4 h-4" /> : 
-                             <Activity className="w-4 h-4" />}
-                          </div>
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-1.5">
+                          {movement.type === 'IN' ? (
+                            <ArrowDownRight className="w-3.5 h-3.5 text-emerald-500" />
+                          ) : movement.type === 'OUT' ? (
+                            <ArrowUpRight className="w-3.5 h-3.5 text-amber-500" />
+                          ) : (
+                            <Activity className="w-3.5 h-3.5 text-cyan-500" />
+                          )}
                           <span className={cn(
-                            "text-[10px] font-bold uppercase tracking-widest",
-                            movement.type === 'IN' ? "text-emerald-400" : 
-                            movement.type === 'OUT' ? "text-amber-400" : "text-blue-400"
+                            "text-[9px] font-mono font-bold uppercase",
+                            movement.type === 'IN' ? "text-emerald-500" : 
+                            movement.type === 'OUT' ? "text-amber-500" : "text-cyan-500"
                           )}>
-                            {movement.type}
+                            OP.{movement.type}
                           </span>
                         </div>
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          {new Date(movement.timestamp).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
+                        <span className="text-[9px] font-mono text-slate-500">
+                          {new Date(movement.timestamp).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit', second: '2-digit' })}
                         </span>
                       </div>
-                      <div className="flex items-end justify-between relative z-10">
-                        <div className="flex flex-col">
-                          <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-1">Stock ID</span>
-                          <span className="text-xs font-mono font-medium text-slate-300 group-hover:text-blue-400 transition-colors">
-                            {movement.stockId.substring(0, 10).toUpperCase()}
-                          </span>
-                        </div>
-                        <span className="text-xl font-bold text-white tabular-nums">
-                          {movement.type === 'IN' ? '+' : movement.type === 'OUT' ? '-' : ''}{movement.quantity}
-                        </span>
+                      
+                      <div className="flex items-end justify-between">
+                         <div className="font-mono text-[10px] text-slate-500">
+                            REF:{movement.stockId.substring(0, 6).toUpperCase()}
+                         </div>
+                         <div className={cn(
+                           "font-mono text-[13px] font-bold tabular-nums",
+                           movement.type === 'IN' ? "text-emerald-400" : 
+                           movement.type === 'OUT' ? "text-amber-400" : "text-cyan-400"
+                         )}>
+                            {movement.type === 'IN' ? '+' : movement.type === 'OUT' ? '-' : ''}{movement.quantity.toFixed(1).replace('.0', '')}
+                         </div>
                       </div>
                     </motion.div>
                   ))
                 )}
               </AnimatePresence>
             </div>
-            <div className="p-4 border-t border-white/5 bg-white/[0.01]">
-              <button className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-widest transition-all">
-                Access Audit Logs
-              </button>
-            </div>
-          </GlassCard>
+          </div>
         </div>
-      </div>
+
+      </motion.div>
 
       <StockTransactionModal 
         isOpen={isModalOpen} 
@@ -360,6 +354,6 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
       />
-    </motion.div>
+    </div>
   );
 }

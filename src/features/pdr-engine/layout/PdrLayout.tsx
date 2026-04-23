@@ -12,10 +12,9 @@ import { PartDetail } from '../views/PartDetail';
 import { ProcurementView } from '@/features/procurement/views/ProcurementView';
 import { RequisitionHubView } from '@/features/requisition/views/RequisitionHubView';
 import { ExcelHubView } from '../views/ExcelHubView';
-import { RealFileImporterUI } from '../views/RealFileImporterUI';
 import { AdvancedInventoryDashboard } from '../views/AdvancedInventoryDashboard';
 import { ReconciliationCenterView } from '../views/ReconciliationCenterView';
-import { FileSpreadsheet, HardDriveUpload, Activity, Wrench } from 'lucide-react';
+import { FileSpreadsheet, Activity, Wrench } from 'lucide-react';
 
 const PDR_COMPONENTS = {
   'pdr-dashboard': StockDashboardPage,
@@ -24,7 +23,6 @@ const PDR_COMPONENTS = {
   'procurement': ProcurementView,
   'requisition-hub': RequisitionHubView,
   'excel-hub': ExcelHubView,
-  'legacy-import': RealFileImporterUI,
   'advanced-dashboard': AdvancedInventoryDashboard,
   'reconciliation': ReconciliationCenterView,
 };
@@ -82,12 +80,6 @@ export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () 
           isActive={activeTabId === 'requisition-hub'} 
           onClick={() => openTab({ id: 'requisition-hub', title: 'Requisition Hub', component: 'requisition-hub' })}
           title="Requisition Hub"
-        />
-        <PortalSidebarItem 
-          icon={<HardDriveUpload />} 
-          isActive={activeTabId === 'legacy-import'} 
-          onClick={() => openTab({ id: 'legacy-import', title: 'Legacy Data Import', component: 'legacy-import' })}
-          title="Legacy Data Import"
         />
         <PortalSidebarItem 
           icon={<FileSpreadsheet />} 

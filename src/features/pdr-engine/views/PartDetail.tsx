@@ -27,16 +27,16 @@ export function PartDetail({ tabId }: { tabId: string }) {
   }, [blueprintId]);
 
   if (data === undefined) {
-    return <div className="p-8 text-[var(--text-dim)] flex items-center justify-center animate-pulse"><RefreshCcw className="animate-spin w-5 h-5 mr-3"/> Loading record data...</div>;
+    return <div className="p-8 text-slate-400 flex items-center justify-center animate-pulse"><RefreshCcw className="animate-spin w-5 h-5 mr-3"/> Loading record data...</div>;
   }
 
   if (data === null) {
     return (
       <div className="max-w-5xl mx-auto space-y-6 pb-12 pt-12">
-        <GlassCard className="py-12 text-center text-[var(--text-dim)] border border-dashed border-red-500/20 bg-red-500/5">
+        <GlassCard className="py-12 text-center text-slate-400 border border-dashed border-red-500/20 bg-red-500/5">
           <Box className="w-12 h-12 mx-auto mb-4 opacity-50 text-red-500" />
-          <h3 className="text-lg font-medium text-[var(--text-bright)] mb-1">Entity Not Found</h3>
-          <p className="max-w-sm mx-auto text-sm text-[var(--text-dim)]">The mechanical blueprint requested could not be located in the database. It might have been deleted.</p>
+          <h3 className="text-lg font-medium text-white mb-1">Entity Not Found</h3>
+          <p className="max-w-sm mx-auto text-sm text-slate-400">The mechanical blueprint requested could not be located in the database. It might have been deleted.</p>
         </GlassCard>
       </div>
     );
@@ -56,7 +56,7 @@ export function PartDetail({ tabId }: { tabId: string }) {
     >
       <header className="flex flex-col md:flex-row items-start justify-between gap-6 mb-8 pt-2">
         <div>
-           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--text-dim)] mb-3">
+           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">
              <span className="flex items-center gap-1"><Folder className="w-3.5 h-3.5"/> {fam?.name || 'Unknown Family'}</span>
              <span>/</span>
              <span className="flex items-center gap-1"><Layers className="w-3.5 h-3.5"/> {tpl?.name || 'Unknown Template'}</span>
@@ -71,12 +71,12 @@ export function PartDetail({ tabId }: { tabId: string }) {
         </div>
 
         <div className="flex gap-4">
-          <GlassCard className="!p-4 text-center min-w-[120px] bg-black/40 border-[var(--glass-border)]">
-             <div className="text-[10px] text-[var(--text-dim)] uppercase font-bold tracking-wider mb-1">Unit Config</div>
-             <div className="text-xl font-medium text-[var(--text-bright)]">{bp.unit}</div>
+          <GlassCard className="!p-4 text-center min-w-[120px] bg-black/40 border-white/10">
+             <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Unit Config</div>
+             <div className="text-xl font-medium text-white">{bp.unit}</div>
           </GlassCard>
-          <GlassCard className="!p-4 text-center min-w-[120px] bg-black/40 border-[var(--glass-border)]">
-             <div className="text-[10px] text-[var(--text-dim)] uppercase font-bold tracking-wider mb-1">Threshold</div>
+          <GlassCard className="!p-4 text-center min-w-[120px] bg-black/40 border-white/10">
+             <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-1">Threshold</div>
              <div className="text-xl font-mono text-emerald-400">{bp.minThreshold}</div>
           </GlassCard>
         </div>
@@ -108,18 +108,18 @@ export function PartDetail({ tabId }: { tabId: string }) {
           </GlassCard>
 
           <GlassCard className="p-0 overflow-hidden">
-             <div className="p-4 border-b border-[var(--glass-border)] bg-black/20 text-sm font-semibold text-[var(--text-bright)] flex items-center gap-2">
+             <div className="p-4 border-b border-white/10 bg-black/20 text-sm font-semibold text-white flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-cyan-400" /> Bin Locations
              </div>
-             <div className="divide-y divide-[var(--glass-border)] max-h-[300px] overflow-auto">
+             <div className="divide-y divide-white/10 max-h-[300px] overflow-auto">
                {stockItems.length === 0 ? (
-                 <div className="p-6 text-center text-sm text-[var(--text-dim)] font-medium">No active locations mapped.</div>
+                 <div className="p-6 text-center text-sm text-slate-400 font-medium">No active locations mapped.</div>
                ) : (
                  stockItems.map(s => (
                    <div key={s.id} className="p-4 flex items-center justify-between hover:bg-white/5 transition-colors">
                       <div>
-                        <div className="font-medium text-[var(--text-bright)]">{s.warehouseId}</div>
-                        {s.locationDetails && <div className="text-xs text-[var(--text-dim)] mt-0.5">{s.locationDetails}</div>}
+                        <div className="font-medium text-white">{s.warehouseId}</div>
+                        {s.locationDetails && <div className="text-xs text-slate-400 mt-0.5">{s.locationDetails}</div>}
                       </div>
                       <div className="font-mono text-lg font-bold text-cyan-400">{s.quantityCurrent}</div>
                    </div>
@@ -132,19 +132,19 @@ export function PartDetail({ tabId }: { tabId: string }) {
         {/* Right Col - Telemetry */}
         <div className="lg:col-span-2">
            <GlassCard className="h-[600px] flex flex-col p-0 overflow-hidden">
-             <div className="p-5 border-b border-[var(--glass-border)] bg-black/20 flex justify-between items-center shrink-0">
-                <h2 className="text-[15px] font-semibold text-[var(--text-bright)] flex items-center gap-2">
+             <div className="p-5 border-b border-white/10 bg-black/20 flex justify-between items-center shrink-0">
+                <h2 className="text-[15px] font-semibold text-white flex items-center gap-2">
                   <Activity className="w-5 h-5 text-cyan-400" /> 
                   Component Telemetry Log
                 </h2>
-                <div className="text-xs font-mono text-[var(--text-dim)] px-3 py-1 bg-black/40 rounded-full border border-white/5 shadow-inner">
+                <div className="text-xs font-mono text-slate-400 px-3 py-1 bg-black/40 rounded-full border border-white/5 shadow-inner">
                   {movements.length} Records
                 </div>
              </div>
              
              <div className="flex-1 overflow-auto p-2 bg-[#05050A]">
                 {movements.length === 0 ? (
-                  <div className="h-full flex flex-col justify-center items-center text-[var(--text-dim)] text-sm font-medium">
+                  <div className="h-full flex flex-col justify-center items-center text-slate-400 text-sm font-medium">
                     <CalendarClock className="w-8 h-8 mb-3 opacity-30" />
                     No historical movements recorded.
                   </div>
@@ -174,16 +174,16 @@ export function PartDetail({ tabId }: { tabId: string }) {
 
                         {/* Actor & Details */}
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium text-[var(--text-bright)] truncate block">System Operation: {m.type}</div>
-                           {m.notes && <div className="text-xs text-[var(--text-dim)] mt-0.5 truncate">{m.notes}</div>}
+                          <div className="text-sm font-medium text-white truncate block">System Operation: {m.type}</div>
+                           {m.notes && <div className="text-xs text-slate-400 mt-0.5 truncate">{m.notes}</div>}
                         </div>
 
                         {/* Timestamp */}
                         <div className="text-right shrink-0">
-                          <div className="text-[13px] font-mono text-[var(--text-bright)] opacity-90">
+                          <div className="text-[13px] font-mono text-white opacity-90">
                             {new Date(m.timestamp).toLocaleDateString()}
                           </div>
-                          <div className="text-[10px] font-mono text-[var(--text-dim)]uppercase mt-0.5">
+                          <div className="text-[10px] font-mono text-slate-400uppercase mt-0.5">
                             {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' })}
                           </div>
                         </div>

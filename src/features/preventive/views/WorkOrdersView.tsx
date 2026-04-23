@@ -103,7 +103,7 @@ export function WorkOrdersView({ user }: WorkOrdersViewProps) {
   const isCompletionReady = (selectedTasks?.length || 0) > 0 && allCriticalTasksDone;
 
   return (
-    <div className="w-full h-full flex flex-col md:flex-row p-6 lg:p-8 gap-8 overflow-hidden bg-[#0a0a0f]">
+    <div className="w-full h-full flex flex-col md:flex-row p-6 lg:p-8 gap-8 overflow-hidden bg-transparent">
       
       {/* LEFT PANEL: Deployment List */}
       <div className="w-full md:w-[32%] flex flex-col h-full titan-card p-0 overflow-hidden shrink-0 border-white/10 bg-black/40">
@@ -322,7 +322,7 @@ export function WorkOrdersView({ user }: WorkOrdersViewProps) {
                     className={cn(
                       "px-8 py-3 font-bold tracking-widest uppercase text-xs rounded-xl transition-all duration-500 relative overflow-hidden shadow-lg flex items-center gap-3",
                       isCompletionReady 
-                        ? "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20" 
+                        ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-500/20" 
                         : "bg-white/5 text-[#8b9bb4]/30 border border-white/5"
                     )}
                   >

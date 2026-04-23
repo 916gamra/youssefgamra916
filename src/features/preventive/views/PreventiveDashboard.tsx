@@ -23,15 +23,15 @@ export function PreventiveDashboard() {
   });
 
   return (
-    <div className="w-full h-full flex flex-col p-8 overflow-y-auto custom-scrollbar bg-[#0a0a0f]">
+    <div className="w-full h-full flex flex-col p-8 overflow-y-auto custom-scrollbar bg-transparent">
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight flex items-center gap-3 uppercase">
-            <ShieldCheck className="w-8 h-8 text-blue-500" />
+            <ShieldCheck className="w-8 h-8 text-emerald-500" />
             Maintenance Operations
           </h1>
           <p className="text-slate-400 uppercase tracking-widest text-xs mt-2 font-semibold flex items-center gap-2 mb-4">
-            <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_#3b82f6]"></span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
             Preventive Maintenance Dashboard
           </p>
         </div>
@@ -39,7 +39,7 @@ export function PreventiveDashboard() {
         <div className="flex bg-black/40 p-1.5 rounded-xl border border-white/5 shadow-inner">
            <div className="px-4 py-2 flex flex-col items-center border-r border-white/5">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Sys. Health</span>
-              <span className="text-blue-400 font-mono text-sm uppercase">Nominal</span>
+              <span className="text-emerald-400 font-mono text-sm uppercase">Nominal</span>
            </div>
            <div className="px-4 py-2 flex flex-col items-center">
               <span className="text-[10px] font-bold text-[#8b9bb4] uppercase tracking-widest">Active Ops</span>
@@ -54,7 +54,7 @@ export function PreventiveDashboard() {
           title="Active Protocols" 
           value={stats?.totalSchedules || 0} 
           icon={<CalendarClock />} 
-          color="blue" 
+          color="emerald" 
           label="Schedules"
         />
         <StatCard 
@@ -75,7 +75,7 @@ export function PreventiveDashboard() {
           title="Schema Definitions" 
           value={stats?.checklists || 0} 
           icon={<Activity />} 
-          color="blue" 
+          color="emerald" 
           label="Checklists"
         />
       </div>
@@ -133,20 +133,20 @@ export function PreventiveDashboard() {
 
         {/* Quick Actions / System Status */}
         <div className="flex flex-col gap-6">
-           <div className="titan-card p-6 bg-blue-500/5">
+           <div className="titan-card p-6 bg-emerald-500/5">
              <h2 className="text-xs font-bold text-slate-100 mb-6 uppercase tracking-widest flex items-center gap-2">
-                <Activity className="w-4 h-4 text-blue-400" /> Maintenance Actions
+                <Activity className="w-4 h-4 text-emerald-400" /> Maintenance Actions
              </h2>
              <div className="flex flex-col gap-3">
                 <QuickActionButton 
                   title="Initialize Protocol" 
                   desc="Define new maintenance schema" 
-                  color="blue" 
+                  color="emerald" 
                 />
                 <QuickActionButton 
                   title="Force Work Order" 
                   desc="Manual override schedule" 
-                  color="blue" 
+                  color="emerald" 
                 />
              </div>
            </div>
@@ -197,7 +197,7 @@ function QuickActionButton({ title, desc, color }: any) {
 
 function StatCard({ title, value, icon, color, label }: any) {
   const colorMap: any = {
-    blue: 'text-blue-400 border-blue-500/20 bg-blue-500/10 shadow-blue-500/5',
+    emerald: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10 shadow-emerald-500/5',
     amber: 'text-amber-400 border-amber-500/20 bg-amber-500/10 shadow-amber-500/5',
     slate: 'text-slate-400 border-slate-500/20 bg-white/5 shadow-slate-500/5',
   };

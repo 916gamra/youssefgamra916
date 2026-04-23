@@ -111,8 +111,8 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
       <header className="mb-8 flex justify-between items-end">
         <div>
-          <h1 className="text-3xl font-semibold text-[var(--text-bright)] tracking-tight mb-2">System Settings</h1>
-          <p className="text-[var(--text-dim)] text-lg">Manage application preferences and local database.</p>
+          <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">System Settings</h1>
+          <p className="text-slate-400 text-lg">Manage application preferences and local database.</p>
         </div>
         {onLogout && (
           <button 
@@ -130,34 +130,34 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
         <div className="space-y-2">
           <button 
             onClick={() => setActiveSection('appearance')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${activeSection === 'appearance' ? 'bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-bright)]' : 'hover:bg-white/5 border border-transparent text-[var(--text-dim)] hover:text-[var(--text-bright)]'}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${activeSection === 'appearance' ? 'bg-[white/5] border border-white/10 text-white' : 'hover:bg-white/5 border border-transparent text-slate-400 hover:text-white'}`}
           >
-            <Monitor className={`w-5 h-5 ${activeSection === 'appearance' ? 'text-[var(--accent)]' : ''}`} />
+            <Monitor className={`w-5 h-5 ${activeSection === 'appearance' ? 'text-[blue-500]' : ''}`} />
             Appearance
           </button>
           <button 
             onClick={() => setActiveSection('data')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${activeSection === 'data' ? 'bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-bright)]' : 'hover:bg-white/5 border border-transparent text-[var(--text-dim)] hover:text-[var(--text-bright)]'}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${activeSection === 'data' ? 'bg-[white/5] border border-white/10 text-white' : 'hover:bg-white/5 border border-transparent text-slate-400 hover:text-white'}`}
           >
-            <Database className={`w-5 h-5 ${activeSection === 'data' ? 'text-[var(--accent)]' : ''}`} />
+            <Database className={`w-5 h-5 ${activeSection === 'data' ? 'text-[blue-500]' : ''}`} />
             Data Management
           </button>
           
           {user?.isPrimary && (
             <button 
               onClick={() => setActiveSection('users')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${activeSection === 'users' ? 'bg-[var(--glass-bg)] border border-[var(--glass-border)] text-[var(--text-bright)]' : 'hover:bg-white/5 border border-transparent text-[var(--text-dim)] hover:text-[var(--text-bright)]'}`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${activeSection === 'users' ? 'bg-[white/5] border border-white/10 text-white' : 'hover:bg-white/5 border border-transparent text-slate-400 hover:text-white'}`}
             >
-              <Users className={`w-5 h-5 ${activeSection === 'users' ? 'text-[var(--accent)]' : ''}`} />
+              <Users className={`w-5 h-5 ${activeSection === 'users' ? 'text-[blue-500]' : ''}`} />
               User Management
             </button>
           )}
 
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 border border-transparent text-[var(--text-dim)] hover:text-[var(--text-bright)] font-medium transition-colors">
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 border border-transparent text-slate-400 hover:text-white font-medium transition-colors">
             <Bell className="w-5 h-5" />
             Notifications
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 border border-transparent text-[var(--text-dim)] hover:text-[var(--text-bright)] font-medium transition-colors">
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 border border-transparent text-slate-400 hover:text-white font-medium transition-colors">
             <Shield className="w-5 h-5" />
             Security
           </button>
@@ -167,20 +167,20 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
         <div className="md:col-span-3 space-y-6">
           {activeSection === 'appearance' && (
             <GlassCard className="space-y-6">
-              <h2 className="text-[14px] font-semibold uppercase tracking-[0.05em] text-[var(--text-dim)] border-b border-[var(--glass-border)] pb-3">
+              <h2 className="text-[14px] font-semibold uppercase tracking-[0.05em] text-slate-400 border-b border-white/10 pb-3">
                 Appearance
               </h2>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-[15px] font-medium text-[var(--text-bright)]">Theme</h3>
-                    <p className="text-[13px] text-[var(--text-dim)] mt-1">Application is currently optimized for dark mode environments.</p>
+                    <h3 className="text-[15px] font-medium text-white">Theme</h3>
+                    <p className="text-[13px] text-slate-400 mt-1">Application is currently optimized for dark mode environments.</p>
                   </div>
-                  <div className="flex items-center gap-2 bg-black/20 border border-[var(--glass-border)] rounded-lg p-1">
-                    <button className="px-3 py-1.5 rounded-md text-xs font-medium bg-[var(--glass-bg)] text-[var(--text-bright)] shadow-sm">
+                  <div className="flex items-center gap-2 bg-black/20 border border-white/10 rounded-lg p-1">
+                    <button className="px-3 py-1.5 rounded-md text-xs font-medium bg-[white/5] text-white shadow-sm">
                       Dark
                     </button>
-                    <button className="px-3 py-1.5 rounded-md text-xs font-medium text-[var(--text-dim)] opacity-50 cursor-not-allowed">
+                    <button className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-400 opacity-50 cursor-not-allowed">
                       Light
                     </button>
                   </div>
@@ -191,20 +191,20 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
 
           {activeSection === 'data' && (
             <GlassCard className="space-y-6">
-              <h2 className="text-[14px] font-semibold uppercase tracking-[0.05em] text-[var(--text-dim)] border-b border-[var(--glass-border)] pb-3">
+              <h2 className="text-[14px] font-semibold uppercase tracking-[0.05em] text-slate-400 border-b border-white/10 pb-3">
                 Data Management (Offline DB)
               </h2>
               
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-[15px] font-medium text-[var(--accent)]">Seed Sample Data</h3>
-                    <p className="text-[13px] text-[var(--text-dim)] mt-1">Populate the database with sample maintenance data for testing.</p>
+                    <h3 className="text-[15px] font-medium text-[blue-500]">Seed Sample Data</h3>
+                    <p className="text-[13px] text-slate-400 mt-1">Populate the database with sample maintenance data for testing.</p>
                   </div>
                   <button 
                     onClick={handleSeedDatabase}
                     disabled={isSeeding}
-                    className="flex items-center gap-2 bg-[var(--accent)] hover:bg-blue-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors shrink-0"
+                    className="flex items-center gap-2 bg-[blue-500] hover:bg-blue-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors shrink-0"
                   >
                     <RefreshCw className={`w-4 h-4 ${isSeeding ? 'animate-spin' : ''}`} />
                     {isSeeding ? 'Seeding...' : 'Seed DB'}
@@ -217,31 +217,31 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
                   </div>
                 )}
 
-                <div className="h-px w-full bg-[var(--glass-border)]" />
+                <div className="h-px w-full bg-[white/10]" />
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-[15px] font-medium text-[var(--text-bright)]">Export Database</h3>
-                    <p className="text-[13px] text-[var(--text-dim)] mt-1">Download a JSON backup of all spare parts, stock movements, and structure.</p>
+                    <h3 className="text-[15px] font-medium text-white">Export Database</h3>
+                    <p className="text-[13px] text-slate-400 mt-1">Download a JSON backup of all spare parts, stock movements, and structure.</p>
                   </div>
                   <button 
                     onClick={handleExportData}
                     disabled={isExporting || isImporting}
-                    className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-[var(--glass-border)] text-[var(--text-bright)] px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors shrink-0 disabled:opacity-50"
+                    className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-lg text-[13px] font-semibold transition-colors shrink-0 disabled:opacity-50"
                   >
                     {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
                     {isExporting ? 'Exporting...' : 'Export JSON'}
                   </button>
                 </div>
 
-                <div className="h-px w-full bg-[var(--glass-border)]" />
+                <div className="h-px w-full bg-[white/10]" />
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-red-500/5 border border-red-500/10">
                   <div>
                     <h3 className="text-[15px] font-medium text-amber-500 flex items-center gap-2">
                       <Shield className="w-4 h-4" /> Restore from Vault (Backup)
                     </h3>
-                    <p className="text-[13px] text-[var(--text-dim)] mt-1">
+                    <p className="text-[13px] text-slate-400 mt-1">
                       Upload a `.json` backup file. <strong className="text-red-400">WARNING: This replaces the entire local database.</strong>
                     </p>
                   </div>
@@ -262,12 +262,12 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
                   </button>
                 </div>
 
-                <div className="h-px w-full bg-[var(--glass-border)]" />
+                <div className="h-px w-full bg-[white/10]" />
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h3 className="text-[15px] font-medium text-red-400">Clear Database</h3>
-                    <p className="text-[13px] text-[var(--text-dim)] mt-1">Permanently delete all local data. This action cannot be undone.</p>
+                    <p className="text-[13px] text-slate-400 mt-1">Permanently delete all local data. This action cannot be undone.</p>
                   </div>
                   
                   <Dialog.Root>
@@ -279,15 +279,15 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
                     </Dialog.Trigger>
                     <Dialog.Portal>
                       <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-                      <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-[var(--bg-base)] border border-[var(--glass-border)] rounded-2xl p-6 z-50 shadow-2xl">
+                      <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-transparent border border-white/10 rounded-2xl p-6 z-50 shadow-2xl">
                         <Dialog.Title className="text-lg font-semibold text-red-400 mb-2">Are you absolutely sure?</Dialog.Title>
-                        <Dialog.Description className="text-[14px] text-[var(--text-dim)] mb-6">
+                        <Dialog.Description className="text-[14px] text-slate-400 mb-6">
                           This action cannot be undone. This will permanently delete all spare parts and stock movement history from your local browser database.
                         </Dialog.Description>
                         
                         <div className="flex justify-end gap-3">
                           <Dialog.Close asChild>
-                            <button className="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-dim)] hover:text-[var(--text-bright)] hover:bg-white/5 transition-colors">
+                            <button className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
                               Cancel
                             </button>
                           </Dialog.Close>
@@ -316,40 +316,40 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
 
           {activeSection === 'users' && user?.isPrimary && (
             <GlassCard className="space-y-6">
-              <div className="flex items-center justify-between border-b border-[var(--glass-border)] pb-3">
-                <h2 className="text-[14px] font-semibold uppercase tracking-[0.05em] text-[var(--text-dim)]">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <h2 className="text-[14px] font-semibold uppercase tracking-[0.05em] text-slate-400">
                   User Management
                 </h2>
                 
                 <Dialog.Root open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
                   <Dialog.Trigger asChild>
-                    <button className="flex items-center gap-2 bg-[var(--accent)] hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
+                    <button className="flex items-center gap-2 bg-[blue-500] hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
                       <Plus className="w-3.5 h-3.5" />
                       Add User
                     </button>
                   </Dialog.Trigger>
                   <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-                    <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-[var(--bg-base)] border border-[var(--glass-border)] rounded-2xl p-6 z-50 shadow-2xl">
-                      <Dialog.Title className="text-lg font-semibold text-[var(--text-bright)] mb-4">Add New User</Dialog.Title>
+                    <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-transparent border border-white/10 rounded-2xl p-6 z-50 shadow-2xl">
+                      <Dialog.Title className="text-lg font-semibold text-white mb-4">Add New User</Dialog.Title>
                       <form onSubmit={handleAddUser} className="space-y-4">
                         <div className="space-y-1.5">
-                          <label className="text-xs text-[var(--text-dim)] font-medium">Full Name</label>
-                          <input required name="name" className="w-full bg-black/20 border border-[var(--glass-border)] rounded-lg px-3 py-2 text-sm text-[var(--text-bright)] focus:outline-none focus:border-[var(--accent)] transition-all" />
+                          <label className="text-xs text-slate-400 font-medium">Full Name</label>
+                          <input required name="name" className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-xs text-[var(--text-dim)] font-medium">Role</label>
-                          <input required name="role" className="w-full bg-black/20 border border-[var(--glass-border)] rounded-lg px-3 py-2 text-sm text-[var(--text-bright)] focus:outline-none focus:border-[var(--accent)] transition-all" />
+                          <label className="text-xs text-slate-400 font-medium">Role</label>
+                          <input required name="role" className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-xs text-[var(--text-dim)] font-medium">PIN</label>
-                          <input required name="pin" maxLength={4} className="w-full bg-black/20 border border-[var(--glass-border)] rounded-lg px-3 py-2 text-sm text-[var(--text-bright)] focus:outline-none focus:border-[var(--accent)] transition-all" placeholder="1234" />
+                          <label className="text-xs text-slate-400 font-medium">PIN</label>
+                          <input required name="pin" maxLength={4} className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" placeholder="1234" />
                         </div>
                         <div className="pt-4 flex justify-end gap-3">
                           <Dialog.Close asChild>
-                            <button type="button" className="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-dim)] hover:text-[var(--text-bright)] hover:bg-white/5 transition-colors">Cancel</button>
+                            <button type="button" className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Cancel</button>
                           </Dialog.Close>
-                          <button type="submit" className="bg-[var(--accent)] hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">Create User</button>
+                          <button type="submit" className="bg-[blue-500] hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">Create User</button>
                         </div>
                       </form>
                     </Dialog.Content>
@@ -359,35 +359,35 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
 
               <div className="space-y-3">
                 {users?.map((u) => (
-                  <div key={u.id} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-[var(--glass-border)] hover:bg-white/[0.04] transition-all">
+                  <div key={u.id} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:bg-white/[0.04] transition-all">
                     <div className="flex items-center gap-4">
                       <div className={`w-10 h-10 rounded-full ${u.color} flex items-center justify-center text-sm font-bold text-white`}>
                         {u.initials}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-medium text-[var(--text-bright)]">{u.name}</h3>
+                          <h3 className="text-sm font-medium text-white">{u.name}</h3>
                           {u.isPrimary && (
                             <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
                               Primary
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-[var(--text-dim)]">{u.role}</p>
+                        <p className="text-xs text-slate-400">{u.role}</p>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={() => setEditingUser(u)}
-                        className="p-2 rounded-lg hover:bg-white/5 text-[var(--text-dim)] hover:text-[var(--text-bright)] transition-colors"
+                        className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       {!u.isPrimary && (
                         <button 
                           onClick={() => u.id && handleDeleteUser(u.id)}
-                          className="p-2 rounded-lg hover:bg-red-500/10 text-[var(--text-dim)] hover:text-red-400 transition-colors"
+                          className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -401,27 +401,27 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
               <Dialog.Root open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
                 <Dialog.Portal>
                   <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-                  <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-[var(--bg-base)] border border-[var(--glass-border)] rounded-2xl p-6 z-50 shadow-2xl">
-                    <Dialog.Title className="text-lg font-semibold text-[var(--text-bright)] mb-4">Edit User</Dialog.Title>
+                  <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-transparent border border-white/10 rounded-2xl p-6 z-50 shadow-2xl">
+                    <Dialog.Title className="text-lg font-semibold text-white mb-4">Edit User</Dialog.Title>
                     {editingUser && (
                       <form onSubmit={handleEditUser} className="space-y-4">
                         <div className="space-y-1.5">
-                          <label className="text-xs text-[var(--text-dim)] font-medium">Full Name</label>
-                          <input required name="name" defaultValue={editingUser.name} className="w-full bg-black/20 border border-[var(--glass-border)] rounded-lg px-3 py-2 text-sm text-[var(--text-bright)] focus:outline-none focus:border-[var(--accent)] transition-all" />
+                          <label className="text-xs text-slate-400 font-medium">Full Name</label>
+                          <input required name="name" defaultValue={editingUser.name} className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-xs text-[var(--text-dim)] font-medium">Role</label>
-                          <input required name="role" defaultValue={editingUser.role} className="w-full bg-black/20 border border-[var(--glass-border)] rounded-lg px-3 py-2 text-sm text-[var(--text-bright)] focus:outline-none focus:border-[var(--accent)] transition-all" />
+                          <label className="text-xs text-slate-400 font-medium">Role</label>
+                          <input required name="role" defaultValue={editingUser.role} className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" />
                         </div>
                         <div className="space-y-1.5">
-                          <label className="text-xs text-[var(--text-dim)] font-medium">PIN</label>
-                          <input required name="pin" maxLength={4} defaultValue={editingUser.pin} className="w-full bg-black/20 border border-[var(--glass-border)] rounded-lg px-3 py-2 text-sm text-[var(--text-bright)] focus:outline-none focus:border-[var(--accent)] transition-all" />
+                          <label className="text-xs text-slate-400 font-medium">PIN</label>
+                          <input required name="pin" maxLength={4} defaultValue={editingUser.pin} className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" />
                         </div>
                         <div className="pt-4 flex justify-end gap-3">
                           <Dialog.Close asChild>
-                            <button type="button" className="px-4 py-2 rounded-lg text-sm font-medium text-[var(--text-dim)] hover:text-[var(--text-bright)] hover:bg-white/5 transition-colors">Cancel</button>
+                            <button type="button" className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Cancel</button>
                           </Dialog.Close>
-                          <button type="submit" className="bg-[var(--accent)] hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">Save Changes</button>
+                          <button type="submit" className="bg-[blue-500] hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">Save Changes</button>
                         </div>
                       </form>
                     )}

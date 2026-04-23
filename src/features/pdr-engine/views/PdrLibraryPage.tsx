@@ -92,7 +92,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
   };
 
   if (isLoading) {
-    return <div className="p-8 text-[var(--text-dim)]">Loading PDR Library...</div>;
+    return <div className="p-8 text-slate-400">Loading PDR Library...</div>;
   }
 
   const getAddButtonTitle = () => {
@@ -164,10 +164,10 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
       />
 
       <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="flex flex-col gap-6">
-        <Tabs.List className="flex items-center p-1.5 bg-black/20 backdrop-blur-md rounded-xl border border-[var(--glass-border)] w-max">
+        <Tabs.List className="flex items-center p-1.5 bg-black/20 backdrop-blur-md rounded-xl border border-white/10 w-max">
           <Tabs.Trigger 
             value="families"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white/10 data-[state=active]:text-[var(--text-bright)] data-[state=active]:shadow-sm text-[var(--text-dim)] hover:text-[var(--text-bright)]"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm text-slate-400 hover:text-white"
           >
             <Folder className="w-4 h-4" />
             Families
@@ -175,7 +175,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
           </Tabs.Trigger>
           <Tabs.Trigger 
             value="templates"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white/10 data-[state=active]:text-[var(--text-bright)] data-[state=active]:shadow-sm text-[var(--text-dim)] hover:text-[var(--text-bright)]"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm text-slate-400 hover:text-white"
           >
             <Layers className="w-4 h-4" />
             Templates
@@ -183,7 +183,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
           </Tabs.Trigger>
           <Tabs.Trigger 
             value="blueprints"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white/10 data-[state=active]:text-[var(--text-bright)] data-[state=active]:shadow-sm text-[var(--text-dim)] hover:text-[var(--text-bright)]"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm text-slate-400 hover:text-white"
           >
             <Hash className="w-4 h-4" />
             Blueprints
@@ -202,7 +202,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
             >
               <Tabs.Content value="families" className="outline-none">
                 {filteredFamilies.length === 0 ? (
-                  <div className="py-12 text-center text-[var(--text-dim)] bg-white/5 backdrop-blur-md border border-[var(--glass-border)] rounded-2xl">No families found.</div>
+                  <div className="py-12 text-center text-slate-400 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl">No families found.</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {filteredFamilies.map(family => (
@@ -211,13 +211,13 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
                           <Trash2 className="w-4 h-4" />
                         </button>
                         <div className="flex items-start justify-between mb-3 pr-8">
-                          <h3 className="text-lg font-semibold text-[var(--text-bright)]">{family.name}</h3>
-                          <div className="px-2.5 py-1 rounded-full bg-[var(--accent)]/10 border border-[var(--accent)]/20 text-[var(--accent)] text-xs font-semibold flex items-center gap-1.5">
+                          <h3 className="text-lg font-semibold text-white">{family.name}</h3>
+                          <div className="px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 text-xs font-semibold flex items-center gap-1.5">
                             <Layers className="w-3.5 h-3.5" />
                             {templateCounts.get(family.id) || 0} Templates
                           </div>
                         </div>
-                        <p className="text-[var(--text-dim)] text-sm flex-1 leading-relaxed">
+                        <p className="text-slate-400 text-sm flex-1 leading-relaxed">
                           {family.description}
                         </p>
                       </PdrCard>
@@ -228,7 +228,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
 
               <Tabs.Content value="templates" className="outline-none">
                 {filteredTemplates.length === 0 ? (
-                  <div className="py-12 text-center text-[var(--text-dim)] bg-white/5 backdrop-blur-md border border-[var(--glass-border)] rounded-2xl">No templates found.</div>
+                  <div className="py-12 text-center text-slate-400 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl">No templates found.</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {filteredTemplates.map(template => {
@@ -239,20 +239,20 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
                             <Trash2 className="w-4 h-4" />
                           </button>
                           <div className="mb-4 pr-8">
-                            <span className="text-[10px] uppercase font-bold text-[var(--text-dim)] tracking-wider flex items-center gap-1.5 mb-1">
+                            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 mb-1">
                               <Folder className="w-3 h-3" />
                               {parentFamily?.name || 'Unknown Family'}
                             </span>
-                            <h3 className="text-[15px] font-semibold text-[var(--text-bright)] mb-0.5">{template.name}</h3>
+                            <h3 className="text-[15px] font-semibold text-white mb-0.5">{template.name}</h3>
                           </div>
                           
                           <div className="mt-auto flex items-center justify-between">
-                            <div className="bg-black/30 px-3 py-1.5 rounded-lg border border-[var(--glass-border)]">
-                              <span className="text-[10px] text-[var(--text-dim)] uppercase mr-2">SKU Base</span>
-                              <span className="font-mono text-sm text-[var(--text-bright)] tracking-wider">{template.skuBase}</span>
+                            <div className="bg-black/30 px-3 py-1.5 rounded-lg border border-white/10">
+                              <span className="text-[10px] text-slate-400 uppercase mr-2">SKU Base</span>
+                              <span className="font-mono text-sm text-white tracking-wider">{template.skuBase}</span>
                             </div>
                             
-                            <div className="flex items-center gap-1.5 text-xs text-[var(--text-dim)]">
+                            <div className="flex items-center gap-1.5 text-xs text-slate-400">
                               <Hash className="w-3.5 h-3.5" />
                               {blueprintCounts.get(template.id) || 0} BPs
                             </div>
@@ -267,7 +267,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
               <Tabs.Content value="blueprints" className="outline-none h-[600px] overflow-hidden flex flex-col">
                 <div className="flex-1 overflow-auto custom-scrollbar pr-2" ref={parentRef}>
                   {filteredBlueprints.length === 0 ? (
-                    <div className="py-12 text-center text-[var(--text-dim)] bg-white/5 backdrop-blur-md border border-[var(--glass-border)] rounded-2xl">No blueprints found.</div>
+                    <div className="py-12 text-center text-slate-400 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl">No blueprints found.</div>
                   ) : (
                     <div 
                       style={{ 
