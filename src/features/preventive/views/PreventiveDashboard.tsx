@@ -173,8 +173,8 @@ export function PreventiveDashboard() {
   );
 }
 
-function QuickActionButton({ title, desc, color }: any) {
-  const colors: any = {
+function QuickActionButton({ title, desc, color }: { title: string; desc: string; color: 'emerald' | 'indigo' | 'cyan' | 'blue' }) {
+  const colors: Record<string, string> = {
     emerald: "border-emerald-500/20 bg-emerald-500/[0.03] hover:bg-emerald-500/10 text-emerald-400",
     indigo: "border-indigo-500/20 bg-indigo-500/[0.03] hover:bg-indigo-500/10 text-indigo-400",
     cyan: "border-cyan-500/20 bg-cyan-500/[0.03] hover:bg-cyan-500/10 text-cyan-400",
@@ -195,8 +195,8 @@ function QuickActionButton({ title, desc, color }: any) {
   );
 }
 
-function StatCard({ title, value, icon, color, label }: any) {
-  const colorMap: any = {
+function StatCard({ title, value, icon, color, label }: { title: string; value: string | number; icon: React.ReactNode; color: 'emerald' | 'amber' | 'slate'; label: string }) {
+  const colorMap: Record<string, string> = {
     emerald: 'text-emerald-400 border-emerald-500/20 bg-emerald-500/10 shadow-emerald-500/5',
     amber: 'text-amber-400 border-amber-500/20 bg-amber-500/10 shadow-amber-500/5',
     slate: 'text-slate-400 border-slate-500/20 bg-white/5 shadow-slate-500/5',

@@ -10,8 +10,9 @@ import { PdrModals, ModalType } from '../components/PdrModals';
 import { toast } from 'sonner';
 import { useTabStore } from '@/app/store';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
+import type { User } from '@/core/db';
 
-export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: any }) {
+export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | null }) {
   const { families, templates, blueprints, templateCounts, blueprintCounts, isLoading } = usePdrLibrary();
   const [activeTab, setActiveTab] = useState('families');
   const [searchTerm, setSearchTerm] = useState('');

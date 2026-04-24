@@ -76,7 +76,7 @@ export function UserManagementView() {
     }
 
     try {
-      const updates: any = {
+      const updates: Partial<User> = {
         name: editName,
         color: editColor,
         initials: editName.substring(0, 2).toUpperCase(),
@@ -143,7 +143,7 @@ export function UserManagementView() {
         const hashedPin = await hashPin(validatedData.pin);
         const initials = validatedData.name.substring(0, 2).toUpperCase();
 
-        const userToSave: any = {
+        const userToSave: Omit<User, 'id'> = {
           name: validatedData.name,
           role: validatedData.role,
           initials,
