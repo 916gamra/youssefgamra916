@@ -10,54 +10,34 @@ interface PortalSidebarItemProps {
 
 /**
  * Shared sidebar item component for all portals.
- * Ensures consistent styling and interaction logic using an industrial SCADA-like UI.
+ * Windows 11 Fluent Design style.
  */
 export function PortalSidebarItem({ icon, isActive, onClick, title }: PortalSidebarItemProps) {
   return (
-    <button 
+    <button
       onClick={onClick}
       title={title}
       className={cn(
-        "w-full h-14 relative flex items-center justify-center transition-all duration-300 group overflow-hidden font-mono",
+        "w-full h-11 relative flex items-center justify-center transition-all duration-200 group rounded-[10px] active:scale-95 font-sans",
         isActive 
-          ? "bg-current/5 text-current" 
-          : "bg-transparent text-white/30 hover:bg-white/5 hover:text-white/80"
+          ? "bg-slate-200/70 dark:bg-white/10 text-current shadow-sm" 
+          : "bg-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-400/20 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
       )}
     >
-      {/* Active Indicator Bar */}
+      {/* Fluent Active Indicator Pill */}
       <div 
         className={cn(
-          "absolute left-0 top-0 bottom-0 transition-all duration-300",
-          isActive ? "w-[3px] bg-current shadow-[0_0_12px_currentColor]" : "w-[2px] bg-transparent opacity-0 group-hover:opacity-100 group-hover:bg-white/30"
+          "absolute left-0 top-1/2 -translate-y-1/2 w-1 rounded-r-full bg-current transition-all duration-300",
+          isActive ? "h-5 opacity-100" : "h-0 opacity-0 group-hover:h-3 group-hover:opacity-30 group-hover:bg-slate-400 dark:group-hover:bg-white/50"
         )} 
       />
 
-      {/* Inner Hover/Active Accent lines */}
-      {isActive && (
-        <>
-          <div className="absolute top-0 right-0 w-3 h-[1px] bg-current opacity-60" />
-          <div className="absolute bottom-0 right-0 w-3 h-[1px] bg-current opacity-60" />
-        </>
-      )}
-
-      {/* Icon Frame */}
-      <div className={cn(
-        "relative w-10 h-10 flex items-center justify-center border transition-all duration-300 pointer-events-none",
-        isActive ? "border-current bg-current/10 scale-110 shadow-[inset_0_0_10px_currentColor]" : "border-transparent group-hover:border-white/10 group-hover:scale-105"
-      )}>
-        {/* Subtle decorative corners for the active state frame */}
-        {isActive && (
-           <>
-             <div className="absolute top-[-1px] left-[-1px] w-1.5 h-1.5 border-t border-l border-current opacity-80" />
-             <div className="absolute bottom-[-1px] right-[-1px] w-1.5 h-1.5 border-b border-r border-current opacity-80" />
-           </>
-        )}
-
-        {React.cloneElement(icon as React.ReactElement, { 
-          className: cn("w-5 h-5", isActive ? "drop-shadow-[0_0_8px_currentColor]" : "") 
-        })}
-      </div>
-      
+      {React.cloneElement(icon as React.ReactElement, { 
+        className: cn(
+          "w-[18px] h-[18px] transition-transform duration-300", 
+          isActive ? "scale-110 drop-shadow-sm font-bold" : "group-hover:scale-105"
+        ) 
+      })}
     </button>
   );
 }

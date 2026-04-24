@@ -91,7 +91,8 @@ export async function measureOperation<T>(name: string, operation: () => Promise
   try {
     const result = await operation();
     const duration = performance.now() - start;
-    logger.info({ action: 'PERFORMANCE', entityType: 'MEASURE', details: { operation: name, durationMs: duration } });
+    // DO NOT invoke `logger.info` here to prevent db.auditLogs.add inside readonly liveQueries
+    console.debug(`[PERFORMANCE] ${name} took ${duration.toFixed(2)}ms`);
     return result;
   } catch (error) {
     const duration = performance.now() - start;

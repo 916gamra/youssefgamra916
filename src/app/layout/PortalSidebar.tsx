@@ -21,96 +21,61 @@ export function PortalSidebar({ portalName, portalIcon, colorClass, borderClass,
   const { language, cycleLanguage } = useLanguageStore();
 
   return (
-    <aside className="w-[90px] border-r border-white/5 bg-[#050505] flex flex-col items-center py-6 gap-6 shrink-0 z-40 overflow-y-auto custom-scrollbar relative font-mono selection:bg-white/20">
+    <aside className="w-[84px] bg-slate-50/80 dark:bg-slate-900/40 backdrop-blur-3xl border-r border-slate-200/50 dark:border-white/10 flex flex-col items-center py-6 gap-2 shrink-0 z-40 overflow-y-auto custom-scrollbar shadow-[4px_0_24px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_24px_rgba(0,0,0,0.2)] font-sans">
       
-      {/* Background Grid Pattern */}
-      <div 
-        className="absolute inset-0 opacity-[0.02] pointer-events-none"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
-          backgroundSize: `24px 24px`,
-        }}
-      />
-      <div className="absolute top-0 right-0 w-[1px] h-full bg-gradient-to-b from-transparent via-white/10 to-transparent pointer-events-none" />
-
-      {/* Top Left/Right Bracket Decoration */}
-      <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-white/30 pointer-events-none z-10" />
-      <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-white/30 pointer-events-none z-10" />
-      <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-white/30 pointer-events-none z-10" />
-      <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-white/30 pointer-events-none z-10" />
-
       {/* Portal Identity */}
-      <div className="flex flex-col items-center shrink-0 mb-2 px-2 relative z-10 w-full">
+      <div className="flex flex-col items-center shrink-0 px-2 mt-2 mb-4 group cursor-pointer transition-transform active:scale-95">
          <div className={cn(
-           "w-16 h-16 flex items-center justify-center border mb-3 transition-all duration-500 hover:scale-105 bg-black/50 relative group", 
+           "w-12 h-12 rounded-[14px] flex items-center justify-center border mb-2 shadow-sm bg-white/50 dark:bg-white/5 transition-colors group-hover:bg-white dark:group-hover:bg-white/10", 
            colorClass, 
            borderClass
          )}>
-           {/* Inner accent ring */}
-           <div className={cn("absolute inset-1 border opacity-20 group-hover:opacity-50 transition-opacity", borderClass)} />
-           {React.cloneElement(portalIcon as React.ReactElement, { className: cn("w-6 h-6", textClass) })}
+           {React.cloneElement(portalIcon as React.ReactElement, { className: cn("w-5 h-5", textClass) })}
          </div>
-         <span className={cn("text-[8px] uppercase tracking-[0.25em] font-medium text-center leading-tight", textClass)}>
-           {nameParts.map((word, i) => (
-             <React.Fragment key={i}>
-               {word}
-               {i < nameParts.length - 1 && <br/>}
-             </React.Fragment>
-           ))}
+         <span className={cn("text-[10px] font-semibold text-center leading-tight tracking-wide", textClass)}>
+           {nameParts[0]}
          </span>
-         
-         <div className="mt-4 flex gap-1.5 w-full justify-center opacity-70">
-            <span className="w-1 h-3 bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-            <span className="w-1 h-3 bg-white/10" />
-            <span className="w-1 h-3 bg-white/10" />
-         </div>
+         {nameParts.length > 1 && (
+           <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium text-center leading-tight truncate px-1 w-full">
+             {nameParts.slice(1).join(' ')}
+           </span>
+         )}
       </div>
 
-      <div className="w-full px-4 shrink-0 -my-1 opacity-20 relative z-10">
-         <div className="h-px w-full bg-white relative">
-            <div className="absolute left-0 top-[-2px] w-1 h-[5px] bg-white" />
-            <div className="absolute right-0 top-[-2px] w-1 h-[5px] bg-white" />
-         </div>
-      </div>
+      <div className="w-8 h-[2px] bg-slate-200 dark:bg-white/10 shrink-0 my-1 rounded-full" />
 
       {/* Portal Content (Nav Items) */}
-      <div className={cn("flex flex-col gap-3 shrink-0 items-center w-full flex-grow relative z-10 my-4", textClass)}>
+      <div className={cn("flex flex-col gap-2 shrink-0 items-center w-full px-3 flex-grow mt-2", textClass)}>
          {children}
       </div>
 
-      {/* Bottom Layout Break */}
-      <div className="w-full px-4 shrink-0 -my-1 opacity-20 relative z-10 mt-auto">
-         <div className="h-px w-full bg-white relative">
-            <div className="absolute left-0 top-[-2px] w-1 h-[5px] bg-white" />
-            <div className="absolute right-0 top-[-2px] w-1 h-[5px] bg-white" />
-         </div>
-      </div>
+      <div className="w-8 h-[2px] bg-slate-200 dark:bg-white/10 shrink-0 my-1 rounded-full mt-auto" />
       
-      <div className="flex flex-col gap-2 relative z-10 w-full items-center mt-4">
+      {/* Bottom Actions */}
+      <div className="flex flex-col gap-1.5 w-full px-3 items-center mt-2 mb-2">
         <button 
           onClick={cycleLanguage}
-          className="w-14 h-12 flex flex-col items-center justify-center text-white/30 hover:text-white hover:bg-white/5 transition-all shrink-0 relative group font-mono border border-transparent hover:border-white/10"
+          className="w-[44px] h-[44px] flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-white/10 transition-all shrink-0 rounded-[12px] active:scale-95"
           title="Cycle Language (EN/FR/AR)"
         >
-          <Languages className="w-4 h-4 mb-1 opacity-80" />
-          <span className="text-[8px] tracking-widest font-medium opacity-60 group-hover:opacity-100">{language.toUpperCase()}</span>
+          <Languages className="w-[18px] h-[18px] mb-0.5" />
+          <span className="text-[9px] font-bold opacity-70">{language.toUpperCase()}</span>
         </button>
 
         <button 
           onClick={toggleTheme}
-          className="w-14 h-12 flex items-center justify-center text-white/30 hover:text-white hover:bg-white/5 transition-all shrink-0 border border-transparent hover:border-white/10"
+          className="w-[44px] h-[44px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-white/10 transition-all shrink-0 rounded-[12px] active:scale-95"
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
         >
-          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          {theme === 'dark' ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
         </button>
 
         <button 
           onClick={() => logout()}
-          className="w-14 h-14 mt-4 flex items-center justify-center text-rose-500/40 hover:text-rose-500 bg-rose-500/5 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all group shrink-0 relative overflow-hidden"
-          title="Tactical Logout"
+          className="w-[44px] h-[44px] mt-2 flex items-center justify-center text-rose-500/70 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/10 transition-all shrink-0 rounded-[12px] group active:scale-95"
+          title="Logout"
         >
-          <div className="absolute top-0 w-full h-[1px] bg-rose-500/0 group-hover:bg-rose-500/50 transition-colors" />
-          <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <LogOut className="w-[18px] h-[18px] group-hover:-translate-x-0.5 transition-transform" />
         </button>
       </div>
 
