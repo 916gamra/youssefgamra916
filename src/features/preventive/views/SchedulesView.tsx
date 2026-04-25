@@ -7,6 +7,7 @@ import { db, User } from '@/core/db';
 import { PmScheduleSchema, PmWorkOrderSchema } from '../schema/preventive.schema';
 import { cn } from '@/shared/utils';
 import { useAuditTrail } from '../../system/hooks/useAuditTrail';
+import { GlassCard } from '@/shared/components/GlassCard';
 
 interface SchedulesViewProps {
   user: User | null;
@@ -184,18 +185,18 @@ export function SchedulesView({ user }: SchedulesViewProps) {
         <button 
           onClick={() => setIsCreating(!isCreating)}
           disabled={!isDataReady}
-          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shrink-0 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+          className="titan-button bg-emerald-600 hover:bg-emerald-500 text-white border-0 shadow-[0_0_15px_rgba(16,185,129,0.3)] !py-3 !px-6 disabled:opacity-50"
         >
           <Plus className="w-4 h-4" /> Initialize Schedule
         </button>
       </div>
 
       {!isDataReady && (
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 mb-8 flex items-start gap-4 backdrop-blur-md">
-          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 mb-8 flex items-start gap-4 backdrop-blur-md shadow-lg shadow-amber-500/5">
+          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5 animate-pulse" />
           <div>
-            <h3 className="text-white text-sm font-bold uppercase tracking-widest">Configuration Required</h3>
-            <p className="text-slate-400 text-xs mt-1 font-medium">To establish a maintenance schedule, register at least one Machine and one Maintenance Protocol.</p>
+            <h3 className="text-amber-400 text-sm font-bold uppercase tracking-widest">Configuration Required</h3>
+            <p className="text-slate-300 text-xs mt-1 font-medium">To establish a maintenance schedule, register at least one Machine and one Maintenance Protocol.</p>
           </div>
         </div>
       )}
@@ -209,62 +210,64 @@ export function SchedulesView({ user }: SchedulesViewProps) {
             exit={{ opacity: 0, scale: 0.98, y: -10 }}
             className="mb-8"
           >
-            <form onSubmit={handleCreateSchedule} className="titan-card p-6 border-emerald-500/30 flex flex-col md:flex-row gap-8 bg-emerald-500/5 relative overflow-hidden group">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
-              
-              <div className="flex-1 space-y-5">
-                <div>
-                  <label className="titan-label text-[10px] mb-2">Target Asset / Machine</label>
-                  <select 
-                    value={machineId} onChange={e => setMachineId(e.target.value)} required
-                    className="w-full titan-input py-2.5 text-sm"
-                  >
-                    <option value="" disabled>Select target system...</option>
-                    {machines?.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                  </select>
-                </div>
+            <form onSubmit={handleCreateSchedule}>
+              <GlassCard className="p-6 border-emerald-500/30 flex flex-col md:flex-row gap-8 shadow-[0_0_30px_rgba(16,185,129,0.1)] relative">
+                <div className="absolute top-0 left-0 w-full h-full bg-emerald-500/5 pointer-events-none" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
                 
-                <div>
-                  <label className="titan-label text-[10px] mb-2">Deployed Protocol</label>
-                  <select 
-                    value={checklistId} onChange={e => setChecklistId(e.target.value)} required
-                    className="w-full titan-input py-2.5 text-sm"
-                  >
-                    <option value="" disabled>Select checklist blueprint...</option>
-                    {checklists?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
+                <div className="flex-1 space-y-5 relative z-10">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Target Asset / Machine</label>
+                    <select 
+                      value={machineId} onChange={e => setMachineId(e.target.value)} required
+                      className="w-full titan-input py-3"
+                    >
+                      <option value="" disabled>Select target system...</option>
+                      {machines?.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Deployed Protocol</label>
+                    <select 
+                      value={checklistId} onChange={e => setChecklistId(e.target.value)} required
+                      className="w-full titan-input py-3"
+                    >
+                      <option value="" disabled>Select checklist blueprint...</option>
+                      {checklists?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </div>
                 </div>
-              </div>
 
-              <div className="w-px h-auto bg-white/5 mx-2 hidden md:block" />
+                <div className="w-px h-auto bg-white/5 mx-2 hidden md:block" />
 
-              <div className="flex-1 space-y-5">
-                <div>
-                  <label className="titan-label text-[10px] mb-2">Deployment Cycle (Days)</label>
-                  <input 
-                    type="number" min="1" max="3650" required
-                    value={frequencyDays} onChange={e => setFrequencyDays(parseInt(e.target.value))}
-                    className="w-full titan-input py-2.5 text-sm"
-                  />
+                <div className="flex-1 space-y-5 relative z-10">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Deployment Cycle (Days)</label>
+                    <input 
+                      type="number" min="1" max="3650" required
+                      value={frequencyDays} onChange={e => setFrequencyDays(parseInt(e.target.value))}
+                      className="w-full titan-input py-3"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">First Invariant Date</label>
+                    <input 
+                      type="date" required
+                      value={nextDueDate} onChange={e => setNextDueDate(e.target.value)}
+                      className="w-full titan-input py-3 [color-scheme:dark]"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="titan-label text-[10px] mb-2">First Invariant Date</label>
-                  <input 
-                    type="date" required
-                    value={nextDueDate} onChange={e => setNextDueDate(e.target.value)}
-                    className="w-full titan-input py-2.5 text-sm [color-scheme:dark]"
-                  />
+                <div className="flex flex-col justify-end gap-3 pt-4 md:pt-0 min-w-[200px] relative z-10">
+                  <button type="button" onClick={() => setIsCreating(false)} className="titan-button titan-button-outline !py-3">Cancel</button>
+                  <button type="submit" className="titan-button border-0 bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)] !py-3">
+                     Establish Mission <ChevronRight className="w-3 h-3 ml-2 shrink-0" />
+                  </button>
                 </div>
-              </div>
-
-              <div className="flex flex-col justify-end gap-3 pt-4 md:pt-0 min-w-[200px]">
-                <button type="button" onClick={() => setIsCreating(false)} className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-[#8b9bb4] hover:text-white bg-white/5 rounded-xl border border-white/5 transition-all">Cancel</button>
-                <button type="submit" className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-black bg-emerald-500 rounded-xl hover:bg-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all flex items-center justify-center gap-2">
-                   Establish Mission <ChevronRight className="w-3 h-3" />
-                </button>
-              </div>
-
+              </GlassCard>
             </form>
           </motion.div>
         )}
@@ -273,14 +276,14 @@ export function SchedulesView({ user }: SchedulesViewProps) {
       {/* Schedules Grid */}
       <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-12">
         {schedules?.length === 0 && !isCreating ? (
-           <div className="w-full h-80 flex flex-col items-center justify-center titan-card border-dashed bg-white/[0.01]">
-              <div className="w-24 h-24 rounded-full bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6">
-                <CalendarClock className="w-10 h-10 text-white/20" />
+           <GlassCard className="w-full h-80 flex flex-col items-center justify-center border border-dashed border-emerald-500/30 rounded-3xl !shadow-none">
+              <div className="w-20 h-20 rounded-full bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-center mb-6">
+                <CalendarClock className="w-8 h-8 text-emerald-500/40" />
               </div>
-              <p className="text-[#8b9bb4] text-xs font-bold uppercase tracking-widest opacity-40">No Maintenance Bonds Configured</p>
-           </div>
+              <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">No Maintenance Bonds Configured</p>
+           </GlassCard>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {schedules?.map(schedule => {
               const machineName = getMachineName(schedule.machineId);
               const checklistName = getChecklistName(schedule.checklistId);
@@ -291,93 +294,98 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                 <motion.div 
                   layout
                   key={schedule.id}
-                  className={cn(
-                    "titan-card relative p-0 overflow-hidden flex flex-col group transition-all duration-500 h-[300px]",
-                    schedule.isActive 
-                      ? isOverdue ? "border-rose-500/40 bg-rose-500/[0.03] shadow-[0_0_25px_rgba(244,63,94,0.05)]" : "border-emerald-500/20 hover:border-emerald-500/50 bg-white/[0.01] hover:bg-emerald-500/[0.02]"
-                      : "opacity-60 grayscale border-white/5 bg-black/40"
-                  )}
                 >
-                  <div className={cn(
-                    "h-1.5 w-full",
-                    schedule.isActive ? (isOverdue ? "bg-rose-500" : "bg-emerald-500") : "bg-white/10"
-                  )} />
+                  <GlassCard
+                    className={cn(
+                      "relative !p-0 overflow-hidden flex flex-col group transition-all duration-500 h-[320px] shadow-[0_0_20px_rgba(0,0,0,0.5)]",
+                      schedule.isActive 
+                        ? isOverdue ? "border-rose-500/40 shadow-[0_0_25px_rgba(244,63,94,0.05)]" : "border-emerald-500/20 hover:border-emerald-500/40"
+                        : "opacity-60 grayscale border-white/5"
+                    )}
+                  >
+                    {schedule.isActive && isOverdue && <div className="absolute inset-0 bg-rose-500/[0.03] pointer-events-none" />}
+                    {schedule.isActive && !isOverdue && <div className="absolute inset-0 bg-white/[0.01] group-hover:bg-emerald-500/[0.02] pointer-events-none transition-colors" />}
+                    <div className={cn(
+                      "h-1 w-full",
+                      schedule.isActive ? (isOverdue ? "bg-rose-500" : "bg-emerald-500") : "bg-white/10"
+                    )} />
 
-                  <div className="p-6 flex flex-col flex-1">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className={cn(
-                          "w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 group-hover:scale-105",
-                          schedule.isActive 
-                            ? (isOverdue ? "bg-rose-500/10 border-rose-500/30 text-rose-400" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500") 
-                            : "bg-white/5 border-white/10 text-white/20 shadow-inner"
-                        )}>
-                          <Briefcase className="w-6 h-6" />
+                    <div className="p-6 flex flex-col flex-1 relative z-10">
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="flex items-center gap-4">
+                          <div className={cn(
+                            "w-12 h-12 rounded-xl flex items-center justify-center border transition-all duration-500 group-hover:scale-105 shadow-sm",
+                            schedule.isActive 
+                              ? (isOverdue ? "bg-rose-500/10 border-rose-500/30 text-rose-400" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500") 
+                              : "bg-white/5 border-white/10 text-slate-500"
+                          )}>
+                            <Briefcase className="w-6 h-6" />
+                          </div>
+                          <div>
+                            {isOverdue && schedule.isActive && (
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-rose-500 flex items-center gap-1 mb-1 bg-rose-500/10 px-2 py-0.5 rounded w-max">
+                                <AlertTriangle className="w-3 h-3 animate-pulse" /> Overdue
+                              </span>
+                            )}
+                            <h3 className="font-bold text-slate-200 text-lg leading-tight tracking-tight drop-shadow-md">{machineName}</h3>
+                          </div>
                         </div>
-                        <div>
-                          {isOverdue && schedule.isActive && (
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-rose-500 flex items-center gap-1 mb-1">
-                              <AlertTriangle className="w-3 h-3 animate-pulse" /> Maintenance Overdue
-                            </span>
+                        
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={(e) => handleToggleStatus(schedule.id, schedule.isActive, e)}
+                            title={schedule.isActive ? "Pause System" : "Activate System"}
+                            className="p-2.5 bg-black/20 hover:bg-white/10 rounded-lg text-slate-400 hover:text-white border border-white/5 transition-all active:scale-95 shadow-sm"
+                          >
+                            <Power className={cn("w-4 h-4", schedule.isActive ? "text-emerald-400" : "")} />
+                          </button>
+                          <button 
+                            onClick={(e) => handleDeleteSchedule(schedule.id, e)}
+                            title="Purge Link"
+                            className="p-2.5 bg-rose-500/10 hover:bg-rose-500/20 rounded-lg text-rose-400 border border-rose-500/20 transition-all active:scale-95 shadow-sm"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4 mb-auto">
+                        <div className="bg-white/[0.02] p-4 rounded-xl border border-white/5 shadow-inner">
+                          <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Maintenance Protocol</p>
+                          <p className="text-sm font-bold text-slate-200 line-clamp-1">{checklistName}</p>
+                        </div>
+                        
+                        <div className="flex gap-4">
+                          <div className="flex-1 bg-white/[0.01] p-3 rounded-xl border border-white/5">
+                            <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Frequency</p>
+                            <p className="text-sm font-bold text-slate-200 uppercase">{schedule.frequencyDays} Days</p>
+                          </div>
+                          <div className="flex-1 bg-white/[0.01] p-3 rounded-xl border border-white/5">
+                            <p className="text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Next Service</p>
+                            <p className={cn("text-sm font-bold", isOverdue && schedule.isActive ? "text-rose-400" : "text-emerald-400")}>
+                              {dueDate.toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 pt-5 border-t border-white/5">
+                        <button 
+                          onClick={(e) => handleTriggerWorkOrder(schedule, e)}
+                          disabled={!schedule.isActive}
+                          className={cn(
+                            "w-full py-3.5 font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 transition-all duration-300 border relative overflow-hidden shadow-sm active:scale-[0.98]",
+                            isOverdue && schedule.isActive 
+                              ? "bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border-rose-500/30 shadow-[inset_0_1px_rgba(255,255,255,0.1)]" 
+                              : "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30 shadow-[inset_0_1px_rgba(255,255,255,0.1)]"
                           )}
-                          <h3 className="font-bold text-white text-lg leading-tight tracking-tight drop-shadow-md">{machineName}</h3>
-                        </div>
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <button 
-                          onClick={(e) => handleToggleStatus(schedule.id, schedule.isActive, e)}
-                          title={schedule.isActive ? "Pause System" : "Activate System"}
-                          className="p-2.5 bg-black/40 hover:bg-white/10 rounded-xl text-white/30 hover:text-white border border-white/5 transition-all active:scale-95 shadow-inner"
                         >
-                          <Power className={cn("w-4 h-4", schedule.isActive ? "text-emerald-400 " : "text-white/20")} />
-                        </button>
-                        <button 
-                          onClick={(e) => handleDeleteSchedule(schedule.id, e)}
-                          title="Purge Link"
-                          className="p-2.5 bg-rose-500/10 hover:bg-rose-500/20 rounded-xl text-rose-400 border border-rose-500/10 transition-all active:scale-95 shadow-inner"
-                        >
-                          <Trash2 className="w-4 h-4" />
+                          <Zap className="w-4 h-4" />
+                          {isOverdue && schedule.isActive ? "Execute Overdue Service" : "Generate Work Order"}
                         </button>
                       </div>
                     </div>
-
-                    <div className="space-y-4 mb-auto">
-                      <div className="bg-black/20 p-3 rounded-xl border border-white/5">
-                        <p className="text-[10px] uppercase tracking-widest text-[#8b9bb4] font-bold mb-1 ml-1 opacity-60">Maintenance Protocol</p>
-                        <p className="text-xs font-bold text-white/90 line-clamp-1 ml-1">{checklistName}</p>
-                      </div>
-                      
-                      <div className="flex gap-6 px-1">
-                        <div className="flex-1">
-                          <p className="text-[9px] uppercase tracking-widest text-[#8b9bb4] font-bold mb-1 opacity-50">Frequency</p>
-                          <p className="text-sm font-bold text-white uppercase">{schedule.frequencyDays} Days</p>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-[9px] uppercase tracking-widest text-[#8b9bb4] font-bold mb-1 opacity-50">Next Service Due</p>
-                          <p className={cn("text-sm font-bold", isOverdue && schedule.isActive ? "text-rose-400" : "text-emerald-400")}>
-                            {dueDate.toLocaleDateString()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 pt-4 border-t border-white/5">
-                      <button 
-                        onClick={(e) => handleTriggerWorkOrder(schedule, e)}
-                        disabled={!schedule.isActive}
-                        className={cn(
-                          "w-full py-3 font-bold text-[10px] uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 transition-all duration-300 border relative",
-                          isOverdue && schedule.isActive 
-                            ? "bg-rose-500 hover:bg-rose-600 text-white border-rose-400 shadow-md shadow-rose-500/20" 
-                            : "bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500/50 shadow-md shadow-emerald-500/20"
-                        )}
-                      >
-                        <Zap className="w-4 h-4" />
-                        {isOverdue && schedule.isActive ? "Execute Overdue Service" : "Generate Work Order"}
-                      </button>
-                    </div>
-                  </div>
+                  </GlassCard>
                 </motion.div>
               );
             })}
@@ -388,4 +396,3 @@ export function SchedulesView({ user }: SchedulesViewProps) {
     </div>
   );
 }
-

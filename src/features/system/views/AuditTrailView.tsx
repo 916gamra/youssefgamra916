@@ -112,7 +112,7 @@ export function AuditTrailView() {
 
       {/* Stats Quick Look */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-         <GlassCard className="p-5 bg-white/[0.02] border border-white/5 flex flex-col justify-between group rounded-2xl shadow-lg">
+         <GlassCard className="p-5 bg-white/[0.06] border border-white/10 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
                  <Activity className="w-5 h-5 text-slate-400" />
@@ -121,7 +121,7 @@ export function AuditTrailView() {
             </div>
             <div className="text-3xl font-semibold text-slate-200 tabular-nums">{logs.length}</div>
          </GlassCard>
-         <GlassCard className="p-5 bg-rose-500/[0.02] border border-rose-500/20 flex flex-col justify-between group rounded-2xl shadow-lg">
+         <GlassCard className="p-5 bg-rose-500/[0.08] border border-rose-500/30 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
                  <AlertOctagon className="w-5 h-5 text-rose-500" />
@@ -130,7 +130,7 @@ export function AuditTrailView() {
             </div>
             <div className="text-3xl font-semibold text-rose-500 tabular-nums">{logs.filter(l => l.severity === 'CRITICAL').length}</div>
          </GlassCard>
-         <GlassCard className="p-5 bg-amber-500/[0.02] border border-amber-500/20 flex flex-col justify-between group rounded-2xl shadow-lg">
+         <GlassCard className="p-5 bg-amber-500/[0.08] border border-amber-500/30 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
              <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
                  <AlertTriangle className="w-5 h-5 text-amber-500" />
@@ -139,7 +139,7 @@ export function AuditTrailView() {
             </div>
             <div className="text-3xl font-semibold text-amber-500 tabular-nums">{logs.filter(l => l.severity === 'WARNING').length}</div>
          </GlassCard>
-         <GlassCard className="p-5 bg-cyan-500/[0.02] border border-cyan-500/20 flex flex-col justify-between group rounded-2xl shadow-lg">
+         <GlassCard className="p-5 bg-cyan-500/[0.08] border border-cyan-500/30 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
              <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
                  <Info className="w-5 h-5 text-cyan-500" />
@@ -150,11 +150,11 @@ export function AuditTrailView() {
          </GlassCard>
       </div>
 
-      <div className="flex flex-col bg-white/[0.02] border border-white/[0.05] rounded-3xl overflow-hidden shadow-2xl relative">
-        <div className="p-5 border-b border-white/[0.05] bg-black/40 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shrink-0">
+      <div className="flex flex-col bg-slate-900/60 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative backdrop-blur-xl">
+        <div className="p-5 border-b border-white/[0.08] bg-black/60 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shrink-0">
           <div className="flex items-center gap-3">
              <Filter className="w-4 h-4 text-slate-400" />
-             <div className="flex bg-black/40 p-1 rounded-xl border border-white/10 shrink-0 shadow-inner relative z-10">
+             <div className="flex bg-black/60 p-1 rounded-xl border border-white/20 shrink-0 shadow-inner relative z-10">
                 {(['ALL', 'INFO', 'WARNING', 'CRITICAL'] as const).map(sev => (
                   <button
                     key={sev}

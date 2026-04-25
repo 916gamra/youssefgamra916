@@ -34,8 +34,8 @@ export function AnalyticsLayout({ user, onLogout }: { user: User | null, onLogou
         <PortalSidebarItem 
           icon={<LineChart />} 
           isActive={activeTabId === 'analytics-dashboard'} 
-          onClick={() => openTab({ id: 'analytics-dashboard', title: 'The Oracle Dashboard', component: 'analytics-dashboard' })}
-          title="The Oracle Dashboard"
+          onClick={() => openTab({ id: 'analytics-dashboard', title: 'Executive Hub', component: 'analytics-dashboard' })}
+          title="Executive Hub"
         />
       </PortalSidebar>
 

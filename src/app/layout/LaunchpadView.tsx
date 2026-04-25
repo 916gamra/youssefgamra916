@@ -63,12 +63,12 @@ const APPS = [
 ];
 
 const THEME_MAP: Record<string, string> = {
-  cyan: 'text-cyan-400 border-cyan-500/30 bg-cyan-500/5',
-  emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/5',
-  amber: 'text-amber-400 border-amber-500/30 bg-amber-500/5',
-  indigo: 'text-indigo-400 border-indigo-500/30 bg-indigo-500/5',
-  fuchsia: 'text-fuchsia-400 border-fuchsia-500/30 bg-fuchsia-500/5',
-  rose: 'text-rose-400 border-rose-500/30 bg-rose-500/5',
+  cyan: 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10',
+  emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
+  amber: 'text-amber-400 border-amber-500/30 bg-amber-500/10',
+  indigo: 'text-indigo-400 border-indigo-500/30 bg-indigo-500/10',
+  fuchsia: 'text-fuchsia-400 border-fuchsia-500/30 bg-fuchsia-500/10',
+  rose: 'text-rose-400 border-rose-500/30 bg-rose-500/10',
 };
 
 const BORDER_HOVER_MAP: Record<string, string> = {
@@ -155,10 +155,10 @@ export function LaunchpadView({ user }: { user: User | null }) {
             <Activity className="w-3.5 h-3.5" /> Core Telemetry
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <GlassCard className="p-4 flex flex-col gap-3 group border border-white/5 bg-white/[0.01]">
+            <GlassCard className="p-4 flex flex-col gap-3 group border border-white/10 bg-white/[0.1] backdrop-blur-md">
               <div className="flex justify-between items-start">
                 <Database className="w-4 h-4 text-cyan-400" />
-                <span className="text-[9px] text-slate-600 font-mono border border-white/5 px-1.5 py-0.5 rounded">SYS.INV</span>
+                <span className="text-[9px] text-slate-600 font-mono border border-white/10 px-1.5 py-0.5 rounded">SYS.INV</span>
               </div>
               <div className="mt-2">
                 <div className="text-3xl font-light text-slate-100 font-mono">{stats?.invCount ?? '-'}</div>
@@ -166,10 +166,10 @@ export function LaunchpadView({ user }: { user: User | null }) {
               </div>
             </GlassCard>
 
-            <GlassCard className="p-4 flex flex-col gap-3 group border border-white/5 bg-white/[0.01]">
+            <GlassCard className="p-4 flex flex-col gap-3 group border border-white/10 bg-white/[0.1] backdrop-blur-md">
               <div className="flex justify-between items-start">
                 <Factory className="w-4 h-4 text-indigo-400" />
-                <span className="text-[9px] text-slate-600 font-mono border border-white/5 px-1.5 py-0.5 rounded">SYS.MCH</span>
+                <span className="text-[9px] text-slate-600 font-mono border border-white/10 px-1.5 py-0.5 rounded">SYS.MCH</span>
               </div>
               <div className="mt-2">
                 <div className="text-3xl font-light text-slate-100 font-mono">{stats?.machinesCount ?? '-'}</div>
@@ -177,10 +177,10 @@ export function LaunchpadView({ user }: { user: User | null }) {
               </div>
             </GlassCard>
 
-            <GlassCard className="p-4 flex flex-col gap-3 group border-amber-500/20 bg-amber-500/[0.02]">
+            <GlassCard className="p-4 flex flex-col gap-3 group border-amber-500/40 bg-amber-500/[0.12] backdrop-blur-md">
               <div className="flex justify-between items-start">
                 <AlertTriangle className="w-4 h-4 text-amber-400" />
-                <span className="text-[9px] text-amber-500/40 font-mono border border-amber-500/10 px-1.5 py-0.5 rounded">SYS.PM</span>
+                <span className="text-[9px] text-amber-500/60 font-mono border border-amber-500/20 px-1.5 py-0.5 rounded">SYS.PM</span>
               </div>
               <div className="mt-2">
                 <div className="text-3xl font-light text-amber-400 font-mono">{stats?.pendingOrders ?? '-'}</div>
@@ -188,10 +188,10 @@ export function LaunchpadView({ user }: { user: User | null }) {
               </div>
             </GlassCard>
 
-            <GlassCard className="p-4 flex flex-col gap-3 group border border-white/5 bg-white/[0.01]">
+            <GlassCard className="p-4 flex flex-col gap-3 group border border-white/10 bg-white/[0.1] backdrop-blur-md">
               <div className="flex justify-between items-start">
                 <Users className="w-4 h-4 text-emerald-400" />
-                <span className="text-[9px] text-slate-600 font-mono border border-white/5 px-1.5 py-0.5 rounded">SYS.USR</span>
+                <span className="text-[9px] text-slate-600 font-mono border border-white/10 px-1.5 py-0.5 rounded">SYS.USR</span>
               </div>
               <div className="mt-2">
                 <div className="text-3xl font-light text-slate-100 font-mono">{stats?.usersCount ?? '-'}</div>
@@ -220,11 +220,10 @@ export function LaunchpadView({ user }: { user: User | null }) {
               
               return (
                 <motion.div key={app.id} variants={itemAnim} className="h-full">
-                  <div 
+                  <GlassCard 
                     onClick={() => setPortal(app.id)}
                     className={cn(
-                      "group relative flex flex-col p-6 h-full rounded-2xl border transition-all duration-300 cursor-pointer overflow-hidden",
-                      "bg-white/[0.02] border-white/10 hover:bg-white/[0.04]",
+                      "group flex flex-col p-6 h-full !bg-[#14161b]/90 border-white/10 hover:border-white/30",
                       borderHover
                     )}
                   >
@@ -254,7 +253,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
                       </div>
                       <div className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-blue-500 shadow-[0_0_0_rgba(37,99,235,0)] group-hover:shadow-[0_0_8px_rgba(37,99,235,0.8)] transition-all duration-500" />
                     </div>
-                  </div>
+                  </GlassCard>
                 </motion.div>
               );
             })}

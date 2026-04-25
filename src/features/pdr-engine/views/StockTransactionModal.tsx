@@ -114,11 +114,11 @@ export function StockTransactionModal({
                             value={stockId}
                             onChange={(e) => setStockId(e.target.value)}
                             disabled={isProcessing}
-                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors appearance-none disabled:opacity-50"
+                            className="titan-input py-2.5 appearance-none disabled:opacity-50"
                           >
-                            <option value="" disabled>Select an item...</option>
+                            <option value="" disabled className="bg-[#0a0f18]">Select an item...</option>
                             {inventory.map(item => (
-                              <option key={item.id} value={item.id}>
+                              <option key={item.id} value={item.id} className="bg-[#0a0f18]">
                                 {item.blueprintReference} (Warehouse {item.warehouseId}) • Avail: {item.quantityCurrent}
                               </option>
                             ))}
@@ -174,7 +174,7 @@ export function StockTransactionModal({
                               onChange={(e) => setQuantity(e.target.value)}
                               disabled={isProcessing}
                               placeholder="0.00"
-                              className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors disabled:opacity-50"
+                              className="titan-input py-2.5 disabled:opacity-50"
                             />
                           </div>
 
@@ -188,7 +188,7 @@ export function StockTransactionModal({
                               onChange={(e) => setPerformedBy(e.target.value)}
                               disabled={isProcessing}
                               placeholder="Name / ID"
-                              className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition-colors disabled:opacity-50"
+                              className="titan-input py-2.5 disabled:opacity-50"
                             />
                           </div>
                         </div>
@@ -198,7 +198,7 @@ export function StockTransactionModal({
                             type="button"
                             onClick={onClose}
                             disabled={isProcessing}
-                            className="px-5 py-2.5 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-all font-medium text-sm disabled:opacity-50"
+                            className="titan-button titan-button-outline disabled:opacity-50"
                           >
                             Cancel
                           </button>
@@ -206,10 +206,10 @@ export function StockTransactionModal({
                             type="submit"
                             disabled={isProcessing || !stockId || !quantity || !performedBy}
                             className={cn(
-                              "px-6 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                              "titan-button disabled:opacity-50 disabled:cursor-not-allowed",
                               type === 'IN'
-                                ? "bg-emerald-500 hover:bg-emerald-600 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]"
-                                : "bg-amber-500 hover:bg-amber-600 text-white shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+                                ? "bg-emerald-500 hover:bg-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.3)] text-black"
+                                : "bg-amber-500 hover:bg-amber-600 shadow-[0_0_15px_rgba(245,158,11,0.3)] text-black"
                             )}
                           >
                             {isProcessing ? (

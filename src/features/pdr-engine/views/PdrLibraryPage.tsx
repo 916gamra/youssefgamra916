@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import * as Tabs from '@radix-ui/react-tabs';
 import { Search, Folder, Layers, Hash, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { usePdrLibrary } from '../hooks/usePdrLibrary';
+import { GlassCard } from '@/shared/components/GlassCard';
 import { PdrCard } from '../components/PdrCard';
 import { db } from '@/core/db';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -203,7 +204,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
             >
               <Tabs.Content value="families" className="outline-none">
                 {filteredFamilies.length === 0 ? (
-                  <div className="py-12 text-center text-slate-400 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl">No families found.</div>
+                  <GlassCard className="py-16 text-center text-slate-400 border-dashed border-white/10">No families found.</GlassCard>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {filteredFamilies.map(family => (
@@ -229,7 +230,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
 
               <Tabs.Content value="templates" className="outline-none">
                 {filteredTemplates.length === 0 ? (
-                  <div className="py-12 text-center text-slate-400 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl">No templates found.</div>
+                  <GlassCard className="py-16 text-center text-slate-400 border-dashed border-white/10">No templates found.</GlassCard>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {filteredTemplates.map(template => {
@@ -268,7 +269,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
               <Tabs.Content value="blueprints" className="outline-none h-[600px] overflow-hidden flex flex-col">
                 <div className="flex-1 overflow-auto custom-scrollbar pr-2" ref={parentRef}>
                   {filteredBlueprints.length === 0 ? (
-                    <div className="py-12 text-center text-slate-400 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl">No blueprints found.</div>
+                    <GlassCard className="py-16 text-center text-slate-400 border-dashed border-white/10">No blueprints found.</GlassCard>
                   ) : (
                     <div 
                       style={{ 

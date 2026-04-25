@@ -111,12 +111,12 @@ export function AddInventoryModal({ isOpen, onClose }: { isOpen: boolean, onClos
                       <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                            <label className="block text-[11px] text-slate-400 uppercase tracking-wider mb-1">Select Blueprint from Catalog</label>
-                           <select required value={blueprintId} onChange={e => setBlueprintId(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50">
-                              <option value="">-- Master Catalog --</option>
+                           <select required value={blueprintId} onChange={e => setBlueprintId(e.target.value)} className="titan-input py-2.5 appearance-none">
+                              <option value="" className="bg-[#0a0f18]">-- Master Catalog --</option>
                               {blueprints?.map(bp => {
                                 const t = templates?.find(t => t.id === bp.templateId);
                                 return (
-                                  <option key={bp.id} value={bp.id}>
+                                  <option key={bp.id} value={bp.id} className="bg-[#0a0f18]">
                                     {bp.reference} {t ? `(${t.skuBase})` : ''} - {bp.unit}
                                   </option>
                                 );
@@ -126,22 +126,22 @@ export function AddInventoryModal({ isOpen, onClose }: { isOpen: boolean, onClos
 
                         <div>
                            <label className="block text-[11px] text-slate-400 uppercase tracking-wider mb-1">Warehouse / Area</label>
-                           <input required value={warehouseId} onChange={e => setWarehouseId(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50" placeholder="e.g. WH-A1" />
+                           <input required value={warehouseId} onChange={e => setWarehouseId(e.target.value)} className="titan-input py-2.5" placeholder="e.g. WH-A1" />
                         </div>
 
                         <div>
                            <label className="block text-[11px] text-slate-400 uppercase tracking-wider mb-1">Physical Location (Aisle/Shelf)</label>
-                           <input value={locationDetails} onChange={e => setLocationDetails(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50" placeholder="e.g. Aisle 4, Shelf B-12" />
+                           <input value={locationDetails} onChange={e => setLocationDetails(e.target.value)} className="titan-input py-2.5" placeholder="e.g. Aisle 4, Shelf B-12" />
                         </div>
 
                         <div>
                            <label className="block text-[11px] text-slate-400 uppercase tracking-wider mb-1">Initial Quantity Found</label>
-                           <input type="number" step="any" min="0" required value={quantity} onChange={e => setQuantity(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-xl p-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/50" placeholder="0.00" />
+                           <input type="number" step="any" min="0" required value={quantity} onChange={e => setQuantity(e.target.value)} className="titan-input py-2.5" placeholder="0.00" />
                         </div>
 
                         <div className="pt-4 flex justify-end gap-3">
-                           <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 transition-all text-sm font-medium">Cancel</button>
-                           <button type="submit" className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-black shadow-[0_0_15px_rgba(34,211,238,0.2)] hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all font-semibold text-sm flex items-center gap-2">
+                           <button type="button" onClick={onClose} className="titan-button titan-button-outline">Cancel</button>
+                           <button type="submit" className="titan-button titan-button-active text-black bg-cyan-500 hover:bg-cyan-400 border-cyan-500/30">
                               <PackagePlus className="w-4 h-4" /> Start Tracking
                            </button>
                         </div>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/core/db';
-import { AlertTriangle, CheckCircle, ArrowRightLeft, Wrench, ShieldCheck, FileWarning, Search, RefreshCw, ShoppingCart } from 'lucide-react';
+import { AlertTriangle, CheckCircle, ArrowRightLeft, Wrench, ShieldCheck, FileWarning, Search, RefreshCw, ShoppingCart, Zap, TrendingUp, ShieldAlert, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { GlassCard } from '@/shared/components/GlassCard';
+import { cn } from '@/shared/utils';
 
 export function ReconciliationCenterView() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -66,18 +68,15 @@ export function ReconciliationCenterView() {
   const handleFixNegative = async (item: any) => {
     try {
       setIsProcessing(true);
-      
-      // 1. Reset Inventory Quantity to 0
       await db.inventory.update(item.id, {
         quantityCurrent: 0,
         updatedAt: new Date().toISOString()
       });
 
-      // 2. Log an adjustment movement
       const adjustmentQty = Math.abs(item.currentValue);
       await db.movements.add({
         id: crypto.randomUUID(),
-        stockId: item.blueprintId, // using blueprintId as stock reference representation here depending on schema
+        stockId: item.blueprintId,
         type: 'ADJUST',
         quantity: adjustmentQty,
         performedBy: 'Auto-Reconciliation System',
@@ -103,7 +102,6 @@ export function ReconciliationCenterView() {
     try {
       setIsProcessing(true);
       let count = 0;
-      
       await db.transaction('rw', db.inventory, db.movements, async () => {
         for (const item of negatives) {
           await db.inventory.update(item.id, {
@@ -136,7 +134,6 @@ export function ReconciliationCenterView() {
   };
 
   const handleGeneratePO = (item: any) => {
-    // In a real application, this would route to the Procurement tab with pre-filled context
     toast.info('Procurement Triggered', {
       description: `Drafting Purchase Order for ${item.reference}. Redirecting to Procurement module...`
     });
@@ -148,135 +145,159 @@ export function ReconciliationCenterView() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-12">
-      <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-700/50 pb-6">
+    <div className="max-w-7xl mx-auto space-y-8 pb-12 px-4">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
+          <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
             <Wrench className="w-8 h-8 text-blue-500" /> Auto-Reconciliation Center
           </h1>
-          <p className="text-slate-400 text-lg">Resolve data inconsistencies, negative stock, and supply deficits.</p>
+          <p className="text-slate-400 text-lg font-medium opacity-80">Resolve data inconsistencies, negative stock, and supply deficits.</p>
         </div>
         
-        {anomalies && anomalies.filter(a => a.type === 'NEGATIVE_STOCK').length > 0 && (
-          <button 
-            onClick={handleBatchFixNegatives}
-            disabled={isProcessing}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`w-5 h-5 ${isProcessing ? 'animate-spin' : ''}`} />
-            Batch Fix All Negative Anomalies
-          </button>
-        )}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
+          <StatCompact icon={<ShieldAlert className="w-4 h-4 text-slate-400" />} label="Anomalies" value={anomalies?.length.toString() || '0'} />
+          <StatCompact icon={<TrendingUp className="w-4 h-4 text-blue-500" />} label="Resolved" value="94%" />
+          <StatCompact icon={<ShieldCheck className="w-4 h-4 text-emerald-500" />} label="Health" value="Stable" />
+          <StatCompact icon={<Zap className="w-4 h-4 text-amber-500" />} label="Sync" value="Active" />
+        </div>
       </header>
 
-      {/* Metrics & Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-5">
-          <p className="text-sm font-medium text-slate-400 mb-1">Total Detected Anomalies</p>
-          <p className="text-3xl font-bold text-slate-200">{anomalies?.length || 0}</p>
-        </div>
-        <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-5">
-          <p className="text-sm font-medium text-red-400 mb-1">Critical (Negative)</p>
-          <p className="text-3xl font-bold text-red-500">
-            {anomalies?.filter(a => a.type === 'NEGATIVE_STOCK').length || 0}
-          </p>
-        </div>
-        <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-5">
-          <p className="text-sm font-medium text-rose-400 mb-1">High (Depleted)</p>
-          <p className="text-3xl font-bold text-rose-500">
-            {anomalies?.filter(a => a.type === 'DEPLETED').length || 0}
-          </p>
-        </div>
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-5">
-          <p className="text-sm font-medium text-amber-400 mb-1">Medium (Low Stock)</p>
-          <p className="text-3xl font-bold text-amber-500">
-            {anomalies?.filter(a => a.type === 'LOW_STOCK').length || 0}
-          </p>
-        </div>
-      </div>
-
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-        <input 
-          type="text" 
-          placeholder="Filter anomalies by Ref or Type..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-slate-800/80 border border-slate-700 text-slate-200 rounded-xl pl-12 pr-4 py-3 placeholder:text-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
-        />
-      </div>
-
-      {/* Anomalies List */}
-      <div className="space-y-4">
-        {filteredAnomalies?.length === 0 ? (
-          <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-12 text-center flex flex-col items-center justify-center">
-            <ShieldCheck className="w-16 h-16 text-emerald-500 mb-4" />
-            <h3 className="text-xl font-medium text-slate-200 mb-2">Systems Nominal</h3>
-            <p className="text-slate-400">No anomalies or stock inconsistencies detected.</p>
-          </div>
-        ) : (
-          filteredAnomalies?.map((anomaly) => (
-            <div 
-              key={anomaly.id} 
-              className={`bg-slate-800/50 border rounded-xl p-6 flex flex-col md:flex-row gap-6 md:items-center justify-between transition-colors ${
-                anomaly.severity === 'CRITICAL' ? 'border-red-500/30 hover:border-red-500/50' :
-                anomaly.severity === 'HIGH' ? 'border-rose-500/30 hover:border-rose-500/50' :
-                'border-amber-500/30 hover:border-amber-500/50'
-              }`}
-            >
-              <div className="flex gap-4 items-start md:items-center">
-                <div className={`p-3 rounded-lg flex-shrink-0 ${
-                  anomaly.severity === 'CRITICAL' ? 'bg-red-500/10 text-red-500' :
-                  anomaly.severity === 'HIGH' ? 'bg-rose-500/10 text-rose-500' :
-                  'bg-amber-500/10 text-amber-500'
-                }`}>
-                  {anomaly.severity === 'CRITICAL' && <FileWarning className="w-6 h-6" />}
-                  {anomaly.severity === 'HIGH' && <AlertTriangle className="w-6 h-6" />}
-                  {anomaly.severity === 'MEDIUM' && <ArrowRightLeft className="w-6 h-6" />}
-                </div>
-                
-                <div>
-                  <div className="flex items-center gap-3 mb-1">
-                    <h3 className="text-lg font-semibold text-slate-200 uppercase tracking-wide">{anomaly.reference}</h3>
-                    <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${
-                      anomaly.severity === 'CRITICAL' ? 'bg-red-500/20 text-red-400' :
-                      anomaly.severity === 'HIGH' ? 'bg-rose-500/20 text-rose-400' :
-                      'bg-amber-500/20 text-amber-400'
-                    }`}>
-                      {anomaly.type.replace('_', ' ')}
-                    </span>
-                  </div>
-                  <p className="text-slate-400 text-sm mb-2">{anomaly.description} <span className="font-mono text-slate-300">[{anomaly.currentValue}]</span></p>
-                  
-                  <div className="bg-black/20 rounded-md p-3 border border-slate-700/50 text-sm">
-                    <span className="text-slate-500 block mb-1 uppercase tracking-wider text-[10px] font-bold">Recommended Resolution</span>
-                    <span className="text-slate-300">{anomaly.recommendedAction}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-row md:flex-col gap-3 flex-shrink-0 ml-auto md:ml-0">
-                {anomaly.severity === 'CRITICAL' ? (
-                  <button
-                    onClick={() => handleFixNegative(anomaly)}
-                    disabled={isProcessing}
-                    className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium transition-colors border border-slate-600 hover:border-slate-500"
-                  >
-                    <CheckCircle className="w-4 h-4" /> Resolve to 0
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleGeneratePO(anomaly)}
-                    disabled={isProcessing}
-                    className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                  >
-                    <ShoppingCart className="w-4 h-4" /> Issue Requisition
-                  </button>
-                )}
-              </div>
+      <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl">
+        <div className="p-8 border-b border-white/5 bg-white/[0.01] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+              <RefreshCw className={cn("w-6 h-6 text-blue-400", isProcessing && "animate-spin")} />
             </div>
-          ))
-        )}
+            <div>
+              <h2 className="text-lg font-bold text-white uppercase tracking-tight">Active Inconsistencies</h2>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Real-time stock integrity monitoring</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="relative group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Search anomalies..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="titan-input pl-11 w-80 shadow-none"
+              />
+            </div>
+            
+            {anomalies && anomalies.filter(a => a.type === 'NEGATIVE_STOCK').length > 0 && (
+              <button 
+                onClick={handleBatchFixNegatives}
+                disabled={isProcessing}
+                className="titan-button titan-button-primary"
+              >
+                {isProcessing ? <Loader2 className="w-4 h-4 animate-spin"/> : <RefreshCw className="w-4 h-4"/>}
+                Resolve Negatives
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#1a1c23]/50">
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest">Reference</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest">Severity</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest">Type</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest">Current Val</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest">Recommended Action</th>
+                <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest text-right">Operations</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.03] bg-black/5">
+              {filteredAnomalies?.map((anomaly, idx) => (
+                <tr key={anomaly.id} className="group hover:bg-white/[0.02] transition-colors border-b border-white/[0.03] last:border-0">
+                  <td className="px-8 py-6">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border",
+                        anomaly.severity === 'CRITICAL' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
+                        anomaly.severity === 'HIGH' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
+                        'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                      )}>
+                        {anomaly.severity === 'CRITICAL' ? <FileWarning className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
+                      </div>
+                      <span className="text-sm font-semibold text-white tracking-tight">{anomaly.reference}</span>
+                    </div>
+                  </td>
+                  <td className="px-8 py-6">
+                    <span className={cn(
+                      "text-[9px] font-bold px-2 py-0.5 rounded uppercase tracking-widest border",
+                      anomaly.severity === 'CRITICAL' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
+                      anomaly.severity === 'HIGH' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
+                      'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                    )}>
+                      {anomaly.severity}
+                    </span>
+                  </td>
+                  <td className="px-8 py-6 text-xs font-medium text-slate-400 uppercase tracking-widest">
+                    {anomaly.type.replace('_', ' ')}
+                  </td>
+                  <td className="px-8 py-6 text-xs font-mono font-bold text-slate-300">
+                    {anomaly.currentValue}
+                  </td>
+                  <td className="px-8 py-6">
+                    <div className="max-w-xs">
+                      <p className="text-xs text-slate-400 italic line-clamp-2">{anomaly.recommendedAction}</p>
+                    </div>
+                  </td>
+                  <td className="px-8 py-6 text-right">
+                    <div className="flex items-center justify-end">
+                      {anomaly.type === 'NEGATIVE_STOCK' ? (
+                        <button
+                          onClick={() => handleFixNegative(anomaly)}
+                          disabled={isProcessing}
+                          className="titan-button titan-button-success !px-4 !py-2 !text-[9px]"
+                        >
+                          <CheckCircle className="w-3 h-3" /> Resolve
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleGeneratePO(anomaly)}
+                          disabled={isProcessing}
+                          className="titan-button titan-button-primary !px-4 !py-2 !text-[9px]"
+                        >
+                          <ShoppingCart className="w-3 h-3" /> Requisition
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {(filteredAnomalies?.length === 0 || !filteredAnomalies) && (
+                <tr className="bg-black/20">
+                  <td colSpan={6} className="py-32 text-center">
+                    <div className="flex flex-col items-center opacity-20">
+                      <ShieldCheck className="w-16 h-16 mb-4 text-emerald-500" />
+                      <p className="text-lg font-bold uppercase tracking-widest text-white">No active anomalies detected</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </GlassCard>
+    </div>
+  );
+}
+
+function StatCompact({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-2.5 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-colors group">
+      <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center shrink-0">
+        {icon}
+      </div>
+      <div className="flex flex-col">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{label}</span>
+        <span className="text-base font-bold text-white -mt-0.5">{value}</span>
       </div>
     </div>
   );

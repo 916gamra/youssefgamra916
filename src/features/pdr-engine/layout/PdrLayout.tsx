@@ -11,10 +11,9 @@ import { PdrLibraryPage } from '../views/PdrLibraryPage';
 import { PartDetail } from '../views/PartDetail';
 import { ProcurementView } from '@/features/procurement/views/ProcurementView';
 import { RequisitionHubView } from '@/features/requisition/views/RequisitionHubView';
-import { ExcelHubView } from '../views/ExcelHubView';
 import { AdvancedInventoryDashboard } from '../views/AdvancedInventoryDashboard';
 import { ReconciliationCenterView } from '../views/ReconciliationCenterView';
-import { FileSpreadsheet, Activity, Wrench } from 'lucide-react';
+import { Activity, Wrench } from 'lucide-react';
 
 const PDR_COMPONENTS = {
   'pdr-dashboard': StockDashboardPage,
@@ -22,7 +21,6 @@ const PDR_COMPONENTS = {
   'part-detail': PartDetail,
   'procurement': ProcurementView,
   'requisition-hub': RequisitionHubView,
-  'excel-hub': ExcelHubView,
   'advanced-dashboard': AdvancedInventoryDashboard,
   'reconciliation': ReconciliationCenterView,
 };
@@ -80,12 +78,6 @@ export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () 
           isActive={activeTabId === 'requisition-hub'} 
           onClick={() => openTab({ id: 'requisition-hub', title: 'Requisition Hub', component: 'requisition-hub' })}
           title="Requisition Hub"
-        />
-        <PortalSidebarItem 
-          icon={<FileSpreadsheet />} 
-          isActive={activeTabId === 'excel-hub'} 
-          onClick={() => openTab({ id: 'excel-hub', title: 'Excel Hub', component: 'excel-hub' })}
-          title="Excel Data Integration"
         />
       </PortalSidebar>
 

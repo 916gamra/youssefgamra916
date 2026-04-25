@@ -465,7 +465,7 @@ export function DataExchangeView() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {CARDS.map((card, idx) => (
-          <GlassCard key={card.id} className="p-6 border border-white/5 bg-white/[0.02] flex flex-col relative overflow-hidden group hover:border-white/20 transition-all shadow-lg hover:shadow-2xl">
+          <GlassCard key={card.id} className="p-6 border border-white/10 bg-white/[0.06] flex flex-col relative overflow-hidden group hover:border-white/30 transition-all shadow-xl hover:shadow-2xl backdrop-blur-md">
              <div className="flex items-start gap-5 mb-6">
                 <div className={`p-4 rounded-2xl bg-black/40 border border-white/5 shadow-inner`}>
                   {card.icon}
