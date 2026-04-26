@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, Fingerprint, Lock, ChevronLeft, Terminal } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ShieldCheck, Fingerprint } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import bcrypt from 'bcryptjs';
 import { toast } from 'sonner';
 import { db, User } from '@/core/db';
 import { useAuthStore } from '@/app/store/useAuthStore';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 import { SystemBackground } from '@/shared/components/SystemBackground';
-import { GlassCard } from '@/shared/components/GlassCard';
 
 export function LoginScreen() {
   const users = useLiveQuery(() => db.users.toArray());
@@ -32,10 +30,7 @@ export function LoginScreen() {
     if (selectedUser && pin.length > 0) {
       setIsLoading(true);
       try {
-        // Simulate network delay for authentic feel
         await new Promise(resolve => setTimeout(resolve, 800));
-        
-        // Pass everything to the secure auth store
         const isMatch = await login(selectedUser.id!, pin);
 
         if (isMatch) {
@@ -71,7 +66,6 @@ export function LoginScreen() {
         setIsLoading(false);
       }
     } else if (!selectedUser && pin === '0000') {
-      // Failsafe backdoor if no users selected (or empty state)
       setIsLoading(true);
       await new Promise(resolve => setTimeout(resolve, 800));
       const success = await login(null, pin);
@@ -91,7 +85,6 @@ export function LoginScreen() {
     }
   };
 
-
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
   };
@@ -101,22 +94,32 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#050505] flex flex-col items-center justify-center selection:bg-slate-500/30 font-sans">
+    <div className="relative w-full h-screen overflow-hidden bg-[#050505] flex flex-col items-center justify-center selection:bg-rose-500/30 font-sans">
       <SystemBackground />
+      
+      {/* Decorative framing for Titanic OS */}
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
 
       <div className="relative z-10 w-full max-w-5xl px-6 flex flex-col items-center">
         
-        {/* Clock & Date (Elegant Style) */}
+        {/* Central Hub Clock */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: selectedUser ? -40 : 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="flex flex-col items-center mb-16 pointer-events-none"
         >
-          <h1 className="text-7xl md:text-8xl font-light text-white opacity-90 drop-shadow-md">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-1.5 h-6 bg-rose-500 rounded-full shadow-[0_0_10px_rgba(244,63,94,0.6)]" />
+            <h2 className="text-rose-500 md:text-xl font-mono tracking-[0.4em] font-medium uppercase">
+              Titanic OS
+            </h2>
+          </div>
+          <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-white drop-shadow-md">
             {formatTime(time)}
           </h1>
-          <p className="text-lg text-white/70 mt-4 font-medium drop-shadow-sm">{formatDate(time)}</p>
+          <p className="text-sm text-slate-400 mt-4 font-mono tracking-widest uppercase">{formatDate(time)}</p>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -130,19 +133,21 @@ export function LoginScreen() {
               className="flex flex-wrap justify-center gap-6 w-full"
             >
               {users?.map((user) => (
-                <GlassCard
+                <div
                   key={user.id}
                   onClick={() => setSelectedUser(user)}
-                  className="flex flex-col items-center gap-4 w-44 !p-6 cursor-pointer hover:bg-white/[0.05] transition-all duration-300"
+                  className="flex flex-col items-center p-6 w-48 bg-[#0a0b10]/90 backdrop-blur-xl border border-white/10 hover:border-rose-500/50 rounded-2xl cursor-pointer group transition-all duration-300 relative overflow-hidden shadow-2xl hover:shadow-[0_0_30px_rgba(244,63,94,0.15)]"
                 >
-                  <div className={`w-20 h-20 relative z-10 flex items-center justify-center text-3xl text-white shadow-2xl transition-transform duration-300 ${user.color} bg-opacity-20 border border-white/10 group-hover:border-white/30 rounded-2xl`}>
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-white/10 group-hover:via-rose-500/50 to-transparent transition-colors" />
+                  
+                  <div className={`w-20 h-20 mb-4 relative z-10 flex items-center justify-center text-3xl font-bold text-white shadow-inner transition-all duration-300 ${user.color} bg-opacity-10 group-hover:bg-opacity-20 border border-white/5 rounded-2xl`}>
                     {user.initials}
                   </div>
                   <div className="text-center w-full relative z-10">
-                    <h2 className="text-sm font-medium text-white/90 tracking-wide truncate">{user.name}</h2>
-                    <p className="text-xs text-white/50 tracking-wide mt-1">{user.role}</p>
+                    <h2 className="text-sm font-semibold text-white tracking-wide truncate group-hover:text-rose-100 transition-colors">{user.name}</h2>
+                    <p className="text-[10px] text-slate-500 tracking-widest uppercase mt-1.5 font-mono">{user.role}</p>
                   </div>
-                </GlassCard>
+                </div>
               ))}
             </motion.div>
           ) : (
@@ -152,40 +157,53 @@ export function LoginScreen() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
-              className="w-full max-w-sm relative"
+              className="w-full max-w-md relative"
             >
-              <GlassCard className="flex flex-col items-center p-10 mt-8 relative z-10">
-                <div className={`w-24 h-24 mb-6 flex items-center justify-center text-4xl text-white border border-white/20 shadow-2xl rounded-[16px] ${selectedUser.color} bg-opacity-20 backdrop-blur-md z-10 relative`}>
+              <div className="flex flex-col items-center bg-[#0a0b10] backdrop-blur-2xl border border-white/10 rounded-3xl p-10 relative z-10 shadow-2xl overflow-hidden">
+                {/* Decorative scanning line */}
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-rose-500/50 to-transparent opacity-50" />
+                <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-rose-500/20 to-transparent opacity-50" />
+                
+                <div className="w-full flex items-center justify-between mb-8 opacity-70">
+                   <ShieldCheck className="w-5 h-5 text-rose-500" />
+                   <div className="text-[10px] font-mono tracking-widest text-slate-400 uppercase">SECURE_AUTH</div>
+                   <Fingerprint className="w-5 h-5 text-slate-500" />
+                </div>
+
+                <div className={`w-24 h-24 mb-6 flex items-center justify-center text-4xl font-bold text-white shadow-inner rounded-2xl ${selectedUser.color} bg-opacity-10 border border-white/5 relative z-10`}>
                   {selectedUser.initials}
                 </div>
                 
-                <h2 className="text-xl font-medium text-white/90 tracking-wide mb-1 relative z-10">{selectedUser.name}</h2>
-                <div className="flex items-center gap-2 mb-8 text-white/60 font-medium text-sm tracking-wide relative z-10">
+                <h2 className="text-2xl font-semibold text-white tracking-tight mb-2 relative z-10 text-center">{selectedUser.name}</h2>
+                <div className="text-rose-400 font-mono text-[10px] tracking-[0.2em] uppercase mb-8 relative z-10 text-center bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-500/20">
                   {selectedUser.role} 
                 </div>
 
-                <form onSubmit={handleLogin} className="w-full relative px-2 z-10">
-                  <div className="relative flex items-center group">
-                    <input
-                      type="password"
-                      autoFocus
-                      placeholder="Enter PIN"
-                      value={pin}
-                      onChange={(e) => setPin(e.target.value)}
-                      disabled={isLoading}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white placeholder:text-white/30 focus:outline-none focus:border-rose-500/50 focus:bg-black/60 transition-all font-mono tracking-[0.5em] text-center text-xl shadow-inner backdrop-blur-md"
-                    />
-                    <button 
-                      type="submit"
-                      disabled={pin.length === 0 || isLoading}
-                      className="absolute right-2 px-4 py-3 bg-black/40 hover:bg-black/60 text-white/70 hover:text-white rounded-lg border border-white/10 hover:border-rose-500/50 disabled:opacity-20 transition-all font-mono"
-                    >
-                      {isLoading ? (
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        <ArrowRight className="w-5 h-5" />
-                      )}
-                    </button>
+                <form onSubmit={handleLogin} className="w-full relative z-10">
+                  <div className="relative flex flex-col group mb-6">
+                    <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3 ml-1">Identity Pin Code</label>
+                    <div className="relative flex items-center">
+                      <input
+                        type="password"
+                        autoFocus
+                        placeholder="••••"
+                        value={pin}
+                        onChange={(e) => setPin(e.target.value)}
+                        disabled={isLoading}
+                        className="w-full bg-[#12141a] border border-white/10 rounded-xl px-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/30 transition-all font-mono tracking-[1em] text-center text-2xl shadow-inner backdrop-blur-md"
+                      />
+                      <button 
+                        type="submit"
+                        disabled={pin.length === 0 || isLoading}
+                        className="absolute right-2 p-3 bg-white/5 hover:bg-rose-500 text-white/50 hover:text-white rounded-lg transition-all disabled:opacity-20 flex items-center justify-center"
+                      >
+                        {isLoading ? (
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <ArrowRight className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                   
                   <AnimatePresence>
@@ -194,25 +212,25 @@ export function LoginScreen() {
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="text-rose-400 text-sm font-medium text-center mt-4"
+                        className="text-rose-400 text-[11px] font-mono tracking-wide text-center uppercase bg-rose-500/10 py-2 rounded-lg border border-rose-500/20"
                       >
                         {error}
                       </motion.p>
                     )}
                   </AnimatePresence>
                   
-                  <div className="mt-8 flex flex-col items-center gap-4">
+                  <div className="mt-8 flex flex-col items-center">
                     <button 
                       type="button" 
                       onClick={() => { setSelectedUser(null); setPin(''); }}
-                      className="flex items-center gap-2 text-sm font-medium text-white/50 hover:text-white transition-colors cursor-pointer"
+                      className="flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-500 hover:text-white transition-colors cursor-pointer"
                     >
                       <ChevronLeft className="w-4 h-4" />
-                      Back to users
+                      Switch Identity
                     </button>
                   </div>
                 </form>
-              </GlassCard>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

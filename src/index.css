@@ -8,20 +8,20 @@
 
 @layer base {
   :root {
-    --bg-base: #0a0b10;
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --accent: #2563eb; /* Industrial Blue 600 */
-    --accent-glow: rgba(37, 99, 235, 0.15);
+    --bg-base: #050505;
+    --glass-bg: rgba(255, 255, 255, 0.04);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent: #f43f5e; /* Rose 500 */
+    --accent-glow: rgba(244, 63, 94, 0.15);
     --text-dim: #94a3b8;
-    --text-bright: #f1f5f9;
+    --text-bright: #f8fafc;
   }
 
   body {
     background-color: var(--bg-base);
     color: var(--text-bright);
     background-attachment: fixed;
-    @apply antialiased selection:bg-blue-500/30 selection:text-blue-100;
+    @apply antialiased selection:bg-rose-500/30 selection:text-rose-100;
   }
 
   h1, h2, h3, h4, h5, h6, .heading-font {
@@ -46,18 +46,18 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+  background: rgba(244, 63, 94, 0.2);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.3);
+  background: rgba(244, 63, 94, 0.4);
 }
 
 @layer components {
   /* Engineering Glass Architecture */
   .glass-panel {
-    @apply bg-[#1a1c23]/80 backdrop-blur-xl border border-white/[0.08];
+    @apply bg-[#0e1015]/80 backdrop-blur-xl border border-white/[0.08];
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 
@@ -68,9 +68,9 @@
 
   /* Structural Card Component - Professional Finish */
   .titan-card {
-    @apply relative overflow-hidden rounded-xl bg-black/40 backdrop-blur-2xl border border-white/10 transition-all duration-300 ease-in-out hover:border-white/20 hover:bg-black/60;
+    @apply relative overflow-hidden rounded-xl bg-[#0f1115]/90 backdrop-blur-2xl border border-white/10 transition-all duration-300 ease-in-out hover:border-rose-500/30 hover:bg-[#15181e];
     box-shadow: 
-      0 20px 40px -12px rgba(0, 0, 0, 0.8), 
+      0 10px 30px -10px rgba(0, 0, 0, 0.5), 
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 
@@ -86,38 +86,38 @@
 
   .titan-card::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none opacity-50;
+    @apply absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none opacity-50;
   }
 
   /* Professional Industrial Inputs */
   .titan-input {
-    @apply w-full bg-[#1a1c23] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[#f1f5f9] outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10 transition-all duration-200 placeholder:text-slate-500;
+    @apply w-full bg-[#0a0b10] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-[#f8fafc] outline-none focus:border-rose-500/60 focus:ring-2 focus:ring-rose-500/10 transition-all duration-200 placeholder:text-slate-600 shadow-inner;
   }
 
   .titan-label {
-    @apply block text-xs font-semibold tracking-wide text-slate-400 mb-2 ml-0.5;
+    @apply block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-2 ml-1;
   }
 
   /* Status Badges */
   .status-badge {
-    @apply px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border shadow-sm;
+    @apply px-2.5 py-1 rounded-md text-[9px] font-mono uppercase tracking-[0.2em] border shadow-sm;
   }
 
   /* Interactive Elements - Buttons */
   .titan-button {
-    @apply flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all duration-300 ease-out active:scale-95 disabled:opacity-50 disabled:pointer-events-none uppercase tracking-widest text-[10px] sm:text-xs shadow-lg relative overflow-hidden;
+    @apply flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl transition-all duration-300 ease-out active:scale-95 disabled:opacity-50 disabled:pointer-events-none font-mono uppercase tracking-[0.2em] text-[10px] sm:text-xs shadow-lg relative overflow-hidden;
   }
 
   .titan-button-primary {
-    @apply bg-blue-600 hover:bg-blue-500 text-white shadow-blue-500/20 border border-transparent;
+    @apply bg-rose-600 hover:bg-rose-500 text-white shadow-rose-500/20 border border-transparent;
   }
 
   .titan-button-outline {
-    @apply bg-white/[0.02] hover:bg-white/[0.06] text-slate-300 hover:text-white border border-white/10 hover:border-white/20;
+    @apply bg-white/[0.02] hover:bg-white/[0.06] text-slate-300 hover:text-white border border-white/10 hover:border-rose-500/30;
   }
   
   .titan-button-active {
-    @apply bg-blue-500/10 border-blue-500/30 text-blue-400;
+    @apply bg-rose-500/10 border-rose-500/30 text-rose-400;
   }
   
   .titan-button-success {
@@ -132,5 +132,6 @@
     @apply bg-transparent hover:bg-white/[0.05] text-slate-400 hover:text-white border border-transparent shadow-none;
   }
 }
+
 
 
