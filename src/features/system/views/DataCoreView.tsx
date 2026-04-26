@@ -138,7 +138,7 @@ export function DataCoreView({ user }: { user: User | null }) {
       <header className="flex flex-col gap-2 relative">
         <div className="absolute -top-10 -left-10 w-96 h-96 bg-rose-500/5 blur-[120px] rounded-full pointer-events-none" />
         <h1 className="text-3xl font-bold text-white tracking-tight mb-2 flex items-center gap-4 uppercase">
-          <Disc className="w-10 h-10 text-blue-500 " />
+          <Disc className="w-10 h-10 text-rose-500 " />
           Database Backup
         </h1>
         <p className="text-slate-400 uppercase tracking-widest text-xs font-semibold flex items-center gap-3">

@@ -32,7 +32,7 @@ export function SecurityPoliciesView() {
     localStorage.setItem('ciob_security_prefs', JSON.stringify(prefs));
     toast.success('Policies Updated', {
        description: 'System security configuration successfully saved.',
-       icon: <Shield className="w-4 h-4 text-blue-500" />
+       icon: <Shield className="w-4 h-4 text-rose-500" />
     });
   };
 
@@ -41,7 +41,7 @@ export function SecurityPoliciesView() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10 border-b border-white/[0.05] pb-6 shrink-0">
           <div>
             <h1 className="text-3xl font-semibold text-slate-100 tracking-tight flex items-center gap-3 mb-2">
-              <Settings className="w-8 h-8 text-blue-500" />
+              <Settings className="w-8 h-8 text-rose-500" />
               Network Policies
             </h1>
             <p className="text-sm text-slate-400 max-w-2xl leading-relaxed">

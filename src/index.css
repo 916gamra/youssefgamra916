@@ -68,28 +68,25 @@
 
   /* Structural Card Component - Professional Finish */
   .titan-card {
-    @apply relative overflow-hidden rounded-2xl bg-white/[0.28] dark:bg-[#0d0f14]/98 backdrop-blur-3xl border border-white/[0.3] dark:border-white/[0.35] transition-all duration-300 ease-in-out hover:border-white/[0.6] hover:bg-white/[0.35] dark:hover:bg-[#12141a];
+    @apply relative overflow-hidden rounded-xl bg-black/40 backdrop-blur-2xl border border-white/10 transition-all duration-300 ease-in-out hover:border-white/20 hover:bg-black/60;
     box-shadow: 
-      0 20px 50px -12px rgba(0, 0, 0, 0.9), 
-      inset 0 1px 1px rgba(255, 255, 255, 0.25),
-      inset 0 0 4px rgba(255, 255, 255, 0.1);
+      0 20px 40px -12px rgba(0, 0, 0, 0.8), 
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 
-  /* Crystal Reflection Overlay */
+  /* Structural Border Accent */
   .titan-card::after {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.05] pointer-events-none;
-    transform: translateX(-100%) rotate(25deg);
-    transition: transform 0.8s ease-in-out;
+    @apply absolute inset-0 pointer-events-none rounded-xl border border-white/5 opacity-0 transition-opacity duration-300;
   }
 
   .titan-card:hover::after {
-    transform: translateX(100%) rotate(25deg);
+    @apply opacity-100;
   }
 
   .titan-card::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-tr from-white/[0.05] to-transparent pointer-events-none opacity-40;
+    @apply absolute inset-0 bg-gradient-to-br from-white/[0.04] to-transparent pointer-events-none opacity-50;
   }
 
   /* Professional Industrial Inputs */

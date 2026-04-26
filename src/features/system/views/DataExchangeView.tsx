@@ -453,7 +453,7 @@ export function DataExchangeView() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
         <div>
           <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
-            <RefreshCw className={`w-8 h-8 text-blue-500 ${isProcessing ? 'animate-spin border-blue-500 rounded-full' : ''}`} /> 
+            <RefreshCw className={`w-8 h-8 text-rose-500 ${isProcessing ? 'animate-spin border-rose-500 rounded-full' : ''}`} /> 
             Data Exchange Hub
           </h1>
           <p className="text-slate-400 text-sm max-w-2xl leading-relaxed">

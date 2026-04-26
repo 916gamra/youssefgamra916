@@ -63,30 +63,21 @@ const APPS = [
 ];
 
 const THEME_MAP: Record<string, string> = {
-  cyan: 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10',
-  emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
-  amber: 'text-amber-400 border-amber-500/30 bg-amber-500/10',
-  indigo: 'text-indigo-400 border-indigo-500/30 bg-indigo-500/10',
-  fuchsia: 'text-fuchsia-400 border-fuchsia-500/30 bg-fuchsia-500/10',
-  rose: 'text-rose-400 border-rose-500/30 bg-rose-500/10',
+  cyan: 'text-cyan-400 border-cyan-500/30 bg-cyan-500/10 shadow-[inner_0_0_15px_rgba(34,211,238,0.1)]',
+  emerald: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10 shadow-[inner_0_0_15px_rgba(16,185,129,0.1)]',
+  amber: 'text-amber-400 border-amber-500/30 bg-amber-500/10 shadow-[inner_0_0_15px_rgba(245,158,11,0.1)]',
+  indigo: 'text-indigo-400 border-indigo-500/30 bg-indigo-500/10 shadow-[inner_0_0_15px_rgba(99,102,241,0.1)]',
+  fuchsia: 'text-fuchsia-400 border-fuchsia-500/30 bg-fuchsia-500/10 shadow-[inner_0_0_15px_rgba(217,70,239,0.1)]',
+  rose: 'text-rose-400 border-rose-500/30 bg-rose-500/10 shadow-[inner_0_0_15px_rgba(244,63,94,0.1)]',
 };
 
-const BORDER_HOVER_MAP: Record<string, string> = {
-  cyan: 'hover:border-cyan-500/50',
-  emerald: 'hover:border-emerald-500/50',
-  amber: 'hover:border-amber-500/50',
-  indigo: 'hover:border-indigo-500/50',
-  fuchsia: 'hover:border-fuchsia-500/50',
-  rose: 'hover:border-rose-500/50',
-};
-
-const SHINE_MAP: Record<string, string> = {
-  cyan: 'from-cyan-500/10 to-transparent',
-  emerald: 'from-emerald-500/10 to-transparent',
-  amber: 'from-amber-500/10 to-transparent',
-  indigo: 'from-indigo-500/10 to-transparent',
-  fuchsia: 'from-fuchsia-500/10 to-transparent',
-  rose: 'from-rose-500/10 to-transparent',
+const THEME_BG_MAP: Record<string, string> = {
+  cyan: 'bg-cyan-500',
+  emerald: 'bg-emerald-500',
+  amber: 'bg-amber-500',
+  indigo: 'bg-indigo-500',
+  fuchsia: 'bg-fuchsia-500',
+  rose: 'bg-rose-500',
 };
 
 const containerAnim = {
@@ -130,82 +121,78 @@ export function LaunchpadView({ user }: { user: User | null }) {
 
       <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 lg:px-12 py-8 flex-1 flex flex-col">
         
-        {/* --- SCADA HEADER --- */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 border-b border-white/[0.08] pb-6">
+        {/* --- OS HEADER --- */}
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">
           <div className="mb-6 md:mb-0">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.8)] animate-pulse" />
-              <span className="text-[10px] font-mono font-bold text-emerald-500 uppercase tracking-widest">System Online</span>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-6 bg-blue-500 rounded-sm shadow-[0_0_10px_rgba(59,130,246,0.6)]" />
+                <div className="w-1.5 h-4 bg-emerald-500 rounded-sm shadow-[0_0_10px_rgba(16,185,129,0.6)]" />
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white flex items-center gap-3">
+                TITANIC <span className="text-white/20 font-light border-l border-white/10 pl-3 ml-1">OS</span>
+              </h1>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-2">TITANIC <span className="text-white/30 font-light">OS</span></h1>
-            <p className="text-xs text-slate-500 font-mono uppercase tracking-[0.2em] flex items-center gap-3">
-              Strategic Command Center <span className="w-1 h-1 rounded-full bg-slate-600" /> Enterprise Edition
+            <p className="text-sm text-slate-400 flex items-center gap-3 text-mono uppercase tracking-widest text-[10px]">
+               <span className="w-2 h-2 rounded-full border border-white/30 flex items-center justify-center"><span className="w-1 h-1 bg-white/50 rounded-full" /></span>
+               SECURE WORKSPACE INITIALIZED
             </p>
           </div>
           
           <div className="flex flex-col items-start md:items-end md:text-right">
-            <h2 className="text-3xl font-mono text-slate-200 tracking-wider font-light">{formatTime(time)}</h2>
-            <p className="text-[10px] font-mono text-blue-400/80 uppercase tracking-widest mt-1 bg-blue-500/10 px-3 py-1 rounded-sm border border-blue-500/20">{formatDate(time)}</p>
+            <h2 className="text-3xl text-slate-200 tracking-tight font-medium">{formatTime(time)}</h2>
+            <p className="text-sm text-slate-400 mt-1">{formatDate(time)}</p>
           </div>
         </header>
 
         {/* --- TELEMETRY DASHBOARD --- */}
         <section className="mb-12">
-          <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Activity className="w-3.5 h-3.5" /> Core Telemetry
-          </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <GlassCard className="p-4 flex flex-col gap-3 group border border-white/10 bg-white/[0.1] backdrop-blur-md">
-              <div className="flex justify-between items-start">
-                <Database className="w-4 h-4 text-cyan-400" />
-                <span className="text-[9px] text-slate-600 font-mono border border-white/10 px-1.5 py-0.5 rounded">SYS.INV</span>
-              </div>
-              <div className="mt-2">
-                <div className="text-3xl font-light text-slate-100 font-mono">{stats?.invCount ?? '-'}</div>
-                <div className="text-[10px] uppercase text-slate-500 tracking-widest mt-1 font-semibold">Active Stock Lines</div>
-              </div>
+            <GlassCard className="p-6 flex flex-col gap-3 group">
+               <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center mb-2">
+                 <Database className="w-5 h-5 text-cyan-400" />
+               </div>
+               <div>
+                 <div className="text-3xl font-semibold text-slate-100">{stats?.invCount ?? '-'}</div>
+                 <div className="text-sm text-slate-500 mt-1 font-medium">Inventory Items</div>
+               </div>
             </GlassCard>
 
-            <GlassCard className="p-4 flex flex-col gap-3 group border border-white/10 bg-white/[0.1] backdrop-blur-md">
-              <div className="flex justify-between items-start">
-                <Factory className="w-4 h-4 text-indigo-400" />
-                <span className="text-[9px] text-slate-600 font-mono border border-white/10 px-1.5 py-0.5 rounded">SYS.MCH</span>
-              </div>
-              <div className="mt-2">
-                <div className="text-3xl font-light text-slate-100 font-mono">{stats?.machinesCount ?? '-'}</div>
-                <div className="text-[10px] uppercase text-slate-500 tracking-widest mt-1 font-semibold">Registered Machines</div>
-              </div>
+            <GlassCard className="p-6 flex flex-col gap-3 group">
+               <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center mb-2">
+                 <Factory className="w-5 h-5 text-indigo-400" />
+               </div>
+               <div>
+                 <div className="text-3xl font-semibold text-slate-100">{stats?.machinesCount ?? '-'}</div>
+                 <div className="text-sm text-slate-500 mt-1 font-medium">Machines</div>
+               </div>
             </GlassCard>
 
-            <GlassCard className="p-4 flex flex-col gap-3 group border-amber-500/40 bg-amber-500/[0.12] backdrop-blur-md">
-              <div className="flex justify-between items-start">
-                <AlertTriangle className="w-4 h-4 text-amber-400" />
-                <span className="text-[9px] text-amber-500/60 font-mono border border-amber-500/20 px-1.5 py-0.5 rounded">SYS.PM</span>
-              </div>
-              <div className="mt-2">
-                <div className="text-3xl font-light text-amber-400 font-mono">{stats?.pendingOrders ?? '-'}</div>
-                <div className="text-[10px] uppercase text-amber-500/60 tracking-widest mt-1 font-semibold">Pending Work Orders</div>
-              </div>
+            <GlassCard className="p-6 flex flex-col gap-3 group">
+               <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mb-2">
+                 <AlertTriangle className="w-5 h-5 text-amber-400" />
+               </div>
+               <div>
+                 <div className="text-3xl font-semibold text-amber-400">{stats?.pendingOrders ?? '-'}</div>
+                 <div className="text-sm text-amber-500/80 mt-1 font-medium">Pending Tasks</div>
+               </div>
             </GlassCard>
 
-            <GlassCard className="p-4 flex flex-col gap-3 group border border-white/10 bg-white/[0.1] backdrop-blur-md">
-              <div className="flex justify-between items-start">
-                <Users className="w-4 h-4 text-emerald-400" />
-                <span className="text-[9px] text-slate-600 font-mono border border-white/10 px-1.5 py-0.5 rounded">SYS.USR</span>
-              </div>
-              <div className="mt-2">
-                <div className="text-3xl font-light text-slate-100 font-mono">{stats?.usersCount ?? '-'}</div>
-                <div className="text-[10px] uppercase text-slate-500 tracking-widest mt-1 font-semibold">Authorized Agents</div>
-              </div>
+            <GlassCard className="p-6 flex flex-col gap-3 group">
+               <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2">
+                 <Users className="w-5 h-5 text-emerald-400" />
+               </div>
+               <div>
+                 <div className="text-3xl font-semibold text-slate-100">{stats?.usersCount ?? '-'}</div>
+                 <div className="text-sm text-slate-500 mt-1 font-medium">Active Users</div>
+               </div>
             </GlassCard>
           </div>
         </section>
 
         {/* --- SYSTEM NODES (PORTALS) --- */}
         <section className="flex-1 flex flex-col">
-          <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Cpu className="w-3.5 h-3.5" /> Authorized System Nodes
-          </h3>
+          <h3 className="text-sm font-semibold text-slate-400 mb-6">Applications</h3>
           
           <motion.div 
             variants={containerAnim}
@@ -215,43 +202,38 @@ export function LaunchpadView({ user }: { user: User | null }) {
           >
             {visibleApps.map((app) => {
               const themeStyle = THEME_MAP[app.theme];
-              const borderHover = BORDER_HOVER_MAP[app.theme];
-              const shineStyle = SHINE_MAP[app.theme];
+              const themeBg = THEME_BG_MAP[app.theme];
               
               return (
                 <motion.div key={app.id} variants={itemAnim} className="h-full">
                   <GlassCard 
                     onClick={() => setPortal(app.id)}
                     className={cn(
-                      "group flex flex-col p-6 h-full !bg-[#14161b]/90 border-white/10 hover:border-white/30",
-                      borderHover
+                      "group flex flex-col p-0 h-[220px] !bg-black/20 border-white/5 hover:border-white/20 transition-all duration-500 overflow-hidden cursor-pointer"
                     )}
                   >
-                    {/* Inner Shine Effect */}
-                    <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none", shineStyle)} />
-                    
-                    <div className="absolute top-0 right-6 px-2 py-1 bg-black/60 border-x border-b border-white/5 rounded-b-md">
-                       <span className="text-[9px] font-mono text-slate-600 uppercase tracking-widest group-hover:text-slate-400 transition-colors">{app.sysCode}</span>
-                    </div>
+                    {/* Big blur background */}
+                    <div className={cn("absolute -top-12 -right-12 w-40 h-40 blur-[50px] opacity-20 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none", themeBg)} />
 
-                    <div className="relative z-10 flex items-start gap-4 mb-6 mt-2">
-                      <div className={cn(
-                        "w-12 h-12 rounded-xl flex items-center justify-center border shadow-inner transition-transform group-hover:scale-110 duration-500",
-                        themeStyle
-                      )}>
-                         <app.icon className="w-6 h-6 stroke-[1.5]" />
-                      </div>
-                      <div className="pt-1">
-                        <h3 className="text-lg font-semibold text-slate-200 tracking-tight group-hover:text-white transition-colors">{app.title}</h3>
-                        <p className="text-xs text-slate-400 font-medium mt-1 leading-relaxed">{app.desc}</p>
-                      </div>
+                    <div className="p-6 relative z-10 flex-1 flex flex-col">
+                       <div className="flex justify-between items-start mb-auto">
+                           <div className={cn(
+                             "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all group-hover:scale-105 duration-500 shadow-lg",
+                             themeStyle
+                           )}>
+                             <app.icon className="w-7 h-7 stroke-[1.5]" />
+                           </div>
+                           <span className="text-[10px] font-bold text-slate-400 bg-white/5 backdrop-blur-md px-2 py-1 rounded-full border border-white/5 transition-colors">{app.sysCode}</span>
+                       </div>
+
+                       <div>
+                           <h3 className="text-xl font-bold text-slate-200 tracking-tight mb-1 group-hover:text-white transition-colors drop-shadow-md">{app.title}</h3>
+                           <p className="text-xs text-slate-400 font-medium leading-relaxed">{app.desc}</p>
+                       </div>
                     </div>
                     
-                    <div className="mt-auto pt-4 relative z-10 flex items-center justify-between border-t border-white/5">
-                      <div className="flex items-center gap-2 text-[10px] font-mono text-slate-600 uppercase tracking-widest transition-all group-hover:text-slate-300">
-                         <span className="w-4 h-px bg-current opacity-50" /> Initialize Node
-                      </div>
-                      <div className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-blue-500 shadow-[0_0_0_rgba(37,99,235,0)] group-hover:shadow-[0_0_8px_rgba(37,99,235,0.8)] transition-all duration-500" />
+                    <div className="h-[3px] w-full bg-white/5 group-hover:bg-white/10 transition-colors">
+                       <div className={cn("h-full w-0 group-hover:w-full transition-all duration-700 ease-in-out", themeBg)} />
                     </div>
                   </GlassCard>
                 </motion.div>

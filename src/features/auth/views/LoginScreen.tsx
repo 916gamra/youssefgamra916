@@ -8,6 +8,7 @@ import { db, User } from '@/core/db';
 import { useAuthStore } from '@/app/store/useAuthStore';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 import { SystemBackground } from '@/shared/components/SystemBackground';
+import { GlassCard } from '@/shared/components/GlassCard';
 
 export function LoginScreen() {
   const users = useLiveQuery(() => db.users.toArray());
@@ -103,34 +104,19 @@ export function LoginScreen() {
     <div className="relative w-full h-screen overflow-hidden bg-[#050505] flex flex-col items-center justify-center selection:bg-slate-500/30 font-sans">
       <SystemBackground />
 
-      {/* Industrial framing */}
-      <div className="absolute inset-4 border border-white/5 pointer-events-none z-0" />
-      <div className="absolute top-4 left-4 w-4 h-4 border-t border-l border-white/20 pointer-events-none z-0" />
-      <div className="absolute top-4 right-4 w-4 h-4 border-t border-r border-white/20 pointer-events-none z-0" />
-      <div className="absolute bottom-4 left-4 w-4 h-4 border-b border-l border-white/20 pointer-events-none z-0" />
-      <div className="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-white/20 pointer-events-none z-0" />
-
       <div className="relative z-10 w-full max-w-5xl px-6 flex flex-col items-center">
         
-        {/* Clock & Date (Industrial Style) */}
+        {/* Clock & Date (Elegant Style) */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: selectedUser ? -40 : 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="flex flex-col items-center mb-16 pointer-events-none"
         >
-          <div className="flex items-center gap-4 text-white/50 mb-4 text-xs font-mono tracking-[0.2em]">
-            <Terminal className="w-4 h-4" />
-            <span>SYSTEM // STANDBY</span>
-          </div>
-          <h1 className="text-7xl md:text-8xl font-mono font-light text-white tracking-widest opacity-90">
+          <h1 className="text-7xl md:text-8xl font-light text-white opacity-90 drop-shadow-md">
             {formatTime(time)}
           </h1>
-          <div className="mt-4 flex items-center gap-6">
-            <div className="h-[1px] w-12 bg-white/20" />
-            <p className="text-sm text-white/60 font-mono tracking-[0.2em]">{formatDate(time)}</p>
-            <div className="h-[1px] w-12 bg-white/20" />
-          </div>
+          <p className="text-lg text-white/70 mt-4 font-medium drop-shadow-sm">{formatDate(time)}</p>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -144,22 +130,19 @@ export function LoginScreen() {
               className="flex flex-wrap justify-center gap-6 w-full"
             >
               {users?.map((user) => (
-                <button
+                <GlassCard
                   key={user.id}
                   onClick={() => setSelectedUser(user)}
-                  className="group relative flex flex-col items-center gap-5 w-48 p-6 bg-black/40 backdrop-blur-md border border-white/5 hover:border-white/30 transition-all duration-300 overflow-hidden"
+                  className="flex flex-col items-center gap-4 w-44 !p-6 cursor-pointer hover:bg-white/[0.05] transition-all duration-300"
                 >
-                  {/* Subtle hover accent */}
-                  <div className="absolute top-0 left-0 w-full h-[2px] bg-white/0 group-hover:bg-slate-300/50 transition-colors duration-300" />
-                  
-                  <div className={`w-20 h-20 flex items-center justify-center text-3xl font-mono text-white shadow-2xl transition-transform duration-300 ${user.color} bg-opacity-20 border border-white/10 group-hover:border-white/30`}>
+                  <div className={`w-20 h-20 relative z-10 flex items-center justify-center text-3xl text-white shadow-2xl transition-transform duration-300 ${user.color} bg-opacity-20 border border-white/10 group-hover:border-white/30 rounded-2xl`}>
                     {user.initials}
                   </div>
-                  <div className="text-center w-full">
-                    <h2 className="text-sm font-medium text-white/90 uppercase tracking-wider truncate mb-1">{user.name}</h2>
-                    <p className="text-[10px] text-white/40 uppercase font-mono tracking-widest">{user.role}</p>
+                  <div className="text-center w-full relative z-10">
+                    <h2 className="text-sm font-medium text-white/90 tracking-wide truncate">{user.name}</h2>
+                    <p className="text-xs text-white/50 tracking-wide mt-1">{user.role}</p>
                   </div>
-                </button>
+                </GlassCard>
               ))}
             </motion.div>
           ) : (
@@ -169,44 +152,38 @@ export function LoginScreen() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
-              className="flex flex-col items-center w-full max-w-sm relative"
+              className="w-full max-w-sm relative"
             >
-              {/* Form border framing */}
-              <div className="absolute -inset-8 border border-white/5 bg-black/20 backdrop-blur-xl pointer-events-none z-0" />
-              <div className="absolute top-[-2rem] left-[-2rem] w-3 h-3 border-t border-l border-white/30 pointer-events-none z-0" />
-              <div className="absolute bottom-[-2rem] right-[-2rem] w-3 h-3 border-b border-r border-white/30 pointer-events-none z-0" />
-
-              <div className="relative z-10 flex flex-col items-center w-full">
-                <div className={`w-24 h-24 mb-6 flex items-center justify-center text-4xl font-mono text-white border border-white/20 shadow-2xl ${selectedUser.color} bg-opacity-10 backdrop-blur-sm`}>
+              <GlassCard className="flex flex-col items-center p-10 mt-8 relative z-10">
+                <div className={`w-24 h-24 mb-6 flex items-center justify-center text-4xl text-white border border-white/20 shadow-2xl rounded-[16px] ${selectedUser.color} bg-opacity-20 backdrop-blur-md z-10 relative`}>
                   {selectedUser.initials}
                 </div>
                 
-                <h2 className="text-lg font-medium text-white/90 tracking-widest uppercase mb-1">{selectedUser.name}</h2>
-                <div className="flex items-center gap-2 mb-8 text-white/40 font-mono text-[10px] tracking-widest uppercase">
-                  <span className="w-2 h-2 bg-emerald-500/50 rounded-none border border-emerald-500 animate-pulse" />
-                  {selectedUser.role} // AUTH_REQ
+                <h2 className="text-xl font-medium text-white/90 tracking-wide mb-1 relative z-10">{selectedUser.name}</h2>
+                <div className="flex items-center gap-2 mb-8 text-white/60 font-medium text-sm tracking-wide relative z-10">
+                  {selectedUser.role} 
                 </div>
 
-                <form onSubmit={handleLogin} className="w-full relative px-2">
+                <form onSubmit={handleLogin} className="w-full relative px-2 z-10">
                   <div className="relative flex items-center group">
                     <input
                       type="password"
                       autoFocus
-                      placeholder="ENTER PIN"
+                      placeholder="Enter PIN"
                       value={pin}
                       onChange={(e) => setPin(e.target.value)}
                       disabled={isLoading}
-                      className="w-full bg-black/60 border-b-2 border-white/10 px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-white/60 transition-all font-mono tracking-[0.5em] text-center text-xl hover:bg-black/80"
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-6 py-4 text-white placeholder:text-white/30 focus:outline-none focus:border-rose-500/50 focus:bg-black/60 transition-all font-mono tracking-[0.5em] text-center text-xl shadow-inner backdrop-blur-md"
                     />
                     <button 
                       type="submit"
                       disabled={pin.length === 0 || isLoading}
-                      className="absolute right-2 px-3 py-2 bg-white/5 hover:bg-white/10 text-white disabled:opacity-20 disabled:hover:bg-white/5 transition-colors border border-transparent hover:border-white/20 group-focus-within:border-white/20"
+                      className="absolute right-2 px-4 py-3 bg-black/40 hover:bg-black/60 text-white/70 hover:text-white rounded-lg border border-white/10 hover:border-rose-500/50 disabled:opacity-20 transition-all font-mono"
                     >
                       {isLoading ? (
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-none animate-spin" />
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       ) : (
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-5 h-5" />
                       )}
                     </button>
                   </div>
@@ -217,44 +194,28 @@ export function LoginScreen() {
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="text-amber-500/90 text-[11px] font-mono tracking-widest text-center mt-4 uppercase border border-amber-500/30 bg-amber-500/10 py-2"
+                        className="text-rose-400 text-sm font-medium text-center mt-4"
                       >
                         {error}
                       </motion.p>
                     )}
                   </AnimatePresence>
                   
-                  <div className="mt-8 flex flex-col items-center gap-6">
-                    <button type="button" className="flex items-center gap-2 text-[10px] uppercase font-mono tracking-widest text-white/30 hover:text-white/70 transition-colors">
-                      <Fingerprint className="w-3 h-3" />
-                      [ BIOMETRIC BYPASS ]
-                    </button>
-                    
+                  <div className="mt-8 flex flex-col items-center gap-4">
                     <button 
                       type="button" 
                       onClick={() => { setSelectedUser(null); setPin(''); }}
-                      className="flex items-center gap-2 text-[10px] uppercase font-mono tracking-widest text-white/30 hover:text-white transition-colors"
+                      className="flex items-center gap-2 text-sm font-medium text-white/50 hover:text-white transition-colors cursor-pointer"
                     >
-                      <ChevronLeft className="w-3 h-3" />
-                      RTRN_TO_ROSTER
+                      <ChevronLeft className="w-4 h-4" />
+                      Back to users
                     </button>
                   </div>
                 </form>
-              </div>
+              </GlassCard>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-      
-      {/* OS Footer Elements */}
-      <div className="absolute bottom-6 right-6 flex items-center gap-6 text-white/30 font-mono text-[10px] tracking-widest uppercase">
-        <div className="flex items-center gap-2">
-          <span>SEC // ENABLED</span>
-          <Lock className="w-3 h-3" />
-        </div>
-      </div>
-      <div className="absolute bottom-6 left-6 text-white/30 font-mono text-[10px] tracking-widest uppercase">
-        V. 4.0.9 // TERMINAL
       </div>
     </div>
   );

@@ -211,16 +211,15 @@ export function SchedulesView({ user }: SchedulesViewProps) {
             className="mb-8"
           >
             <form onSubmit={handleCreateSchedule}>
-              <GlassCard className="p-6 border-emerald-500/30 flex flex-col md:flex-row gap-8 shadow-[0_0_30px_rgba(16,185,129,0.1)] relative">
-                <div className="absolute top-0 left-0 w-full h-full bg-emerald-500/5 pointer-events-none" />
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
+              <div className="bg-black/60 backdrop-blur-2xl rounded-2xl border border-white/10 p-8 flex flex-col md:flex-row gap-8 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
                 
                 <div className="flex-1 space-y-5 relative z-10">
                   <div>
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Target Asset / Machine</label>
                     <select 
                       value={machineId} onChange={e => setMachineId(e.target.value)} required
-                      className="w-full titan-input py-3"
+                      className="w-full titan-input py-3 !bg-black/40"
                     >
                       <option value="" disabled>Select target system...</option>
                       {machines?.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
@@ -231,7 +230,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                     <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Deployed Protocol</label>
                     <select 
                       value={checklistId} onChange={e => setChecklistId(e.target.value)} required
-                      className="w-full titan-input py-3"
+                      className="w-full titan-input py-3 !bg-black/40"
                     >
                       <option value="" disabled>Select checklist blueprint...</option>
                       {checklists?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -239,7 +238,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                   </div>
                 </div>
 
-                <div className="w-px h-auto bg-white/5 mx-2 hidden md:block" />
+                <div className="w-px h-auto bg-white/10 mx-2 hidden md:block" />
 
                 <div className="flex-1 space-y-5 relative z-10">
                   <div>
@@ -247,7 +246,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                     <input 
                       type="number" min="1" max="3650" required
                       value={frequencyDays} onChange={e => setFrequencyDays(parseInt(e.target.value))}
-                      className="w-full titan-input py-3"
+                      className="w-full titan-input py-3 !bg-black/40"
                     />
                   </div>
 
@@ -256,18 +255,18 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                     <input 
                       type="date" required
                       value={nextDueDate} onChange={e => setNextDueDate(e.target.value)}
-                      className="w-full titan-input py-3 [color-scheme:dark]"
+                      className="w-full titan-input py-3 !bg-black/40 [color-scheme:dark]"
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-col justify-end gap-3 pt-4 md:pt-0 min-w-[200px] relative z-10">
-                  <button type="button" onClick={() => setIsCreating(false)} className="titan-button titan-button-outline !py-3">Cancel</button>
+                  <button type="button" onClick={() => setIsCreating(false)} className="titan-button titan-button-outline !py-3 !bg-black/40">Cancel</button>
                   <button type="submit" className="titan-button border-0 bg-emerald-500 hover:bg-emerald-400 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)] !py-3">
                      Establish Mission <ChevronRight className="w-3 h-3 ml-2 shrink-0" />
                   </button>
                 </div>
-              </GlassCard>
+              </div>
             </form>
           </motion.div>
         )}

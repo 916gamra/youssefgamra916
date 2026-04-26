@@ -6,13 +6,14 @@ interface PortalSidebarItemProps {
   isActive: boolean;
   onClick: () => void;
   title?: string;
+  colorClass?: string;
 }
 
 /**
  * Shared sidebar item component for all portals.
  * Windows 11 Fluent Design style.
  */
-export function PortalSidebarItem({ icon, isActive, onClick, title }: PortalSidebarItemProps) {
+export function PortalSidebarItem({ icon, isActive, onClick, title, colorClass }: PortalSidebarItemProps) {
   return (
     <button
       onClick={onClick}
@@ -20,12 +21,12 @@ export function PortalSidebarItem({ icon, isActive, onClick, title }: PortalSide
       className={cn(
         "w-full h-11 relative flex items-center justify-center transition-all duration-300 group rounded-xl active:scale-95 font-sans z-10 overflow-hidden",
         isActive 
-          ? "bg-slate-200/70 dark:bg-white/[0.04] text-current shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:shadow-none border border-transparent dark:border-white/[0.05]" 
-          : "bg-transparent text-slate-500 dark:text-slate-500 hover:bg-slate-400/20 dark:hover:bg-white/[0.02] hover:text-slate-900 dark:hover:text-white border border-transparent dark:hover:border-white/[0.02]"
+          ? `bg-slate-200/70 dark:bg-white/[0.04] ${colorClass || 'text-current'} shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:shadow-none border border-transparent dark:border-white/[0.05]` 
+          : `bg-transparent ${colorClass || 'text-current'}/50 hover:bg-slate-400/20 dark:hover:bg-white/[0.02] hover:${colorClass || 'text-current'} dark:hover:${colorClass || 'text-current'} border border-transparent dark:hover:border-white/[0.02]`
       )}
     >
       {isActive && (
-        <div className="absolute inset-0 bg-gradient-to-r from-current/5 to-transparent pointer-events-none" />
+        <div className={cn("absolute inset-0 bg-gradient-to-r from-current/5 to-transparent pointer-events-none")} />
       )}
       
       {/* Fluent Active Indicator Pill */}
