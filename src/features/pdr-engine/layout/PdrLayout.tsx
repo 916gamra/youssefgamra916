@@ -39,9 +39,9 @@ export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () 
       <PortalSidebar 
         portalName="PDR Engine"
         portalIcon={<Package />}
-        colorClass="bg-blue-600/20"
-        borderClass="border-blue-500/30"
-        textClass="text-blue-400"
+        colorClass="bg-cyan-600/20"
+        borderClass="border-cyan-500/30"
+        textClass="text-cyan-400"
       >
         <PortalSidebarItem 
           icon={<LayoutDashboard />} 

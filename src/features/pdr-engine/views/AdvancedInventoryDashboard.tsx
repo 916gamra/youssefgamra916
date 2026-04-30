@@ -97,7 +97,7 @@ export function AdvancedInventoryDashboard() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 text-slate-500">
-        <div className="w-10 h-10 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+        <div className="w-10 h-10 border-2 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
         <p className="text-[10px] font-bold uppercase tracking-[0.3em]">Syncing Telemetry...</p>
       </div>
     );
@@ -108,13 +108,13 @@ export function AdvancedInventoryDashboard() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
-            <ShieldAlert className="w-8 h-8 text-blue-500" /> Inventory Surveillance
+            <ShieldAlert className="w-8 h-8 text-cyan-500" /> Inventory Surveillance
           </h1>
           <p className="text-slate-400 text-lg font-medium opacity-80 font-sans">Real-time stock anomaly detection and categorization.</p>
         </div>
         
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
-          <StatCompact icon={<Database className="w-4 h-4 text-blue-500" />} label="Tracked" value={stats.totalItems.toString()} />
+          <StatCompact icon={<Database className="w-4 h-4 text-cyan-500" />} label="Tracked" value={stats.totalItems.toString()} />
           <StatCompact icon={<AlertTriangle className="w-4 h-4 text-amber-500" />} label="Low" value={stats.lowStockItems.toString()} />
           <StatCompact icon={<AlertCircle className="w-4 h-4 text-rose-500" />} label="Empty" value={stats.outOfStockItems.toString()} />
           <StatCompact icon={<ShieldAlert className="w-4 h-4 text-red-500" />} label="Critical" value={stats.negativeStockItems.toString()} />
@@ -137,7 +137,7 @@ export function AdvancedInventoryDashboard() {
 
               <div className="flex items-center gap-3">
                 <div className="relative group">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
                   <input 
                     type="text" 
                     placeholder="Scan logs..." 
@@ -197,7 +197,7 @@ export function AdvancedInventoryDashboard() {
           <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-2xl rounded-3xl">
             <div className="p-6 border-b border-white/5 bg-white/[0.01]">
               <div className="flex items-center gap-3">
-                <BarChart3 className="w-5 h-5 text-blue-500" />
+                <BarChart3 className="w-5 h-5 text-cyan-500" />
                 <h3 className="text-sm font-bold text-white uppercase tracking-tight">Resource Distribution</h3>
               </div>
             </div>
@@ -210,16 +210,16 @@ export function AdvancedInventoryDashboard() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-xl font-light text-white font-mono">{count}</span>
-                    <div className="w-1.5 h-6 rounded-full bg-blue-500/20 group-hover:bg-blue-500 transition-colors" />
+                    <div className="w-1.5 h-6 rounded-full bg-cyan-500/20 group-hover:bg-cyan-500 transition-colors" />
                   </div>
                 </div>
               ))}
             </div>
           </GlassCard>
 
-          <GlassCard className="p-8 border-white/5 bg-gradient-to-br from-blue-500/5 to-transparent rounded-3xl relative overflow-hidden group">
+          <GlassCard className="p-8 border-white/5 bg-gradient-to-br from-cyan-500/5 to-transparent rounded-3xl relative overflow-hidden group">
             <div className="relative z-10">
-              <Zap className="w-10 h-10 text-blue-400 mb-6 opacity-50 group-hover:opacity-100 transition-opacity" />
+              <Zap className="w-10 h-10 text-cyan-400 mb-6 opacity-50 group-hover:opacity-100 transition-opacity" />
               <h3 className="text-lg font-bold text-white uppercase tracking-tight mb-2">Automated Optimization</h3>
               <p className="text-xs font-medium text-slate-400 leading-relaxed">System is running background reconciliation protocols to stabilize inventory drift.</p>
               <div className="mt-6 flex items-center gap-4">
@@ -227,7 +227,7 @@ export function AdvancedInventoryDashboard() {
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Engine Secure</span>
               </div>
             </div>
-            <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-blue-500/10 blur-[60px] rounded-full" />
+            <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-cyan-500/10 blur-[60px] rounded-full" />
           </GlassCard>
         </div>
       </div>

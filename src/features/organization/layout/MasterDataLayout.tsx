@@ -38,12 +38,14 @@ export function MasterDataLayout({ user, onLogout }: { user: User | null, onLogo
           isActive={activeTabId === 'part-master'} 
           onClick={() => openTab({ id: 'part-master', title: 'Part Master Core', component: 'part-master' })}
           title="Part Master Core"
+          colorClass="text-amber-400"
         />
         <PortalSidebarItem 
           icon={<FolderTree />} 
           isActive={activeTabId === 'taxonomy'} 
           onClick={() => openTab({ id: 'taxonomy', title: 'Taxonomy Logic', component: 'taxonomy' })}
           title="Taxonomy & Classes"
+          colorClass="text-amber-400"
         />
       </PortalSidebar>
 

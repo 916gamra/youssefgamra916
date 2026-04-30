@@ -40,18 +40,21 @@ export function FactoryLayout({ user, onLogout }: { user: User | null, onLogout:
           isActive={activeTabId === 'sectors'} 
           onClick={() => openTab({ id: 'sectors', title: 'Production Zones', component: 'sectors' })}
           title="Production Zones"
+          colorClass="text-indigo-400"
         />
         <PortalSidebarItem 
           icon={<Users />} 
           isActive={activeTabId === 'staff'} 
           onClick={() => openTab({ id: 'staff', title: 'Operational Staff', component: 'staff' })}
           title="Operational Staff"
+          colorClass="text-indigo-400"
         />
         <PortalSidebarItem 
           icon={<Cpu />} 
           isActive={activeTabId === 'machine-registry'} 
           onClick={() => openTab({ id: 'machine-registry', title: 'Machine Registry', component: 'machine-registry' })}
           title="Machine Registry"
+          colorClass="text-indigo-400"
         />
       </PortalSidebar>
 

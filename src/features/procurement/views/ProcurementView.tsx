@@ -53,7 +53,7 @@ export function ProcurementView() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <Loader2 className="w-10 h-10 text-blue-500 animate-spin opacity-50" />
+        <Loader2 className="w-10 h-10 text-cyan-500 animate-spin opacity-50" />
         <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Syncing Procurement Data...</p>
       </div>
     );
@@ -64,14 +64,14 @@ export function ProcurementView() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
-            <ShoppingCart className="w-8 h-8 text-blue-500" /> Procurement Pipeline
+            <ShoppingCart className="w-8 h-8 text-cyan-500" /> Procurement Pipeline
           </h1>
           <p className="text-slate-400 text-lg font-medium opacity-80">Supply chain management and purchase order tracking.</p>
         </div>
         
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
           <StatCompact icon={<Clock className="w-4 h-4 text-amber-500" />} label="Active" value={orderedCount.toString()} />
-          <StatCompact icon={<TrendingUp className="w-4 h-4 text-blue-500" />} label="Growth" value="+12%" />
+          <StatCompact icon={<TrendingUp className="w-4 h-4 text-cyan-500" />} label="Growth" value="+12%" />
           <StatCompact icon={<CheckCircle2 className="w-4 h-4 text-emerald-500" />} label="Synced" value={fulfilledCount.toString()} />
           <StatCompact icon={<DollarSign className="w-4 h-4 text-slate-400" />} label="Spend" value={`${(totalSpend/1000).toFixed(1)}k`} />
         </div>
@@ -80,8 +80,8 @@ export function ProcurementView() {
       <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl">
         <div className="p-8 border-b border-white/5 bg-white/[0.01] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-              <Zap className="w-6 h-6 text-blue-400" />
+            <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+              <Zap className="w-6 h-6 text-cyan-400" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-white uppercase tracking-tight">Purchase Orders</h2>
@@ -91,7 +91,7 @@ export function ProcurementView() {
 
           <div className="flex items-center gap-3">
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
               <input 
                 type="text" 
                 placeholder="Find orders or vendors..." 
@@ -133,7 +133,7 @@ export function ProcurementView() {
                       transition={{ delay: idx * 0.02 }}
                       className="group hover:bg-white/[0.02] transition-colors border-b border-white/[0.03] last:border-0"
                     >
-                      <td className="px-8 py-6 text-xs font-mono font-bold text-blue-500">
+                      <td className="px-8 py-6 text-xs font-mono font-bold text-cyan-500">
                         #{order.id.substring(0, 8).toUpperCase()}
                       </td>
                       <td className="px-8 py-6">
@@ -155,7 +155,7 @@ export function ProcurementView() {
                           layout
                           className={cn(
                             "inline-flex items-center gap-2 px-3 py-1 rounded-md text-[9px] font-bold uppercase tracking-widest border transition-all shadow-sm",
-                            order.status === 'ORDERED' && "shadow-blue-500/5"
+                            order.status === 'ORDERED' && "shadow-cyan-500/5"
                           )}
                           style={{ backgroundColor: style.bg, borderColor: style.border, color: style.color }}
                         >

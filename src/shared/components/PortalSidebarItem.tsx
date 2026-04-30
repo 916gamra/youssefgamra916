@@ -19,10 +19,10 @@ export function PortalSidebarItem({ icon, isActive, onClick, title, colorClass }
       onClick={onClick}
       title={title}
       className={cn(
-        "w-full h-11 relative flex items-center justify-center transition-all duration-300 group rounded-xl active:scale-95 font-sans z-10 overflow-hidden",
+        "w-12 h-12 relative flex items-center justify-center transition-all duration-300 group rounded-xl active:scale-95 font-sans z-10 overflow-hidden",
         isActive 
-          ? `bg-slate-200/70 dark:bg-white/[0.04] ${colorClass || 'text-current'} shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:shadow-none border border-transparent dark:border-white/[0.05]` 
-          : `bg-transparent ${colorClass || 'text-current'}/50 hover:bg-slate-400/20 dark:hover:bg-white/[0.02] hover:${colorClass || 'text-current'} dark:hover:${colorClass || 'text-current'} border border-transparent dark:hover:border-white/[0.02]`
+          ? `bg-white/[0.04] ${colorClass || 'text-current'} border border-white/10` 
+          : `bg-transparent text-slate-400 hover:text-white hover:bg-white/[0.04] border border-transparent hover:border-white/10`
       )}
     >
       {isActive && (
@@ -39,8 +39,8 @@ export function PortalSidebarItem({ icon, isActive, onClick, title, colorClass }
 
       {React.cloneElement(icon as React.ReactElement, { 
         className: cn(
-          "w-[18px] h-[18px] transition-all duration-300 relative z-10", 
-          isActive ? "scale-110 drop-shadow-[0_0_8px_currentColor]" : "group-hover:scale-110 opacity-70 group-hover:opacity-100"
+          "w-5 h-5 transition-all duration-300 relative z-10", 
+          isActive ? "scale-110 drop-shadow-[0_0_8px_currentColor]" : "group-hover:scale-110 opacity-80 group-hover:opacity-100"
         ) 
       })}
     </button>

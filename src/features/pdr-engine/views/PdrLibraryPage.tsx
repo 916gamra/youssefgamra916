@@ -149,7 +149,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
           </div>
           <button 
             onClick={openAddModal}
-            className="w-full md:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+            className="w-full md:w-auto px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20"
           >
             <Plus className="w-4 h-4" />
             {getAddButtonTitle()}
@@ -296,13 +296,13 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                               }}
                               className="pb-4"
                             >
-                                <PdrCard onClick={() => openPartDetail(blueprint.id, blueprint.reference)} className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 hover:border-blue-500/20 transition-all p-5 bg-black/5 hover:bg-black/10 cursor-pointer rounded-2xl">
+                                <PdrCard onClick={() => openPartDetail(blueprint.id, blueprint.reference)} className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 hover:border-cyan-500/20 transition-all p-5 bg-black/5 hover:bg-black/10 cursor-pointer rounded-2xl">
                                    <div className="flex items-center gap-4">
-                                     <div className="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shadow-inner group-hover:scale-105 transition-transform">
-                                        <Hash className="w-5 h-5 text-blue-400" />
+                                     <div className="w-11 h-11 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-inner group-hover:scale-105 transition-transform">
+                                        <Hash className="w-5 h-5 text-cyan-400" />
                                      </div>
                                      <div>
-                                        <h3 className="text-base font-mono font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors uppercase">{blueprint.reference}</h3>
+                                        <h3 className="text-base font-mono font-bold text-white tracking-tight group-hover:text-cyan-400 transition-colors uppercase">{blueprint.reference}</h3>
                                         <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{parentTemplate?.name || 'Item'}</span>
                                      </div>
                                    </div>

@@ -41,24 +41,28 @@ export function PreventiveLayout({ user, onLogout }: { user: User | null, onLogo
           isActive={activeTabId === 'pm-dashboard'} 
           onClick={() => openTab({ id: 'pm-dashboard', title: 'Maintenance KPI', component: 'pm-dashboard' })}
           title="Maintenance KPI"
+          colorClass="text-emerald-400"
         />
         <PortalSidebarItem 
           icon={<KanbanSquare />} 
           isActive={activeTabId === 'pm-checklists'} 
           onClick={() => openTab({ id: 'pm-checklists', title: 'Standard Protocols', component: 'pm-checklists' })}
           title="Protocols Lib"
+          colorClass="text-emerald-400"
         />
         <PortalSidebarItem 
           icon={<CalendarClock />} 
           isActive={activeTabId === 'pm-schedules'} 
           onClick={() => openTab({ id: 'pm-schedules', title: 'PM Schedules', component: 'pm-schedules' })}
           title="PM Scheduler"
+          colorClass="text-emerald-400"
         />
         <PortalSidebarItem 
           icon={<HardHat />} 
           isActive={activeTabId === 'pm-work-orders'} 
           onClick={() => openTab({ id: 'pm-work-orders', title: 'Work Orders', component: 'pm-work-orders' })}
           title="Work Orders"
+          colorClass="text-emerald-400"
         />
       </PortalSidebar>
 

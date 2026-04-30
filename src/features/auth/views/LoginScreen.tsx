@@ -140,16 +140,14 @@ export function LoginScreen() {
                 <div
                   key={user.id}
                   onClick={() => setSelectedUser(user)}
-                  className="flex flex-col items-center p-6 w-48 bg-[#0a0b10]/90 backdrop-blur-xl border border-white/10 hover:border-rose-500/50 rounded-2xl cursor-pointer group transition-all duration-300 relative overflow-hidden shadow-2xl hover:shadow-[0_0_30px_rgba(244,63,94,0.15)]"
+                  className="flex flex-col items-center p-4 w-40 rounded-2xl cursor-pointer group transition-all duration-300"
                 >
-                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-white/10 group-hover:via-slate-500/30 to-transparent transition-colors" />
-                  
-                  <div className={`w-20 h-20 mb-4 relative z-10 flex items-center justify-center text-3xl font-bold text-white shadow-inner transition-all duration-300 ${user.color} bg-opacity-10 group-hover:bg-opacity-20 border border-white/5 rounded-2xl`}>
-                    {user.initials}
+                  <div className={`w-28 h-28 mb-4 rounded-full flex items-center justify-center text-4xl font-semibold text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-transform duration-300 group-hover:scale-105 ${user.color} bg-opacity-20 border border-white/10 group-hover:border-white/30 backdrop-blur-md relative overflow-hidden`}>
+                    <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent" />
+                    <span className="drop-shadow-sm">{user.initials}</span>
                   </div>
-                  <div className="text-center w-full relative z-10">
-                    <h2 className="text-sm font-semibold text-white tracking-wide truncate group-hover:text-slate-100 transition-colors">{user.name}</h2>
-                    <p className="text-[10px] text-slate-500 tracking-widest uppercase mt-1.5 font-mono">{user.role}</p>
+                  <div className="text-center w-full">
+                    <h2 className="text-sm font-medium text-white/90 tracking-wide truncate group-hover:text-white transition-colors">{user.name}</h2>
                   </div>
                 </div>
               ))}
@@ -161,54 +159,46 @@ export function LoginScreen() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.4 }}
-              className="w-full max-w-md relative"
+              className="w-full max-w-md relative flex flex-col items-center mx-auto"
             >
-              <div className="flex flex-col items-center bg-[#0a0b10] backdrop-blur-2xl border border-white/[0.06] rounded-3xl p-10 relative z-10 shadow-2xl overflow-hidden">
-                {/* Decorative scanning line */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-slate-500/30 to-transparent opacity-50" />
-                <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-slate-500/10 to-transparent opacity-50" />
+              <div className="flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
                 
-                <div className="w-full flex items-center justify-between mb-8 opacity-70">
-                   <ShieldCheck className="w-5 h-5 text-slate-400" />
-                   <div className="text-[10px] font-mono tracking-widest text-slate-400 uppercase">SECURE_AUTH</div>
-                   <Fingerprint className="w-5 h-5 text-slate-400" />
-                </div>
-
-
-                <div className={`w-24 h-24 mb-6 flex items-center justify-center text-4xl font-bold text-white shadow-inner rounded-2xl ${selectedUser.color} bg-opacity-10 border border-white/5 relative z-10`}>
-                  {selectedUser.initials}
+                <div className={`w-36 h-36 mb-6 rounded-full flex items-center justify-center text-5xl font-semibold text-white shadow-2xl transition-all duration-300 ${selectedUser.color} bg-opacity-20 border-2 border-white/20 backdrop-blur-xl relative z-10 overflow-hidden`}>
+                  <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent" />
+                  <span className="drop-shadow-sm">{selectedUser.initials}</span>
                 </div>
                 
-                <h2 className="text-2xl font-semibold text-white tracking-tight mb-2 relative z-10 text-center">{selectedUser.name}</h2>
-                <div className="text-slate-400 font-mono text-[10px] tracking-[0.2em] uppercase mb-8 relative z-10 text-center bg-slate-500/10 px-3 py-1.5 rounded-lg border border-slate-500/20">
-                  {selectedUser.role} 
-                </div>
+                <h2 className="text-2xl font-medium text-white tracking-tight mb-8 relative z-10 text-center drop-shadow-md">{selectedUser.name}</h2>
 
-                <form onSubmit={handleLogin} className="w-full relative z-10">
-                  <div className="relative flex flex-col group mb-6">
-                    <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-3 ml-1">Identity Pin Code</label>
-                    <div className="relative flex items-center">
-                      <input
-                        type="password"
-                        autoFocus
-                        placeholder="••••"
-                        value={pin}
-                        onChange={(e) => setPin(e.target.value)}
-                        disabled={isLoading}
-                        className="w-full bg-[#12141a] border border-white/[0.06] rounded-xl px-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-slate-500/50 focus:ring-1 focus:ring-slate-500/30 transition-all font-mono tracking-[1em] text-center text-2xl shadow-inner backdrop-blur-md"
-                      />
-                      <button 
-                        type="submit"
-                        disabled={pin.length === 0 || isLoading}
-                        className="absolute right-2 p-3 bg-white/5 hover:bg-slate-700 text-white/50 hover:text-white rounded-lg transition-all disabled:opacity-20 flex items-center justify-center"
-                      >
-                        {isLoading ? (
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        ) : (
-                          <ArrowRight className="w-5 h-5" />
-                        )}
-                      </button>
-                    </div>
+                <form onSubmit={handleLogin} className="w-full relative z-10 flex flex-col items-center">
+                  <div className="relative flex items-center w-64 group mb-4">
+                    <input
+                      type="password"
+                      autoFocus
+                      placeholder="Enter Password"
+                      value={pin}
+                      onChange={(e) => setPin(e.target.value)}
+                      disabled={isLoading}
+                      className="w-full bg-white/[0.08] hover:bg-white/[0.12] focus:bg-white/[0.15] border border-white/20 focus:border-white/40 rounded-full px-5 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all font-sans text-center md:text-left text-sm backdrop-blur-2xl shadow-xl"
+                    />
+                    <AnimatePresence>
+                      {pin.length > 0 && (
+                        <motion.button 
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          type="submit"
+                          disabled={isLoading}
+                          className="absolute right-2 p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all flex items-center justify-center border border-white/10"
+                        >
+                          {isLoading ? (
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          ) : (
+                            <ArrowRight className="w-4 h-4" />
+                          )}
+                        </motion.button>
+                      )}
+                    </AnimatePresence>
                   </div>
                   
                   <AnimatePresence>
@@ -217,21 +207,23 @@ export function LoginScreen() {
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="text-amber-400 text-[11px] font-mono tracking-wide text-center uppercase bg-amber-500/10 py-2 rounded-lg border border-amber-500/20"
+                        className="text-white/80 font-medium text-xs text-center drop-shadow-md bg-black/20 backdrop-blur-md px-4 py-1.5 rounded-full"
                       >
                         {error}
                       </motion.p>
                     )}
                   </AnimatePresence>
                   
-                  <div className="mt-8 flex flex-col items-center">
+                  <div className="mt-12 flex flex-col items-center">
                     <button 
                       type="button" 
-                      onClick={() => { setSelectedUser(null); setPin(''); }}
-                      className="flex items-center gap-2 text-xs font-mono tracking-widest uppercase text-slate-500 hover:text-white transition-colors cursor-pointer"
+                      onClick={() => { setSelectedUser(null); setPin(''); setError(''); }}
+                      className="flex flex-col items-center gap-2 text-xs font-medium text-white/60 hover:text-white transition-colors cursor-pointer group"
                     >
-                      <ChevronLeft className="w-4 h-4" />
-                      Switch Identity
+                      <div className="p-2 rounded-full bg-white/10 group-hover:bg-white/20 backdrop-blur-md transition-colors shadow-sm">
+                        <ChevronLeft className="w-4 h-4" />
+                      </div>
+                      Cancel
                     </button>
                   </div>
                 </form>

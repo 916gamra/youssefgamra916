@@ -36,6 +36,7 @@ export function AnalyticsLayout({ user, onLogout }: { user: User | null, onLogou
           isActive={activeTabId === 'analytics-dashboard'} 
           onClick={() => openTab({ id: 'analytics-dashboard', title: 'Executive Hub', component: 'analytics-dashboard' })}
           title="Executive Hub"
+          colorClass="text-fuchsia-400"
         />
       </PortalSidebar>
 

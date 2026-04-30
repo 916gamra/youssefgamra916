@@ -149,14 +149,14 @@ export function ReconciliationCenterView() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
-            <Wrench className="w-8 h-8 text-blue-500" /> Auto-Reconciliation Center
+            <Wrench className="w-8 h-8 text-cyan-500" /> Auto-Reconciliation Center
           </h1>
           <p className="text-slate-400 text-lg font-medium opacity-80">Resolve data inconsistencies, negative stock, and supply deficits.</p>
         </div>
         
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
           <StatCompact icon={<ShieldAlert className="w-4 h-4 text-slate-400" />} label="Anomalies" value={anomalies?.length.toString() || '0'} />
-          <StatCompact icon={<TrendingUp className="w-4 h-4 text-blue-500" />} label="Resolved" value="94%" />
+          <StatCompact icon={<TrendingUp className="w-4 h-4 text-cyan-500" />} label="Resolved" value="94%" />
           <StatCompact icon={<ShieldCheck className="w-4 h-4 text-emerald-500" />} label="Health" value="Stable" />
           <StatCompact icon={<Zap className="w-4 h-4 text-amber-500" />} label="Sync" value="Active" />
         </div>
@@ -165,8 +165,8 @@ export function ReconciliationCenterView() {
       <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl">
         <div className="p-8 border-b border-white/5 bg-white/[0.01] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-              <RefreshCw className={cn("w-6 h-6 text-blue-400", isProcessing && "animate-spin")} />
+            <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+              <RefreshCw className={cn("w-6 h-6 text-cyan-400", isProcessing && "animate-spin")} />
             </div>
             <div>
               <h2 className="text-lg font-bold text-white uppercase tracking-tight">Active Inconsistencies</h2>
@@ -176,7 +176,7 @@ export function ReconciliationCenterView() {
 
           <div className="flex items-center gap-3">
             <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-blue-400 transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
               <input 
                 type="text" 
                 placeholder="Search anomalies..." 
