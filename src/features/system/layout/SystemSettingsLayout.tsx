@@ -35,44 +35,44 @@ export function SystemSettingsLayout({ user, onLogout }: { user: User | null, on
       <PortalSidebar 
         portalName="System Config"
         portalIcon={<Settings />}
-        colorClass="text-rose-500 bg-rose-500/20"
-        borderClass="border-rose-500/30"
-        textClass="text-rose-400"
+        colorClass="text-slate-400 bg-slate-500/20"
+        borderClass="border-slate-500/30"
+        textClass="text-slate-400"
       >
         <PortalSidebarItem 
           icon={<Users />} 
           isActive={activeTabId === 'user-management'} 
           onClick={() => openTab({ id: 'user-management', title: 'User Management', component: 'user-management' })}
           title="User Management"
-          colorClass="text-rose-500"
+          colorClass="text-slate-400"
         />
         <PortalSidebarItem 
           icon={<ArrowRightLeft />} 
           isActive={activeTabId === 'data-exchange'} 
           onClick={() => openTab({ id: 'data-exchange', title: 'Data Exchange Hub', component: 'data-exchange' })}
           title="Data Exchange Hub"
-          colorClass="text-rose-500"
+          colorClass="text-slate-400"
         />
         <PortalSidebarItem 
           icon={<HardDriveDownload />} 
           isActive={activeTabId === 'data-core'} 
           onClick={() => openTab({ id: 'data-core', title: 'Database Backup', component: 'data-core' })}
           title="Database Backup"
-          colorClass="text-rose-500"
+          colorClass="text-slate-400"
         />
         <PortalSidebarItem 
           icon={<Shield />} 
           isActive={activeTabId === 'security-policies'} 
           onClick={() => openTab({ id: 'security-policies', title: 'Security Policies', component: 'security-policies' })}
           title="Security Policies"
-          colorClass="text-rose-500"
+          colorClass="text-slate-400"
         />
         <PortalSidebarItem 
           icon={<ShieldAlert />} 
           isActive={activeTabId === 'audit-trail'} 
           onClick={() => openTab({ id: 'audit-trail', title: 'Audit Trail', component: 'audit-trail' })}
           title="System Audit Trail"
-          colorClass="text-rose-500"
+          colorClass="text-slate-400"
         />
       </PortalSidebar>
 

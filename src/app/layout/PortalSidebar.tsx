@@ -26,10 +26,10 @@ export function PortalSidebar({ portalName, portalIcon, colorClass, borderClass,
       <div className="flex flex-col items-center shrink-0 mt-2 mb-6 group cursor-pointer relative z-10 w-full" title={portalName}>
          <div className="w-12 h-12 flex items-center justify-center relative overflow-hidden">
             {/* Hexagon Outline */}
-            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full text-rose-500/30">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full text-slate-500/30">
               <path d="M50 5L89 27.5V72.5L50 95L11 72.5V27.5L50 5Z" stroke="currentColor" strokeWidth="2" />
             </svg>
-            <div className="w-1 h-3 bg-rose-500 rounded-full" />
+            <div className="w-1 h-3 bg-slate-500 rounded-full" />
          </div>
       </div>
 

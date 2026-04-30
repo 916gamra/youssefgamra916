@@ -192,7 +192,7 @@ export function UserManagementView() {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
         <div>
           <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
-            <UserCog className="w-8 h-8 text-rose-500" /> 
+            <UserCog className="w-8 h-8 text-slate-400" /> 
             Identity Control
           </h1>
           <p className="text-slate-400 text-sm max-w-2xl leading-relaxed">
@@ -202,7 +202,7 @@ export function UserManagementView() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => { setIsAdding(true); setAllowedPortals(DEFAULT_PORTALS_TECH); }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-medium text-sm transition-all shadow-lg hover:shadow-rose-500/20 shrink-0 active:scale-95 border border-transparent"
+            className="flex items-center gap-2 px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-medium text-sm transition-all shadow-lg hover:shadow-slate-500/20 shrink-0 active:scale-95 border border-transparent"
           >
             <Plus className="w-4 h-4" /> Add Identity
           </button>
@@ -221,7 +221,7 @@ export function UserManagementView() {
             <GlassCard className="p-6 border border-white/10 bg-white/[0.02] shadow-2xl relative overflow-hidden rounded-2xl mb-8">
                <div className="flex items-start gap-4 mb-6 relative z-10">
                  <div className="p-3 rounded-2xl bg-black/40 border border-white/5 shadow-inner">
-                    <Fingerprint className="w-6 h-6 text-rose-400" />
+                    <Fingerprint className="w-6 h-6 text-slate-400" />
                  </div>
                  <div>
                     <h3 className="text-xl font-bold text-slate-200">Initialize New Agent</h3>
@@ -233,11 +233,11 @@ export function UserManagementView() {
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                    <div>
                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Full Name</label>
-                     <input type="text" required value={newName} onChange={e => setNewName(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/20 transition-all placeholder:text-slate-600 shadow-inner" placeholder="E.g., John Doe" />
+                     <input type="text" required value={newName} onChange={e => setNewName(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-slate-500/50 focus:ring-1 focus:ring-slate-500/20 transition-all placeholder:text-slate-600 shadow-inner" placeholder="E.g., John Doe" />
                    </div>
                    <div>
                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Access PIN</label>
-                     <input type="password" required maxLength={6} value={newPin} onChange={e => setNewPin(e.target.value)} placeholder="••••" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/20 shadow-inner tracking-[0.25em] font-mono transition-all" />
+                     <input type="password" required maxLength={6} value={newPin} onChange={e => setNewPin(e.target.value)} placeholder="••••" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-slate-500/50 focus:ring-1 focus:ring-slate-500/20 shadow-inner tracking-[0.25em] font-mono transition-all" />
                    </div>
                    <div>
                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Role Classification</label>
@@ -245,7 +245,7 @@ export function UserManagementView() {
                         setNewRole(e.target.value);
                         if (e.target.value === 'Admin' || e.target.value === 'Manager') setAllowedPortals(DEFAULT_PORTALS_ADMIN);
                         else setAllowedPortals(DEFAULT_PORTALS_TECH);
-                     }} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/20 appearance-none shadow-inner transition-all">
+                     }} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-slate-500/50 focus:ring-1 focus:ring-slate-500/20 appearance-none shadow-inner transition-all">
                        <option>Technician</option>
                        <option>Engineer</option>
                        <option>Manager</option>
@@ -254,7 +254,7 @@ export function UserManagementView() {
                    </div>
                    <div>
                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Visual Tag Color</label>
-                     <select value={newColor} onChange={e => setNewColor(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/20 appearance-none shadow-inner transition-all">
+                     <select value={newColor} onChange={e => setNewColor(e.target.value)} className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white outline-none focus:border-slate-500/50 focus:ring-1 focus:ring-slate-500/20 appearance-none shadow-inner transition-all">
                        <option value="bg-cyan-500">Cyan Energy</option>
                        <option value="bg-emerald-500">Emerald Green</option>
                        <option value="bg-rose-500">Crimson Red</option>

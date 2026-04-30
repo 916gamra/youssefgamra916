@@ -52,12 +52,12 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
         {/* Typographic Logo */}
         <div className="flex flex-col items-center text-center">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-8 bg-blue-500 rounded-full" />
-                <div className="w-1 h-5 bg-emerald-500 rounded-full" />
+              <div className="flex gap-1.5">
+                <div className="w-1.5 h-8 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.4)]" />
+                <div className="w-1.5 h-5 bg-orange-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.4)] mt-1" />
               </div>
               <h1 className="text-4xl font-bold tracking-tight text-white flex items-center gap-3">
-                TITANIC <span className="text-white/20 font-light border-l border-white/10 pl-4 ml-1">OS</span>
+                TITANIC <span className="text-blue-500 font-light border-l border-white/10 pl-4 ml-1">OS</span>
               </h1>
             </div>
             

@@ -94,12 +94,12 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#050505] flex flex-col items-center justify-center selection:bg-rose-500/30 font-sans">
+    <div className="relative w-full h-screen overflow-hidden bg-[#050505] flex flex-col items-center justify-center selection:bg-slate-500/30 font-sans">
       <SystemBackground />
       
       {/* Decorative framing for Titanic OS */}
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-rose-500/20 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-slate-500/20 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-slate-500/20 to-transparent" />
 
       <div className="relative z-10 w-full max-w-5xl px-6 flex flex-col items-center">
         
@@ -107,13 +107,17 @@ export function LoginScreen() {
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: selectedUser ? -40 : 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           className="flex flex-col items-center mb-16 pointer-events-none"
         >
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-1.5 h-6 bg-rose-500 rounded-full shadow-[0_0_10px_rgba(244,63,94,0.6)]" />
-            <h2 className="text-rose-500 md:text-xl font-mono tracking-[0.4em] font-medium uppercase">
-              Titanic OS
+          <div className="flex items-center gap-4 mb-6">
+            <div className="flex gap-1.5">
+               <div className="w-1.5 h-6 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.4)]" />
+               <div className="w-1.5 h-4 bg-orange-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.4)] mt-1" />
+            </div>
+            <h2 className="md:text-xl font-mono tracking-[0.4em] font-bold uppercase flex items-center gap-2">
+               <span className="text-white">TITANIC</span>
+               <span className="text-blue-500">OS</span>
             </h2>
           </div>
           <h1 className="text-6xl md:text-8xl font-bold tracking-tighter text-white drop-shadow-md">
@@ -138,13 +142,13 @@ export function LoginScreen() {
                   onClick={() => setSelectedUser(user)}
                   className="flex flex-col items-center p-6 w-48 bg-[#0a0b10]/90 backdrop-blur-xl border border-white/10 hover:border-rose-500/50 rounded-2xl cursor-pointer group transition-all duration-300 relative overflow-hidden shadow-2xl hover:shadow-[0_0_30px_rgba(244,63,94,0.15)]"
                 >
-                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-white/10 group-hover:via-rose-500/50 to-transparent transition-colors" />
+                  <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-white/10 group-hover:via-slate-500/30 to-transparent transition-colors" />
                   
                   <div className={`w-20 h-20 mb-4 relative z-10 flex items-center justify-center text-3xl font-bold text-white shadow-inner transition-all duration-300 ${user.color} bg-opacity-10 group-hover:bg-opacity-20 border border-white/5 rounded-2xl`}>
                     {user.initials}
                   </div>
                   <div className="text-center w-full relative z-10">
-                    <h2 className="text-sm font-semibold text-white tracking-wide truncate group-hover:text-rose-100 transition-colors">{user.name}</h2>
+                    <h2 className="text-sm font-semibold text-white tracking-wide truncate group-hover:text-slate-100 transition-colors">{user.name}</h2>
                     <p className="text-[10px] text-slate-500 tracking-widest uppercase mt-1.5 font-mono">{user.role}</p>
                   </div>
                 </div>
@@ -159,23 +163,24 @@ export function LoginScreen() {
               transition={{ duration: 0.4 }}
               className="w-full max-w-md relative"
             >
-              <div className="flex flex-col items-center bg-[#0a0b10] backdrop-blur-2xl border border-white/10 rounded-3xl p-10 relative z-10 shadow-2xl overflow-hidden">
+              <div className="flex flex-col items-center bg-[#0a0b10] backdrop-blur-2xl border border-white/[0.06] rounded-3xl p-10 relative z-10 shadow-2xl overflow-hidden">
                 {/* Decorative scanning line */}
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-rose-500/50 to-transparent opacity-50" />
-                <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-rose-500/20 to-transparent opacity-50" />
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-slate-500/30 to-transparent opacity-50" />
+                <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-slate-500/10 to-transparent opacity-50" />
                 
                 <div className="w-full flex items-center justify-between mb-8 opacity-70">
-                   <ShieldCheck className="w-5 h-5 text-rose-500" />
+                   <ShieldCheck className="w-5 h-5 text-slate-400" />
                    <div className="text-[10px] font-mono tracking-widest text-slate-400 uppercase">SECURE_AUTH</div>
-                   <Fingerprint className="w-5 h-5 text-slate-500" />
+                   <Fingerprint className="w-5 h-5 text-slate-400" />
                 </div>
+
 
                 <div className={`w-24 h-24 mb-6 flex items-center justify-center text-4xl font-bold text-white shadow-inner rounded-2xl ${selectedUser.color} bg-opacity-10 border border-white/5 relative z-10`}>
                   {selectedUser.initials}
                 </div>
                 
                 <h2 className="text-2xl font-semibold text-white tracking-tight mb-2 relative z-10 text-center">{selectedUser.name}</h2>
-                <div className="text-rose-400 font-mono text-[10px] tracking-[0.2em] uppercase mb-8 relative z-10 text-center bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-500/20">
+                <div className="text-slate-400 font-mono text-[10px] tracking-[0.2em] uppercase mb-8 relative z-10 text-center bg-slate-500/10 px-3 py-1.5 rounded-lg border border-slate-500/20">
                   {selectedUser.role} 
                 </div>
 
@@ -190,12 +195,12 @@ export function LoginScreen() {
                         value={pin}
                         onChange={(e) => setPin(e.target.value)}
                         disabled={isLoading}
-                        className="w-full bg-[#12141a] border border-white/10 rounded-xl px-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/30 transition-all font-mono tracking-[1em] text-center text-2xl shadow-inner backdrop-blur-md"
+                        className="w-full bg-[#12141a] border border-white/[0.06] rounded-xl px-6 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-slate-500/50 focus:ring-1 focus:ring-slate-500/30 transition-all font-mono tracking-[1em] text-center text-2xl shadow-inner backdrop-blur-md"
                       />
                       <button 
                         type="submit"
                         disabled={pin.length === 0 || isLoading}
-                        className="absolute right-2 p-3 bg-white/5 hover:bg-rose-500 text-white/50 hover:text-white rounded-lg transition-all disabled:opacity-20 flex items-center justify-center"
+                        className="absolute right-2 p-3 bg-white/5 hover:bg-slate-700 text-white/50 hover:text-white rounded-lg transition-all disabled:opacity-20 flex items-center justify-center"
                       >
                         {isLoading ? (
                           <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -212,7 +217,7 @@ export function LoginScreen() {
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="text-rose-400 text-[11px] font-mono tracking-wide text-center uppercase bg-rose-500/10 py-2 rounded-lg border border-rose-500/20"
+                        className="text-amber-400 text-[11px] font-mono tracking-wide text-center uppercase bg-amber-500/10 py-2 rounded-lg border border-amber-500/20"
                       >
                         {error}
                       </motion.p>
