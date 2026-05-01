@@ -4,6 +4,8 @@ import { useTabStore } from '@/app/store';
 import { toast } from 'sonner';
 import { runBackgroundHealthCheck } from '@/core/health';
 
+import { useNotificationsContext } from '@/shared/context/NotificationContext';
+
 /**
  * Cognition Engine (The Self-Awareness Module)
  * Gives the application "consciousness" of its state across tabs, user presence, and terminal lifecycle.
@@ -11,6 +13,7 @@ import { runBackgroundHealthCheck } from '@/core/health';
 export function useSystemCognition() {
   const { isAuthenticated, logout, checkSession } = useAuthStore();
   const { clearTabs } = useTabStore();
+  const notifications = useNotificationsContext();
   
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const healthCheckTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -45,6 +48,13 @@ export function useSystemCognition() {
     idleTimerRef.current = setTimeout(() => {
       logout();
       clearTabs();
+      notifications.addNotification({
+        type: 'warning',
+        title: 'Terminal Auto-Lock',
+        message: 'Identity session suspended due to inactivity.',
+        source: 'Security Core',
+        portal: 'SYSTEM'
+      });
       toast.error('Terminal Locked', {
         description: 'You have been logged out due to inactivity (15 minutes).',
         duration: 5000,
@@ -68,6 +78,13 @@ export function useSystemCognition() {
         // Someone clicked logout in another tab
         useAuthStore.getState().logout();
         useTabStore.getState().clearTabs();
+        notifications.addNotification({
+          type: 'info',
+          title: 'Remote Logout',
+          message: 'Secure session terminated via secondary terminal.',
+          source: 'Kernel',
+          portal: 'SYSTEM'
+        });
         toast.info('Terminal Synchronized', {
           description: 'Session terminated from another terminal.',
           icon: '🔄'
@@ -76,6 +93,13 @@ export function useSystemCognition() {
         // Someone logged in from another tab
         checkSession().then((isValid) => {
           if (isValid) {
+            notifications.addNotification({
+              type: 'info',
+              title: 'Remote Login',
+              message: 'Authentication state synchronized from secondary terminal.',
+              source: 'Kernel',
+              portal: 'SYSTEM'
+            });
             toast.success('Terminal Synchronized', {
               description: 'Authentication propagated from another terminal.',
               icon: '🔄'
@@ -129,6 +153,13 @@ export function useSystemCognition() {
   // --- 4. NETWORK AWARENESS (Environment Consciousness) ---
   useEffect(() => {
     const handleOffline = () => {
+      notifications.addNotification({
+        type: 'critical',
+        title: 'Signal Degradation',
+        message: 'Primary data uplink lost. Integrity Shield active in offline mode.',
+        source: 'Network Core',
+        portal: 'SYSTEM'
+      });
       toast.warning('Signal Lost: Entering Offline Mode', {
         description: 'You can continue working. Data is safely stored locally and will sync when connection returns.',
         icon: '📡',
@@ -138,6 +169,13 @@ export function useSystemCognition() {
     };
 
     const handleOnline = () => {
+      notifications.addNotification({
+        type: 'info',
+        title: 'Signal Restored',
+        message: 'Communication link re-established. Synchronizing local node...',
+        source: 'Network Core',
+        portal: 'SYSTEM'
+      });
       toast.success('Connection Restored', {
         description: 'You are back online. Synchronizing data...',
         icon: '🌐',

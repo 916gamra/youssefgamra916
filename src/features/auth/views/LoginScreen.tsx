@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { db, User } from '@/core/db';
 import { useAuthStore } from '@/app/store/useAuthStore';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
+import { useNotificationsContext } from '@/shared/context/NotificationContext';
 import { SystemBackground } from '@/shared/components/SystemBackground';
 
 const containerVariants = {
@@ -38,6 +39,7 @@ export function LoginScreen() {
   const users = useLiveQuery(() => db.users.toArray());
   const { login } = useAuthStore();
   const { logEvent } = useAuditTrail();
+  const { addNotification } = useNotificationsContext();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [pin, setPin] = useState('');
   const [time, setTime] = useState(new Date());
@@ -69,7 +71,18 @@ export function LoginScreen() {
             details: `Secure PIN authentication successful for session origin.`,
             severity: 'INFO'
           });
-          toast.success(`Welcome back, ${selectedUser.name}!`);
+          
+          addNotification({
+            type: 'info',
+            title: 'Identity Verified',
+            message: `Neural link established for ${selectedUser.name}.`,
+            source: 'Security Core',
+            portal: 'SYSTEM'
+          });
+
+          toast.success(`Welcome back, ${selectedUser.name}!`, {
+            description: 'System credentials verified. Establishing neural link...',
+          });
         } else {
           await logEvent({
             userId: selectedUser.id!,
@@ -80,12 +93,28 @@ export function LoginScreen() {
             details: `Failed login attempt with incorrect credentials.`,
             severity: 'WARNING'
           });
+
+          addNotification({
+            type: 'warning',
+            title: 'Intrusion Alert',
+            message: `Unauthorized access attempt detected for identity: ${selectedUser.name}.`,
+            source: 'Security Shield',
+            portal: 'SYSTEM'
+          });
+
           setError('AUTH_ERROR: Invalid credentials.');
           toast.error('Authentication Failed');
           setPin('');
           setTimeout(() => setError(''), 3000);
         }
       } catch (err) {
+        addNotification({
+          type: 'critical',
+          title: 'System Breach',
+          message: 'Internal verification failure detected in Security Core.',
+          source: 'System Guard',
+          portal: 'SYSTEM'
+        });
         setError('SYS_ERROR: Internal verification failure.');
         toast.error('System Error');
       } finally {
@@ -105,6 +134,15 @@ export function LoginScreen() {
           details: `Failsafe root access granted.`,
           severity: 'CRITICAL'
         });
+
+        addNotification({
+          type: 'critical',
+          title: 'Failsafe Override',
+          message: 'Emergency root access protocols activated.',
+          source: 'Titanic Kernel',
+          portal: 'SYSTEM'
+        });
+
         toast.success('Failsafe Authenticated');
       }
       setIsLoading(false);

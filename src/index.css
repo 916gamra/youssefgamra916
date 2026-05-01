@@ -176,5 +176,37 @@
   }
 }
 
+/* Titanic OS Sonner Refinements */
+[data-sonner-toast] {
+  --radius: 20px !important;
+  --normal-bg: rgba(10, 11, 16, 0.45) !important;
+  --normal-border: rgba(255, 255, 255, 0.08) !important;
+  --normal-text: #fff !important;
+  --success-bg: rgba(16, 185, 129, 0.08) !important;
+  --success-border: rgba(16, 185, 129, 0.2) !important;
+  --success-text: #10b981 !important;
+  --error-bg: rgba(244, 63, 94, 0.08) !important;
+  --error-border: rgba(244, 63, 94, 0.2) !important;
+  --error-text: #f43f5e !important;
+}
+
+[data-sonner-toast] [data-close-button] {
+  @apply !bg-white/5 !border-white/10 !text-slate-400 hover:!bg-white/10 hover:!text-white !transition-all;
+  right: 12px !important;
+  top: 12px !important;
+}
+
+[data-sonner-toast] [data-icon] {
+  @apply !text-current;
+}
+
+[data-sonner-toast] [data-title] {
+  @apply !text-[13px] !font-bold !tracking-tight !mb-1;
+}
+
+[data-sonner-toast] [data-description] {
+  @apply !text-slate-500 !text-[11px] !font-medium !leading-relaxed;
+}
+
 
 

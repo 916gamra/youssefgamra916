@@ -21,10 +21,26 @@ const PORTALS = [
 export function GlobalDock({ user, onLogout, onToggleNotifications }: { user: User | null, onLogout: () => void, onToggleNotifications: () => void }) {
   const { activePortal, setPortal } = useOsStore();
   const { clearTabs } = useTabStore();
-  const { unreadCount, getUnreadCountByPortal } = useNotificationsContext();
+  const { notifications, unreadCount, getUnreadCountByPortal } = useNotificationsContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Find the highest severity for badge coloring
+  const dominantSeverity = React.useMemo(() => {
+    if (notifications.some(n => !n.isRead && n.type === 'critical')) return 'critical';
+    if (notifications.some(n => !n.isRead && n.type === 'warning')) return 'warning';
+    return 'info';
+  }, [notifications]);
+
+  const getBadgeStyles = () => {
+    switch (dominantSeverity) {
+      case 'critical': return 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.6)] animate-pulse';
+      case 'warning': return 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.6)]';
+      default: return 'bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.6)]';
+    }
+  };
+
   let workspaceTimeout: NodeJS.Timeout;
 
   const handleWorkspaceEnter = () => {
@@ -151,12 +167,21 @@ export function GlobalDock({ user, onLogout, onToggleNotifications }: { user: Us
         {/* Notification Bell */}
         <button 
           onClick={onToggleNotifications}
-          className="relative p-2 md:p-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all"
+          className="relative p-2 md:p-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all group"
           title="Notifications"
         >
-          <Bell className="w-4 h-4 md:w-5 md:h-5" />
+          <Bell className="w-4 h-4 md:w-5 md:h-5 group-hover:scale-110 transition-transform" />
           {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.8)] animate-pulse" />
+            <motion.span 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className={cn(
+                "absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-black text-white border border-black/20",
+                getBadgeStyles()
+              )}
+            >
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </motion.span>
           )}
         </button>
 

@@ -9,6 +9,7 @@ import { hasPortalAccess } from '@/core/permissions';
 import { Skeleton } from '@/shared/components/Skeleton';
 import { SystemBackground } from '@/shared/components/SystemBackground';
 import { NotificationHub } from '@/components/notifications/NotificationHub';
+import { useNotificationsContext } from '@/shared/context/NotificationContext';
 
 // Lazy loading the micro-frontends
 const PdrLayout = React.lazy(() => import('@/features/pdr-engine/layout/PdrLayout').then(m => ({ default: m.PdrLayout })));
@@ -67,8 +68,24 @@ function PortalFallback() {
 
 export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
   const { activePortal, setPortal } = useOsStore();
+  const { addNotification } = useNotificationsContext();
   const [sessionTime, setSessionTime] = useState(0);
   const [isHubOpen, setIsHubOpen] = useState(false);
+
+  // System Initialization Signal (with session check to prevent duplicates)
+  useEffect(() => {
+    const sessionInitialized = sessionStorage.getItem('os_signal_init');
+    if (!sessionInitialized && user) {
+      addNotification({
+        type: 'info',
+        title: 'System Interface Active',
+        message: `Welcome to Titanic OS. All secure protocols are now operational for ${user.name}.`,
+        source: 'Kernel',
+        portal: 'SYSTEM'
+      });
+      sessionStorage.setItem('os_signal_init', 'true');
+    }
+  }, [user]);
 
   // Security Guard: Prevent unauthorized portal access
   useEffect(() => {
