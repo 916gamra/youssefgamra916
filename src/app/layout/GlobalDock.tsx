@@ -18,7 +18,7 @@ const PORTALS = [
   { id: 'SETTINGS' as PortalType, title: 'System Config', icon: SettingsIcon, color: 'text-rose-400', bgHover: 'hover:bg-rose-500/10' }
 ];
 
-export function GlobalDock({ user, onLogout, onOpenNotifications }: { user: User | null, onLogout: () => void, onOpenNotifications: () => void }) {
+export function GlobalDock({ user, onLogout, onToggleNotifications }: { user: User | null, onLogout: () => void, onToggleNotifications: () => void }) {
   const { activePortal, setPortal } = useOsStore();
   const { clearTabs } = useTabStore();
   const { unreadCount, getUnreadCountByPortal } = useNotificationsContext();
@@ -150,7 +150,7 @@ export function GlobalDock({ user, onLogout, onOpenNotifications }: { user: User
 
         {/* Notification Bell */}
         <button 
-          onClick={onOpenNotifications}
+          onClick={onToggleNotifications}
           className="relative p-2 md:p-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all"
           title="Notifications"
         >

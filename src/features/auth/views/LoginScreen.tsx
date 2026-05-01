@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, ChevronLeft, ShieldCheck, Fingerprint } from 'lucide-react';
+import { cn } from '@/shared/utils';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { toast } from 'sonner';
 import { db, User } from '@/core/db';
@@ -193,7 +194,7 @@ export function LoginScreen() {
               
               <motion.div 
                 variants={itemVariants}
-                className={`w-36 h-36 mb-6 rounded-full flex items-center justify-center text-5xl font-semibold text-white shadow-2xl transition-all duration-300 ${selectedUser.color} bg-opacity-20 border-2 border-white/20 backdrop-blur-xl relative z-10 overflow-hidden`}
+                className={`w-24 h-24 mb-6 rounded-full flex items-center justify-center text-3xl font-semibold text-white shadow-2xl transition-all duration-300 ${selectedUser.color} bg-opacity-20 border-2 border-white/20 backdrop-blur-xl relative z-10 overflow-hidden`}
               >
                 <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent" />
                 <span className="drop-shadow-sm">{selectedUser.initials}</span>
@@ -202,15 +203,19 @@ export function LoginScreen() {
               <motion.h2 variants={itemVariants} className="text-2xl font-medium text-white tracking-tight mb-8 relative z-10 text-center drop-shadow-md">{selectedUser.name}</motion.h2>
 
               <form onSubmit={handleLogin} className="w-full relative z-10 flex flex-col items-center">
-                <motion.div variants={itemVariants} className="relative flex items-center w-64 group mb-4">
-                  <input
+                <motion.div variants={itemVariants} className="relative flex items-center w-56 group mb-4">
+                  <motion.input
                     type="password"
                     autoFocus
                     placeholder="Enter PIN"
                     value={pin}
+                    animate={error ? { x: [-5, 5, -5, 5, 0] } : {}}
                     onChange={(e) => setPin(e.target.value)}
                     disabled={isLoading}
-                    className="w-full bg-white/[0.08] hover:bg-white/[0.12] focus:bg-white/[0.15] border border-white/20 focus:border-white/40 rounded-full px-5 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all font-sans text-center md:text-left text-sm backdrop-blur-2xl shadow-xl"
+                    className={cn(
+                      "w-full bg-white/[0.08] hover:bg-white/[0.12] focus:bg-white/[0.15] border rounded-full px-4 py-2 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 transition-all font-sans text-center md:text-left text-sm backdrop-blur-2xl shadow-xl",
+                      error ? "border-red-500/50 ring-red-500/20" : "border-white/20 focus:border-white/40 focus:ring-white/20"
+                    )}
                   />
                   <AnimatePresence>
                     {pin.length > 0 && (

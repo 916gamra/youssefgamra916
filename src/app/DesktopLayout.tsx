@@ -100,7 +100,7 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
       <NotificationHub isOpen={isHubOpen} onClose={() => setIsHubOpen(false)} />
       {/* The Unified Global Dock */}
       {activePortal === 'HOME' ? (
-        <GlobalDock user={user} onLogout={onLogout} onOpenNotifications={() => setIsHubOpen(true)} />
+        <GlobalDock user={user} onLogout={onLogout} onToggleNotifications={() => setIsHubOpen(!isHubOpen)} />
       ) : null}
 
       <div className="flex flex-1 overflow-hidden relative">
@@ -111,7 +111,7 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
             <Suspense fallback={<PortalFallback />}>
               <div className="flex flex-col w-full h-full relative">
                  {/* Portal Header with Dock Integration */}
-                 <GlobalDock user={user} onLogout={onLogout} onOpenNotifications={() => setIsHubOpen(true)} />
+                 <GlobalDock user={user} onLogout={onLogout} onToggleNotifications={() => setIsHubOpen(!isHubOpen)} />
                  
                  {/* Dynamic Portal Content (Self-contained sidebars) */}
                  <div className="flex flex-1 overflow-hidden">

@@ -39,7 +39,7 @@ export const NotificationHub = ({ isOpen, onClose }: { isOpen: boolean; onClose:
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-full w-[400px] bg-black/80 backdrop-blur-3xl border-l border-white/10 z-[101] flex flex-col shadow-2xl"
+            className="fixed right-0 top-0 h-full w-[400px] bg-black/60 backdrop-blur-3xl border-l border-white/5 z-[101] flex flex-col shadow-2xl"
           >
             <div className="p-6 border-b border-white/10 flex items-center justify-between">
               <h2 className="text-xl font-bold text-white flex items-center gap-2 uppercase tracking-wide">
@@ -60,7 +60,7 @@ export const NotificationHub = ({ isOpen, onClose }: { isOpen: boolean; onClose:
                     key={n.id}
                     layout
                     className={cn(
-                        "p-4 rounded-xl bg-white/[0.03] border border-white/5 border-l-4 flex gap-4 transition-all hover:bg-white/[0.06]",
+                        "p-4 rounded-2xl bg-white/[0.04] border border-white/10 border-l-4 flex gap-4 transition-all hover:bg-white/[0.08] relative overflow-hidden group",
                         getBorderColor(n.type),
                         n.isRead && "opacity-60"
                     )}
