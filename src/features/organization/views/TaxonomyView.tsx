@@ -5,6 +5,16 @@ import { useMasterCatalogEngine } from '../hooks/useMasterCatalogEngine';
 import { useNotifications } from '@/shared/hooks/useNotifications';
 import { GlassCard } from '@/shared/components/GlassCard';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function TaxonomyView() {
   const { families, templates, createFamily, createTemplate } = useMasterCatalogEngine();
   const { showSuccess, showError } = useNotifications();
@@ -49,8 +59,13 @@ export function TaxonomyView() {
   };
 
   return (
-    <div className="w-full space-y-8 pb-12 px-4 relative z-10 lg:px-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4 flex-shrink-0">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full space-y-8 pb-12 px-4 relative z-10 lg:px-8"
+    >
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4 flex-shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
             <FolderTree className="w-8 h-8 text-amber-500" /> Taxonomy & Schematics
@@ -59,11 +74,11 @@ export function TaxonomyView() {
             Define hierarchical data structures for technical assets and parts.
           </p>
         </div>
-      </header>
+      </motion.header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Families Section */}
-        <div className="space-y-6">
+        <motion.div variants={itemVariants} className="space-y-6">
           <GlassCard className="!p-8 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)] border-amber-500/10">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent opacity-50" />
             <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
@@ -118,10 +133,10 @@ export function TaxonomyView() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Templates Section */}
-        <div className="space-y-6">
+        <motion.div variants={itemVariants} className="space-y-6">
           <GlassCard className="!p-8 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)] border-emerald-500/10">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
             <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
@@ -190,8 +205,8 @@ export function TaxonomyView() {
               )}
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 }

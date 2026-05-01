@@ -24,6 +24,16 @@ const AVAILABLE_PORTALS = [
 const DEFAULT_PORTALS_ADMIN = ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS'];
 const DEFAULT_PORTALS_TECH = ['PDR', 'PREVENTIVE'];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function UserManagementView() {
   const { currentUser } = useAuthStore();
   const users = useLiveQuery(() => db.users.toArray(), [], []);
@@ -188,8 +198,13 @@ export function UserManagementView() {
   };
 
   return (
-    <div className="space-y-6 pb-12 w-full lg:px-8">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6 pb-12 w-full lg:px-8"
+    >
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
         <div>
           <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
             <UserCog className="w-8 h-8 text-slate-400" /> 
@@ -207,7 +222,7 @@ export function UserManagementView() {
             <Plus className="w-4 h-4" /> Add Identity
           </button>
         </div>
-      </header>
+      </motion.header>
 
       <AnimatePresence>
         {isAdding && (
@@ -396,52 +411,54 @@ export function UserManagementView() {
           const userPortals = u.isPrimary ? DEFAULT_PORTALS_ADMIN : ((u as any).allowedPortals || (u.role === 'Admin' || u.role === 'Super Administrator' || u.role === 'Manager' ? DEFAULT_PORTALS_ADMIN : DEFAULT_PORTALS_TECH));
 
           return (
-            <GlassCard key={u.id} className="relative overflow-hidden group flex flex-col p-6 border border-white/5 hover:border-white/20 transition-all bg-white/[0.02] hover:bg-white/[0.04] rounded-2xl shadow-lg hover:shadow-2xl translate-y-0 hover:-translate-y-1 duration-300 cursor-pointer" onClick={() => openEditModal(u as User)}>
-               <div className="flex items-start justify-between mb-6 relative">
-                  <div className="flex items-center gap-4">
-                     <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold text-white shadow-inner border border-white/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shrink-0", u.color || 'bg-slate-800')}>
-                       {u.initials}
-                     </div>
-                     <div className="min-w-0">
-                        <h3 className="text-lg font-bold text-slate-100 tracking-tight truncate group-hover:text-white transition-colors">{u.name}</h3>
-                        <p className="text-sm font-medium text-slate-500 truncate mt-0.5">{u.role}</p>
-                     </div>
-                  </div>
-               </div>
+            <motion.div key={u.id} variants={itemVariants}>
+              <GlassCard className="relative overflow-hidden group flex flex-col p-6 border border-white/5 hover:border-white/20 transition-all bg-white/[0.02] hover:bg-white/[0.04] rounded-2xl shadow-lg hover:shadow-2xl translate-y-0 hover:-translate-y-1 duration-300 cursor-pointer h-full" onClick={() => openEditModal(u as User)}>
+                <div className="flex items-start justify-between mb-6 relative">
+                    <div className="flex items-center gap-4">
+                        <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold text-white shadow-inner border border-white/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shrink-0", u.color || 'bg-slate-800')}>
+                          {u.initials}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="text-lg font-bold text-slate-100 tracking-tight truncate group-hover:text-white transition-colors">{u.name}</h3>
+                          <p className="text-sm font-medium text-slate-500 truncate mt-0.5">{u.role}</p>
+                        </div>
+                    </div>
+                </div>
 
-               {u.isPrimary && <div className="absolute top-4 right-4 px-2.5 py-1 rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-widest shadow-sm">Founder</div>}
-               
-               {!u.isPrimary && (
-                 <button 
-                   onClick={(e) => { e.stopPropagation(); u.id && handleDeleteUser(u.id, u.isPrimary); }}
-                   className="absolute top-4 right-4 p-2 rounded-xl border border-rose-500/20 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100 z-10 shadow-sm"
-                   title="Delete User"
-                 >
-                   <Trash2 className="w-4 h-4" />
-                 </button>
-               )}
+                {u.isPrimary && <div className="absolute top-4 right-4 px-2.5 py-1 rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-400 text-[10px] font-bold uppercase tracking-widest shadow-sm">Founder</div>}
+                
+                {!u.isPrimary && (
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); u.id && handleDeleteUser(u.id, u.isPrimary); }}
+                    className="absolute top-4 right-4 p-2 rounded-xl border border-rose-500/20 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100 z-10 shadow-sm"
+                    title="Delete User"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
 
-               <div className="mt-auto border-t border-white/5 pt-4">
-                  <div className="flex flex-wrap gap-2">
-                     {AVAILABLE_PORTALS.map(portal => {
-                        const hasAccess = userPortals.includes(portal.id);
-                        if (!hasAccess) return null;
-                        return (
-                          <div key={portal.id} className="flex items-center px-2 py-1 rounded bg-black/40 border border-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-300 shadow-inner whitespace-nowrap">
-                             {portal.name}
-                          </div>
-                        )
-                     })}
-                  </div>
-               </div>
-               
-               <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            </GlassCard>
+                <div className="mt-auto border-t border-white/5 pt-4">
+                    <div className="flex flex-wrap gap-2">
+                        {AVAILABLE_PORTALS.map(portal => {
+                          const hasAccess = userPortals.includes(portal.id);
+                          if (!hasAccess) return null;
+                          return (
+                            <div key={portal.id} className="flex items-center px-2 py-1 rounded bg-black/40 border border-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-300 shadow-inner whitespace-nowrap">
+                                {portal.name}
+                            </div>
+                          )
+                        })}
+                    </div>
+                </div>
+                
+                <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              </GlassCard>
+            </motion.div>
           )
         })}
       </div>
       
-      <div className="mt-8 p-5 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex gap-4">
+      <motion.div variants={itemVariants} className="mt-8 p-5 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex gap-4">
         <Info className="w-6 h-6 text-blue-400 shrink-0" />
         <div>
            <h4 className="font-bold text-blue-400 uppercase tracking-widest text-sm mb-1">Identity Federation Architecture</h4>
@@ -451,7 +468,7 @@ export function UserManagementView() {
              Administrative (Founder) profiles possess immutable root capabilities.
            </p>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

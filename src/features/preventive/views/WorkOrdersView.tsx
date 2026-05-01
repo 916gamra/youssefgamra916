@@ -12,6 +12,16 @@ interface WorkOrdersViewProps {
   user: User | null;
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function WorkOrdersView({ user }: WorkOrdersViewProps) {
   const workOrders = useLiveQuery(() => db.pmWorkOrders.reverse().sortBy('scheduledDate'));
   const machines = useLiveQuery(() => db.machines.toArray());
@@ -104,10 +114,15 @@ export function WorkOrdersView({ user }: WorkOrdersViewProps) {
   const isCompletionReady = (selectedTasks?.length || 0) > 0 && allCriticalTasksDone;
 
   return (
-    <div className="w-full h-full flex flex-col md:flex-row p-6 lg:p-8 gap-8 overflow-hidden bg-transparent">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full h-full flex flex-col md:flex-row p-6 lg:p-8 gap-8 overflow-hidden bg-transparent"
+    >
       
       {/* LEFT PANEL: Deployment List */}
-      <div className="w-full md:w-[32%] flex flex-col h-full shrink-0">
+      <motion.div variants={itemVariants} className="w-full md:w-[32%] flex flex-col h-full shrink-0">
         <GlassCard className="!p-0 flex flex-col h-full overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)] border-emerald-500/10">
           <div className="p-6 border-b border-white/5 flex items-center justify-between bg-emerald-500/5 backdrop-blur-sm relative z-10">
             <h2 className="text-emerald-400 text-xs font-bold tracking-widest uppercase flex items-center gap-3">
@@ -196,10 +211,10 @@ export function WorkOrdersView({ user }: WorkOrdersViewProps) {
 
           </div>
         </GlassCard>
-      </div>
+      </motion.div>
 
       {/* RIGHT PANEL: Terminal */}
-      <div className="flex-1 h-full flex flex-col shrink-0 relative">
+      <motion.div variants={itemVariants} className="flex-1 h-full flex flex-col shrink-0 relative">
         <GlassCard className="!p-0 flex flex-col h-full overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.6)] border-white/5 relative">
           <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
           
@@ -340,8 +355,8 @@ export function WorkOrdersView({ user }: WorkOrdersViewProps) {
             )}
           </AnimatePresence>
         </GlassCard>
-      </div>
+      </motion.div>
 
-    </div>
+    </motion.div>
   );
 }

@@ -27,6 +27,16 @@ function StatCompact({ icon, label, value }: { icon: React.ReactNode, label: str
   );
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | null }) {
   const { families, templates, blueprints, templateCounts, blueprintCounts, isLoading } = usePdrLibrary();
   const [activeTab, setActiveTab] = useState('families');
@@ -138,13 +148,12 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
       className="w-full h-auto flex flex-col gap-6 relative z-10"
     >
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 shrink-0">
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
              <Layers className="w-8 h-8 text-cyan-400" /> PDR Engine Library
@@ -159,7 +168,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
           <StatCompact icon={<Layers className="w-4 h-4 text-indigo-500" />} label="Templates" value={templates.length.toString()} />
           <StatCompact icon={<Hash className="w-4 h-4 text-emerald-500" />} label="Blueprints" value={blueprints.length.toString()} />
         </div>
-      </header>
+      </motion.header>
 
       <PdrModals 
         activeModal={activeModal} 
@@ -169,7 +178,8 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
         user={user}
       />
 
-      <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="flex flex-col min-h-0 flex-1">
+      <motion.div variants={itemVariants} className="flex flex-col flex-1 min-h-0">
+        <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="flex flex-col min-h-0 flex-1">
         <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl flex flex-col flex-1 min-h-0">
           <div className="p-6 md:p-8 border-b border-white/5 bg-white/[0.01] shrink-0 relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
@@ -387,6 +397,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
           </div>
         </GlassCard>
       </Tabs.Root>
+      </motion.div>
     </motion.div>
   );
 }

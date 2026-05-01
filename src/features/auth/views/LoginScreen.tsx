@@ -8,6 +8,31 @@ import { useAuthStore } from '@/app/store/useAuthStore';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 import { SystemBackground } from '@/shared/components/SystemBackground';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1, 
+    transition: { 
+      staggerChildren: 0.1,
+      delayChildren: 0.3
+    } 
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1,
+    transition: { 
+      type: 'spring', 
+      stiffness: 100, 
+      damping: 15
+    } 
+  }
+};
+
 export function LoginScreen() {
   const users = useLiveQuery(() => db.users.toArray());
   const { login } = useAuthStore();
@@ -130,105 +155,111 @@ export function LoginScreen() {
           {!selectedUser ? (
             <motion.div 
               key="user-list"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.4 }}
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
               className="flex flex-wrap justify-center gap-6 w-full"
             >
               {users?.map((user) => (
-                <div
+                <motion.div
                   key={user.id}
+                  variants={itemVariants}
                   onClick={() => setSelectedUser(user)}
+                  whileHover={{ y: -5, scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   className="flex flex-col items-center p-4 w-40 rounded-2xl cursor-pointer group transition-all duration-300"
                 >
-                  <div className={`w-28 h-28 mb-4 rounded-full flex items-center justify-center text-4xl font-semibold text-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] transition-transform duration-300 group-hover:scale-105 ${user.color} bg-opacity-20 border border-white/10 group-hover:border-white/30 backdrop-blur-md relative overflow-hidden`}>
+                  <div className={`w-28 h-28 mb-4 rounded-full flex items-center justify-center text-4xl font-semibold text-white shadow-[0_8px_30px_rgb(0,0,0,0.3)] transition-all duration-300 group-hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] ${user.color} bg-opacity-20 border border-white/10 group-hover:border-white/30 backdrop-blur-md relative overflow-hidden`}>
                     <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent" />
                     <span className="drop-shadow-sm">{user.initials}</span>
                   </div>
                   <div className="text-center w-full">
                     <h2 className="text-sm font-medium text-white/90 tracking-wide truncate group-hover:text-white transition-colors">{user.name}</h2>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </motion.div>
           ) : (
-            <motion.div 
-              key="login-form"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
-              className="w-full max-w-md relative flex flex-col items-center mx-auto"
-            >
-              <div className="flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
-                
-                <div className={`w-36 h-36 mb-6 rounded-full flex items-center justify-center text-5xl font-semibold text-white shadow-2xl transition-all duration-300 ${selectedUser.color} bg-opacity-20 border-2 border-white/20 backdrop-blur-xl relative z-10 overflow-hidden`}>
-                  <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent" />
-                  <span className="drop-shadow-sm">{selectedUser.initials}</span>
-                </div>
-                
-                <h2 className="text-2xl font-medium text-white tracking-tight mb-8 relative z-10 text-center drop-shadow-md">{selectedUser.name}</h2>
+          <motion.div 
+            key="login-form"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            className="w-full max-w-md relative flex flex-col items-center mx-auto"
+          >
+            <div className="flex flex-col items-center relative z-10 w-full max-w-sm mx-auto">
+              
+              <motion.div 
+                variants={itemVariants}
+                className={`w-36 h-36 mb-6 rounded-full flex items-center justify-center text-5xl font-semibold text-white shadow-2xl transition-all duration-300 ${selectedUser.color} bg-opacity-20 border-2 border-white/20 backdrop-blur-xl relative z-10 overflow-hidden`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent" />
+                <span className="drop-shadow-sm">{selectedUser.initials}</span>
+              </motion.div>
+              
+              <motion.h2 variants={itemVariants} className="text-2xl font-medium text-white tracking-tight mb-8 relative z-10 text-center drop-shadow-md">{selectedUser.name}</motion.h2>
 
-                <form onSubmit={handleLogin} className="w-full relative z-10 flex flex-col items-center">
-                  <div className="relative flex items-center w-64 group mb-4">
-                    <input
-                      type="password"
-                      autoFocus
-                      placeholder="Enter Password"
-                      value={pin}
-                      onChange={(e) => setPin(e.target.value)}
-                      disabled={isLoading}
-                      className="w-full bg-white/[0.08] hover:bg-white/[0.12] focus:bg-white/[0.15] border border-white/20 focus:border-white/40 rounded-full px-5 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all font-sans text-center md:text-left text-sm backdrop-blur-2xl shadow-xl"
-                    />
-                    <AnimatePresence>
-                      {pin.length > 0 && (
-                        <motion.button 
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          type="submit"
-                          disabled={isLoading}
-                          className="absolute right-2 p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all flex items-center justify-center border border-white/10"
-                        >
-                          {isLoading ? (
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          ) : (
-                            <ArrowRight className="w-4 h-4" />
-                          )}
-                        </motion.button>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                  
+              <form onSubmit={handleLogin} className="w-full relative z-10 flex flex-col items-center">
+                <motion.div variants={itemVariants} className="relative flex items-center w-64 group mb-4">
+                  <input
+                    type="password"
+                    autoFocus
+                    placeholder="Enter PIN"
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value)}
+                    disabled={isLoading}
+                    className="w-full bg-white/[0.08] hover:bg-white/[0.12] focus:bg-white/[0.15] border border-white/20 focus:border-white/40 rounded-full px-5 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 transition-all font-sans text-center md:text-left text-sm backdrop-blur-2xl shadow-xl"
+                  />
                   <AnimatePresence>
-                    {error && (
-                      <motion.p 
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="text-white/80 font-medium text-xs text-center drop-shadow-md bg-black/20 backdrop-blur-md px-4 py-1.5 rounded-full"
+                    {pin.length > 0 && (
+                      <motion.button 
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        type="submit"
+                        disabled={isLoading}
+                        className="absolute right-2 p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all flex items-center justify-center border border-white/10"
                       >
-                        {error}
-                      </motion.p>
+                        {isLoading ? (
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <ArrowRight className="w-4 h-4" />
+                        )}
+                      </motion.button>
                     )}
                   </AnimatePresence>
-                  
-                  <div className="mt-12 flex flex-col items-center">
-                    <button 
-                      type="button" 
-                      onClick={() => { setSelectedUser(null); setPin(''); setError(''); }}
-                      className="flex flex-col items-center gap-2 text-xs font-medium text-white/60 hover:text-white transition-colors cursor-pointer group"
+                </motion.div>
+                
+                <AnimatePresence>
+                  {error && (
+                    <motion.p 
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      className="text-white/80 font-medium text-xs text-center drop-shadow-md bg-black/20 backdrop-blur-md px-4 py-1.5 rounded-full"
                     >
-                      <div className="p-2 rounded-full bg-white/10 group-hover:bg-white/20 backdrop-blur-md transition-colors shadow-sm">
-                        <ChevronLeft className="w-4 h-4" />
-                      </div>
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </motion.div>
+                      {error}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+                
+                <motion.div variants={itemVariants} className="mt-12 flex flex-col items-center">
+                  <button 
+                    type="button" 
+                    onClick={() => { setSelectedUser(null); setPin(''); setError(''); }}
+                    className="flex flex-col items-center gap-2 text-xs font-medium text-white/60 hover:text-white transition-colors cursor-pointer group"
+                  >
+                    <div className="p-2 rounded-full bg-white/10 group-hover:bg-white/20 backdrop-blur-md transition-colors shadow-sm">
+                      <ChevronLeft className="w-4 h-4" />
+                    </div>
+                    Switch Identity
+                  </button>
+                </motion.div>
+              </form>
+            </div>
+          </motion.div>
           )}
         </AnimatePresence>
       </div>

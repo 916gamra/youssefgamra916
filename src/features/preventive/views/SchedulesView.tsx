@@ -13,6 +13,16 @@ interface SchedulesViewProps {
   user: User | null;
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function SchedulesView({ user }: SchedulesViewProps) {
   const machines = useLiveQuery(() => db.machines.toArray());
   const checklists = useLiveQuery(() => db.pmChecklists.toArray());
@@ -168,10 +178,15 @@ export function SchedulesView({ user }: SchedulesViewProps) {
   const isDataReady = (machines?.length ?? 0) > 0 && (checklists?.length ?? 0) > 0;
 
   return (
-    <div className="w-full h-full p-6 lg:p-8 flex flex-col overflow-hidden bg-transparent">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full h-full p-6 lg:p-8 flex flex-col overflow-hidden bg-transparent"
+    >
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 shrink-0">
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight flex items-center gap-3 uppercase">
             <CalendarClock className="w-8 h-8 text-emerald-500" />
@@ -189,17 +204,19 @@ export function SchedulesView({ user }: SchedulesViewProps) {
         >
           <Plus className="w-4 h-4" /> Initialize Schedule
         </button>
-      </div>
+      </motion.div>
 
-      {!isDataReady && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 mb-8 flex items-start gap-4 backdrop-blur-md shadow-lg shadow-amber-500/5">
-          <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5 animate-pulse" />
-          <div>
-            <h3 className="text-amber-400 text-sm font-bold uppercase tracking-widest">Configuration Required</h3>
-            <p className="text-slate-300 text-xs mt-1 font-medium">To establish a maintenance schedule, register at least one Machine and one Maintenance Protocol.</p>
+      <motion.div variants={itemVariants}>
+        {!isDataReady && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5 mb-8 flex items-start gap-4 backdrop-blur-md shadow-lg shadow-amber-500/5">
+            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5 animate-pulse" />
+            <div>
+              <h3 className="text-amber-400 text-sm font-bold uppercase tracking-widest">Configuration Required</h3>
+              <p className="text-slate-300 text-xs mt-1 font-medium">To establish a maintenance schedule, register at least one Machine and one Maintenance Protocol.</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </motion.div>
 
       {/* Creation Form */}
       <AnimatePresence>
@@ -273,7 +290,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
       </AnimatePresence>
 
       {/* Schedules Grid */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-12">
+      <motion.div variants={itemVariants} className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-12">
         {schedules?.length === 0 && !isCreating ? (
            <GlassCard className="w-full h-80 flex flex-col items-center justify-center border border-dashed border-emerald-500/30 rounded-3xl !shadow-none">
               <div className="w-20 h-20 rounded-full bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-center mb-6">
@@ -390,8 +407,8 @@ export function SchedulesView({ user }: SchedulesViewProps) {
             })}
           </div>
         )}
-      </div>
+      </motion.div>
 
-    </div>
+    </motion.div>
   );
 }

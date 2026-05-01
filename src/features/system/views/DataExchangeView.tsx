@@ -5,6 +5,17 @@ import { db } from '@/core/db';
 import { toast } from 'sonner';
 import { measureOperation, logger } from '@/core/logger';
 import { GlassCard } from '@/shared/components/GlassCard';
+import { motion } from 'motion/react';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
 
 export function DataExchangeView() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -449,8 +460,13 @@ export function DataExchangeView() {
   ];
 
   return (
-    <div className="w-full space-y-6 pb-12 lg:px-8">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full space-y-6 pb-12 lg:px-8"
+    >
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2">
         <div>
           <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
             <RefreshCw className={`w-8 h-8 text-slate-400 ${isProcessing ? 'animate-spin border-slate-500 rounded-full' : ''}`} /> 
@@ -461,54 +477,56 @@ export function DataExchangeView() {
             <strong> Note: You must upload the Master PDR Catalog before injecting Inventory.</strong>
           </p>
         </div>
-      </header>
+      </motion.header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {CARDS.map((card, idx) => (
-          <GlassCard key={card.id} className="p-6 border border-white/10 bg-white/[0.06] flex flex-col relative overflow-hidden group hover:border-white/30 transition-all shadow-xl hover:shadow-2xl backdrop-blur-md">
-             <div className="flex items-start gap-5 mb-6">
-                <div className={`p-4 rounded-2xl bg-black/40 border border-white/5 shadow-inner`}>
-                  {card.icon}
-                </div>
-                <div>
-                   <div className="flex items-center gap-2 mb-1">
-                     <span className="text-[10px] font-bold text-slate-500 bg-white/5 px-2 py-0.5 rounded uppercase tracking-widest border border-white/10">Step {idx + 1}</span>
-                     <h3 className="text-xl font-bold text-slate-200">{card.title}</h3>
-                   </div>
-                   <p className="text-sm text-slate-400 mt-2">{card.desc}</p>
-                </div>
-             </div>
-             
-             <div className="mt-auto pt-4 flex gap-3 border-t border-white/5 relative z-10">
-                <button 
-                  onClick={() => handleDownloadTemplate(card.filename, card.cols)}
-                  disabled={isProcessing}
-                  className="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 bg-black/40 hover:bg-white/10 text-slate-300 rounded-xl font-medium text-sm transition-colors border border-white/10 disabled:opacity-50"
-                >
-                  <DownloadCloud className="w-4 h-4" /> Get Template
-                </button>
-                
-                <button 
-                  onClick={() => triggerFileUpload(`upload-${card.id}`)}
-                  disabled={isProcessing}
-                  className={`flex-1 flex justify-center items-center gap-2 px-4 py-2.5 ${card.color} hover:opacity-80 text-white rounded-xl font-medium text-sm transition-opacity shadow-lg disabled:opacity-50`}
-                >
-                  <UploadCloud className="w-4 h-4" /> Inject Data
-                </button>
-                
-                <input 
-                  type="file" 
-                  id={`upload-${card.id}`} 
-                  accept=".xlsx, .xls"
-                  className="hidden"
-                  onChange={(e) => handleFileUpload(e, card.processFn)}
-                />
-             </div>
-          </GlassCard>
+          <motion.div key={card.id} variants={itemVariants}>
+            <GlassCard className="p-6 border border-white/10 bg-white/[0.06] flex flex-col relative overflow-hidden group hover:border-white/30 transition-all shadow-xl hover:shadow-2xl backdrop-blur-md h-full">
+               <div className="flex items-start gap-5 mb-6">
+                  <div className={`p-4 rounded-2xl bg-black/40 border border-white/5 shadow-inner`}>
+                    {card.icon}
+                  </div>
+                  <div>
+                     <div className="flex items-center gap-2 mb-1">
+                       <span className="text-[10px] font-bold text-slate-500 bg-white/5 px-2 py-0.5 rounded uppercase tracking-widest border border-white/10">Step {idx + 1}</span>
+                       <h3 className="text-xl font-bold text-slate-200">{card.title}</h3>
+                     </div>
+                     <p className="text-sm text-slate-400 mt-2">{card.desc}</p>
+                  </div>
+               </div>
+               
+               <div className="mt-auto pt-4 flex gap-3 border-t border-white/5 relative z-10">
+                  <button 
+                    onClick={() => handleDownloadTemplate(card.filename, card.cols)}
+                    disabled={isProcessing}
+                    className="flex-1 flex justify-center items-center gap-2 px-4 py-2.5 bg-black/40 hover:bg-white/10 text-slate-300 rounded-xl font-medium text-sm transition-colors border border-white/10 disabled:opacity-50"
+                  >
+                    <DownloadCloud className="w-4 h-4" /> Get Template
+                  </button>
+                  
+                  <button 
+                    onClick={() => triggerFileUpload(`upload-${card.id}`)}
+                    disabled={isProcessing}
+                    className={`flex-1 flex justify-center items-center gap-2 px-4 py-2.5 ${card.color} hover:opacity-80 text-white rounded-xl font-medium text-sm transition-opacity shadow-lg disabled:opacity-50`}
+                  >
+                    <UploadCloud className="w-4 h-4" /> Inject Data
+                  </button>
+                  
+                  <input 
+                    type="file" 
+                    id={`upload-${card.id}`} 
+                    accept=".xlsx, .xls"
+                    className="hidden"
+                    onChange={(e) => handleFileUpload(e, card.processFn)}
+                  />
+               </div>
+            </GlassCard>
+          </motion.div>
         ))}
       </div>
       
-      <div className="mt-8 p-5 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex gap-4">
+      <motion.div variants={itemVariants} className="mt-8 p-5 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex gap-4">
         <AlertTriangle className="w-6 h-6 text-blue-400 shrink-0" />
         <div>
            <h4 className="font-bold text-blue-400 uppercase tracking-widest text-sm mb-1">Architectural Integrity Engine</h4>
@@ -519,7 +537,7 @@ export function DataExchangeView() {
              Missing cross-references are isolated rather than corrupting relational datasets.
            </p>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

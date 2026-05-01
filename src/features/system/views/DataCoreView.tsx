@@ -5,6 +5,16 @@ import { db, User } from '@/core/db';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuditTrail } from '../hooks/useAuditTrail';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function DataCoreView({ user }: { user: User | null }) {
   const { logEvent } = useAuditTrail();
   const [isExporting, setIsExporting] = useState(false);
@@ -134,8 +144,13 @@ export function DataCoreView({ user }: { user: User | null }) {
   const progressPercentage = progressData.total > 0 ? Math.round((progressData.completed / progressData.total) * 100) : 0;
 
   return (
-    <div className="w-full space-y-10 pb-12 pt-4 px-6 md:px-0 bg-transparent lg:px-8">
-      <header className="flex flex-col gap-2 relative">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full space-y-10 pb-12 pt-4 px-6 md:px-0 bg-transparent lg:px-8"
+    >
+      <motion.header variants={itemVariants} className="flex flex-col gap-2 relative">
         <div className="absolute -top-10 -left-10 w-96 h-96 bg-slate-500/5 blur-[120px] rounded-full pointer-events-none" />
         <h1 className="text-3xl font-bold text-white tracking-tight mb-2 flex items-center gap-4 uppercase">
           <Disc className="w-10 h-10 text-slate-400 " />
@@ -145,10 +160,10 @@ export function DataCoreView({ user }: { user: User | null }) {
           <span className="w-2 h-2 rounded-full bg-blue-500 " />
           System Data Preservation
         </p>
-      </header>
+      </motion.header>
 
       {/* Stats Terminal */}
-      <div className="titan-card p-0 overflow-hidden bg-black/40 relative border-white/10 group">
+      <motion.div variants={itemVariants} className="titan-card p-0 overflow-hidden bg-black/40 relative border-white/10 group">
         <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
           <Terminal className="w-48 h-48 text-rose-500" />
         </div>
@@ -180,12 +195,12 @@ export function DataCoreView({ user }: { user: User | null }) {
               </div>
            </div>
         </div>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
         {/* Backup Card */}
-        <div className="titan-card p-10 border-rose-500/10 bg-rose-500/[0.01] hover:bg-rose-500/[0.03] relative overflow-hidden flex flex-col justify-between group h-[400px] transition-all duration-700">
+        <motion.div variants={itemVariants} className="titan-card p-10 border-rose-500/10 bg-rose-500/[0.01] hover:bg-rose-500/[0.03] relative overflow-hidden flex flex-col justify-between group h-[400px] transition-all duration-700">
           <div className="absolute top-0 right-0 w-80 h-80 bg-rose-500/[0.05] rounded-full blur-[100px] pointer-events-none group-hover:bg-rose-500/10 transition-all duration-1000" />
           
           <div className="relative z-10 mb-8">
@@ -238,10 +253,10 @@ export function DataCoreView({ user }: { user: User | null }) {
                 )}
              </button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Restore Card */}
-        <div className="titan-card p-10 border-amber-500/10 bg-amber-500/[0.01] hover:bg-amber-500/[0.03] relative overflow-hidden flex flex-col justify-between group h-[400px] transition-all duration-700">
+        <motion.div variants={itemVariants} className="titan-card p-10 border-amber-500/10 bg-amber-500/[0.01] hover:bg-amber-500/[0.03] relative overflow-hidden flex flex-col justify-between group h-[400px] transition-all duration-700">
           <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/[0.05] rounded-full blur-[100px] pointer-events-none group-hover:bg-amber-500/10 transition-all duration-1000" />
           
           <div className="relative z-10 mb-8">
@@ -302,10 +317,10 @@ export function DataCoreView({ user }: { user: User | null }) {
               )}
             </button>
           </div>
-        </div>
+        </motion.div>
 
       </div>
-    </div>
+    </motion.div>
   );
 }
 

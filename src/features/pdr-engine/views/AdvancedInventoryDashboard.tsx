@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { db } from '@/core/db';
 import { AlertTriangle, AlertCircle, Package, Database, ShieldAlert, BarChart3, Search, Zap } from 'lucide-react';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { cn } from '@/shared/utils';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
 
 export function AdvancedInventoryDashboard() {
   const [stats, setStats] = useState({
@@ -104,8 +115,13 @@ export function AdvancedInventoryDashboard() {
   }
 
   return (
-    <div className="w-full space-y-8 pb-12 px-4 lg:px-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full space-y-8 pb-12 px-4 lg:px-8"
+    >
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
             <ShieldAlert className="w-8 h-8 text-cyan-500" /> Inventory Surveillance
@@ -119,11 +135,11 @@ export function AdvancedInventoryDashboard() {
           <StatCompact icon={<AlertCircle className="w-4 h-4 text-rose-500" />} label="Empty" value={stats.outOfStockItems.toString()} />
           <StatCompact icon={<ShieldAlert className="w-4 h-4 text-red-500" />} label="Critical" value={stats.negativeStockItems.toString()} />
         </div>
-      </header>
+      </motion.header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
-          <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl h-full">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl h-full flex flex-col">
             <div className="p-8 border-b border-white/5 bg-white/[0.01] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
@@ -230,8 +246,8 @@ export function AdvancedInventoryDashboard() {
             <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-cyan-500/10 blur-[60px] rounded-full" />
           </GlassCard>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

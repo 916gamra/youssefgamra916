@@ -10,6 +10,16 @@ import { cn } from '@/shared/utils';
 import { StockTransactionModal } from './StockTransactionModal';
 import { AddInventoryModal } from './AddInventoryModal';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function StockDashboardPage({ tabId }: { tabId: string }) {
   const { inventory, movements, lowStockItems, outOfStockItems, isLoading } = useStockEngine();
   const { createPendingOrder } = useProcurementEngine();
@@ -66,8 +76,13 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
   const recentMovements = movements.slice(0, 50);
 
   return (
-    <div className="w-full space-y-8 pb-12 px-4 relative z-10 lg:px-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4 shrink-0">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full space-y-8 pb-12 px-4 relative z-10 lg:px-8"
+    >
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4 shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
             <Box className="w-8 h-8 text-cyan-500" /> Stock Radar
@@ -81,12 +96,12 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
           <StatCompact icon={<AlertOctagon className="w-4 h-4 text-rose-500" />} label="Empty" value={outOfStockItems.length.toString()} />
           <StatCompact icon={<Activity className="w-4 h-4 text-cyan-500" />} label="Activity" value={movements.length.toString()} />
         </div>
-      </header>
+      </motion.header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
           {/* Main Registry Matrix */}
-          <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl h-full flex flex-col">
+          <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl h-[600px] flex flex-col">
             
             <div className="p-8 border-b border-white/5 bg-white/[0.01] flex flex-col lg:flex-row lg:items-center justify-between gap-6 shrink-0 relative z-10">
               <div className="flex items-center gap-4">
@@ -295,7 +310,7 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
             <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-t from-[#0a0f18] to-transparent z-20 pointer-events-none" />
           </GlassCard>
         </div>
-      </div>
+      </motion.div>
 
       <StockTransactionModal 
         isOpen={isModalOpen} 
@@ -307,7 +322,7 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
       />
-    </div>
+    </motion.div>
   );
 }
 

@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Shield, LockKeyhole, Timer, Fingerprint, Code2, AlertTriangle, Settings } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/shared/utils';
+import { motion } from 'motion/react';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
 
 export function SecurityPoliciesView() {
   const [autoLogoutMinutes, setAutoLogoutMinutes] = useState(15);
@@ -37,8 +48,13 @@ export function SecurityPoliciesView() {
   };
 
   return (
-    <div className="space-y-10 pb-12 pt-4 px-4 md:px-0 relative w-full lg:px-8">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10 border-b border-white/[0.05] pb-6 shrink-0">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-10 pb-12 pt-4 px-4 md:px-0 relative w-full lg:px-8"
+    >
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10 border-b border-white/[0.05] pb-6 shrink-0">
           <div>
             <h1 className="text-3xl font-semibold text-slate-100 tracking-tight flex items-center gap-3 mb-2">
               <Settings className="w-8 h-8 text-slate-400" />
@@ -54,12 +70,12 @@ export function SecurityPoliciesView() {
          >
            <Shield className="w-4 h-4" /> Save Configuration
          </button>
-      </header>
+      </motion.header>
 
       <div className="grid grid-cols-1 gap-6 relative z-10">
         
         {/* Session Timeout */}
-        <div className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-all shadow-lg hover:shadow-xl relative overflow-hidden">
+        <motion.div variants={itemVariants} className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-all shadow-lg hover:shadow-xl relative overflow-hidden">
           <div className="flex gap-6 items-center w-full md:w-auto mb-6 md:mb-0">
             <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center shadow-inner group-hover:border-blue-500/30 transition-all duration-300 shrink-0">
                <Timer className="w-6 h-6 text-slate-400 group-hover:text-blue-400 transition-colors" />
@@ -83,10 +99,10 @@ export function SecurityPoliciesView() {
             />
             <span className="text-xs font-bold uppercase tracking-wider text-slate-400 pr-3">Minutes</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* Strict Hardware Validation */}
-        <div className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-all shadow-lg hover:shadow-xl relative overflow-hidden">
+        <motion.div variants={itemVariants} className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-all shadow-lg hover:shadow-xl relative overflow-hidden">
           <div className="flex gap-6 items-center w-full md:w-auto mb-6 md:mb-0">
             <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center shadow-inner group-hover:border-cyan-500/30 transition-all shrink-0">
                <Fingerprint className="w-6 h-6 text-slate-400 group-hover:text-cyan-400 transition-colors" />
@@ -101,21 +117,21 @@ export function SecurityPoliciesView() {
           <button 
              onClick={() => setStrictMode(!strictMode)}
              className={cn(
-               "w-12 h-6 rounded-full border transition-all duration-300 relative outline-none active:scale-95 shadow-inner grow-0 shrink-0", 
-               strictMode 
-                ? "bg-blue-600 border-blue-500" 
-                : "bg-black/60 border-white/10"
-             )}
+                "w-12 h-6 rounded-full border transition-all duration-300 relative outline-none active:scale-95 shadow-inner grow-0 shrink-0", 
+                strictMode 
+                 ? "bg-blue-600 border-blue-500" 
+                 : "bg-black/60 border-white/10"
+              )}
           >
              <div className={cn(
                "absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white transition-all duration-300 shadow-md", 
                strictMode ? "left-[1.6rem] bg-white" : "left-1 bg-slate-500"
              )} />
           </button>
-        </div>
+        </motion.div>
 
         {/* Developer Mode */}
-        <div className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-all shadow-lg hover:shadow-xl relative overflow-hidden cursor-pointer" onClick={() => setDevMode(!devMode)}>
+        <motion.div variants={itemVariants} className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-all shadow-lg hover:shadow-xl relative overflow-hidden cursor-pointer" onClick={() => setDevMode(!devMode)}>
           <div className="flex gap-6 items-center w-full md:w-auto mb-6 md:mb-0">
             <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center shadow-inner group-hover:border-amber-500/30 transition-all shrink-0">
                <Code2 className="w-6 h-6 text-slate-400 group-hover:text-amber-400 transition-colors" />
@@ -142,9 +158,9 @@ export function SecurityPoliciesView() {
                devMode ? "left-[1.6rem] bg-white" : "left-1 bg-slate-500"
              )} />
           </button>
-        </div>
+        </motion.div>
 
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -11,6 +11,16 @@ interface CartItem {
   available: number;
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function RequisitionHubView() {
   const { technicians, machines, blueprints, inventory, isLoading, submitRequisition } = useRequisitionEngine();
   
@@ -111,7 +121,12 @@ export function RequisitionHubView() {
   const isValidCart = cart.length > 0 && selectedTechId && selectedMachineId;
 
   return (
-    <div className="w-full space-y-6 pb-24 relative lg:px-8">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full space-y-6 pb-24 relative lg:px-8"
+    >
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -130,14 +145,14 @@ export function RequisitionHubView() {
         )}
       </AnimatePresence>
 
-      <header className="mb-8 pt-2">
+      <motion.header variants={itemVariants} className="mb-8 pt-2">
         <h1 className="text-3xl font-semibold text-white tracking-tight mb-2 flex items-center gap-3">
           <ClipboardCheck className="w-8 h-8 text-cyan-400" /> Requisition Hub
         </h1>
         <p className="text-slate-400 text-lg">Central hub to request and deduct spare parts from inventory.</p>
-      </header>
+      </motion.header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Panel: Context (Technician & Machine) */}
         <div className="lg:col-span-4 space-y-6">
@@ -267,7 +282,7 @@ export function RequisitionHubView() {
              </div>
           </GlassCard>
         </div>
-      </div>
+      </motion.div>
 
       {/* Floating Action Button Bar */}
       <div className="fixed bottom-0 left-[72px] right-0 bg-black/60 backdrop-blur-xl border-t border-white/10 p-4 flex justify-end z-40">
@@ -293,6 +308,6 @@ export function RequisitionHubView() {
          </div>
       </div>
 
-    </div>
+    </motion.div>
   );
 }

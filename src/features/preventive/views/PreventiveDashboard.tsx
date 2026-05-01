@@ -6,6 +6,16 @@ import { db } from '@/core/db';
 import { cn } from '@/shared/utils';
 import { GlassCard } from '@/shared/components/GlassCard';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function PreventiveDashboard() {
   const stats = useLiveQuery(async () => {
     const totalSchedules = await db.pmSchedules.count();
@@ -24,8 +34,13 @@ export function PreventiveDashboard() {
   });
 
   return (
-    <div className="space-y-8 pb-24 px-4 relative z-10 w-full lg:px-8">
-      <div className="mb-12 pt-4 flex flex-col md:flex-row md:items-center justify-between gap-6 flex-shrink-0">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-8 pb-24 px-4 relative z-10 w-full lg:px-8"
+    >
+      <motion.div variants={itemVariants} className="mb-12 pt-4 flex flex-col md:flex-row md:items-center justify-between gap-6 flex-shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
             <ShieldCheck className="w-8 h-8 text-emerald-500" /> Maintenance Operations
@@ -45,10 +60,10 @@ export function PreventiveDashboard() {
               <span className="text-white font-mono text-sm">{stats?.inProgressOrders || 0}</span>
            </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
         <StatCard 
           title="Active Protocols" 
           value={stats?.totalSchedules || 0} 
@@ -77,9 +92,9 @@ export function PreventiveDashboard() {
           color="cyan" 
           label="Checklists"
         />
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 flex-1">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 xl:grid-cols-3 gap-6 flex-1">
         {/* Upcoming Tasks */}
         <div className="xl:col-span-2">
           <GlassCard className="p-0 flex flex-col overflow-hidden h-[450px] shadow-[0_0_30px_rgba(0,0,0,0.5)] border-white/5">
@@ -172,8 +187,8 @@ export function PreventiveDashboard() {
               </div>
            </GlassCard>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/core/db';
 import { AlertTriangle, CheckCircle, ArrowRightLeft, Wrench, ShieldCheck, FileWarning, Search, RefreshCw, ShoppingCart, Zap, TrendingUp, ShieldAlert, Loader2 } from 'lucide-react';
 import { useNotifications } from '@/shared/hooks/useNotifications';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { cn } from '@/shared/utils';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
 
 export function ReconciliationCenterView() {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -140,8 +151,13 @@ export function ReconciliationCenterView() {
   );
 
   return (
-    <div className="w-full space-y-8 pb-12 px-4 lg:px-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full space-y-8 pb-12 px-4 lg:px-8"
+    >
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
             <Wrench className="w-8 h-8 text-cyan-500" /> Auto-Reconciliation Center
@@ -155,9 +171,10 @@ export function ReconciliationCenterView() {
           <StatCompact icon={<ShieldCheck className="w-4 h-4 text-emerald-500" />} label="Health" value="Stable" />
           <StatCompact icon={<Zap className="w-4 h-4 text-amber-500" />} label="Sync" value="Active" />
         </div>
-      </header>
+      </motion.header>
 
-      <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl">
+      <motion.div variants={itemVariants}>
+        <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl">
         <div className="p-8 border-b border-white/5 bg-white/[0.01] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
@@ -280,7 +297,8 @@ export function ReconciliationCenterView() {
           </table>
         </div>
       </GlassCard>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

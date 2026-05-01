@@ -16,6 +16,16 @@ import {
 } from 'lucide-react';
 import { cn } from '@/shared/utils';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function AuditTrailView() {
   const { logs, clearLogs } = useAuditTrail();
   const [searchTerm, setSearchTerm] = useState('');
@@ -82,8 +92,13 @@ export function AuditTrailView() {
   };
 
   return (
-    <div className="space-y-6 pb-12 w-full lg:px-8">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2 object-contain">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-6 pb-12 w-full lg:px-8"
+    >
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 pt-2 object-contain">
         <div>
           <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
             <RefreshCw className="w-8 h-8 text-slate-400" />
@@ -108,10 +123,10 @@ export function AuditTrailView() {
             <Trash2 className="w-4 h-4" /> Clear Logs
           </button>
         </div>
-      </header>
+      </motion.header>
 
       {/* Stats Quick Look */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+      <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-5">
          <GlassCard className="p-5 bg-white/[0.06] border border-white/10 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
@@ -148,9 +163,9 @@ export function AuditTrailView() {
             </div>
             <div className="text-3xl font-semibold text-cyan-500 tabular-nums">{logs.filter(l => l.severity === 'INFO').length}</div>
          </GlassCard>
-      </div>
+      </motion.div>
 
-      <div className="flex flex-col bg-slate-900/60 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative backdrop-blur-xl">
+      <motion.div variants={itemVariants} className="flex flex-col bg-slate-900/60 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative backdrop-blur-xl">
         <div className="p-5 border-b border-white/[0.08] bg-black/60 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shrink-0">
           <div className="flex items-center gap-3">
              <Filter className="w-4 h-4 text-slate-400" />
@@ -254,7 +269,7 @@ export function AuditTrailView() {
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

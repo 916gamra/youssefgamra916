@@ -13,6 +13,16 @@ interface ChecklistsViewProps {
   user: User | null;
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+};
+
 export function ChecklistsView({ user }: ChecklistsViewProps) {
   const checklists = useLiveQuery(() => db.pmChecklists.toArray());
   const { logEvent } = useAuditTrail();
@@ -154,10 +164,15 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
   };
 
   return (
-    <div className="w-full h-full flex flex-col md:flex-row p-6 gap-6 overflow-hidden">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="w-full h-full flex flex-col md:flex-row p-6 gap-6 overflow-hidden"
+    >
       
       {/* LEFT PANEL: Checklists Catalog */}
-      <div className="w-full md:w-1/3 flex flex-col h-full shrink-0">
+      <motion.div variants={itemVariants} className="w-full md:w-1/3 flex flex-col h-full shrink-0">
         <GlassCard className="!p-0 flex flex-col h-full overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)] border-emerald-500/10">
           <div className="p-5 border-b border-white/5 flex justify-between items-center bg-emerald-500/5 backdrop-blur-sm relative z-10">
               <h2 className="text-emerald-400 font-bold tracking-widest text-xs uppercase flex items-center gap-2">
@@ -251,10 +266,10 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
             ))}
           </div>
         </GlassCard>
-      </div>
+      </motion.div>
 
       {/* RIGHT PANEL: Checklist Tasks Builder */}
-      <div className="flex-1 h-full flex flex-col shrink-0">
+      <motion.div variants={itemVariants} className="flex-1 h-full flex flex-col shrink-0">
         <GlassCard className="!p-0 flex flex-col h-full overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.5)] border-white/5 relative">
           {!selectedChecklistId ? (
             <div className="flex-1 flex flex-col items-center justify-center relative z-10 p-12">
@@ -368,9 +383,9 @@ export function ChecklistsView({ user }: ChecklistsViewProps) {
             </>
           )}
         </GlassCard>
-      </div>
+      </motion.div>
 
-    </div>
+    </motion.div>
   );
 }
 

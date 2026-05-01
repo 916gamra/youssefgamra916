@@ -83,12 +83,29 @@ const THEME_BG_MAP: Record<string, string> = {
 
 const containerAnim = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.05 } }
+  show: { 
+    opacity: 1, 
+    transition: { 
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    } 
+  }
 };
 
 const itemAnim = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+  hidden: { opacity: 0, y: 40, scale: 0.9, rotateX: -10 },
+  show: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1, 
+    rotateX: 0,
+    transition: { 
+      type: 'spring', 
+      stiffness: 120, 
+      damping: 15,
+      mass: 1.2
+    } 
+  }
 };
 
 export function LaunchpadView({ user }: { user: User | null }) {
@@ -148,49 +165,62 @@ export function LaunchpadView({ user }: { user: User | null }) {
         </header>
 
         {/* --- TELEMETRY DASHBOARD --- */}
-        <section className="mb-12">
+        <motion.section 
+          variants={containerAnim}
+          initial="hidden"
+          animate="show"
+          className="mb-12"
+        >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <GlassCard className="border-l-4 border-l-cyan-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-1 hover:border-y-cyan-500/30 hover:border-r-cyan-500/30 hover:shadow-[0_15px_40px_-10px_rgba(6,182,212,0.2)] hover:bg-cyan-500/[0.03]">
-               <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center mb-2">
-                 <Database className="w-5 h-5 text-cyan-400" />
-               </div>
-               <div>
-                 <div className="text-3xl font-semibold text-slate-100">{stats?.invCount ?? '-'}</div>
-                 <div className="text-sm text-slate-500 mt-1 font-medium">Inventory Items</div>
-               </div>
-            </GlassCard>
+            <motion.div variants={itemAnim}>
+              <GlassCard className="border-l-4 border-l-cyan-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-2 hover:border-y-cyan-500/30 hover:border-r-cyan-500/30 hover:shadow-[0_25px_50px_-12px_rgba(6,182,212,0.3)] hover:bg-cyan-500/[0.05]">
+                 <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                   <Database className="w-5 h-5 text-cyan-400" />
+                 </div>
+                 <div>
+                   <div className="text-3xl font-semibold text-slate-100">{stats?.invCount ?? '-'}</div>
+                   <div className="text-sm text-slate-500 mt-1 font-medium group-hover:text-cyan-400/80 transition-colors">Inventory Items</div>
+                 </div>
+              </GlassCard>
+            </motion.div>
 
-            <GlassCard className="border-l-4 border-l-indigo-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-1 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.2)] hover:bg-indigo-500/[0.03]">
-               <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center mb-2">
-                 <Factory className="w-5 h-5 text-indigo-400" />
-               </div>
-               <div>
-                 <div className="text-3xl font-semibold text-slate-100">{stats?.machinesCount ?? '-'}</div>
-                 <div className="text-sm text-slate-500 mt-1 font-medium">Machines</div>
-               </div>
-            </GlassCard>
+            <motion.div variants={itemAnim}>
+              <GlassCard className="border-l-4 border-l-indigo-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-2 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_25px_50px_-12px_rgba(99,102,241,0.3)] hover:bg-indigo-500/[0.05]">
+                 <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                   <Factory className="w-5 h-5 text-indigo-400" />
+                 </div>
+                 <div>
+                   <div className="text-3xl font-semibold text-slate-100">{stats?.machinesCount ?? '-'}</div>
+                   <div className="text-sm text-slate-500 mt-1 font-medium group-hover:text-indigo-400/80 transition-colors">Machines</div>
+                 </div>
+              </GlassCard>
+            </motion.div>
 
-            <GlassCard className="border-l-4 border-l-amber-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-1 hover:border-y-amber-500/30 hover:border-r-amber-500/30 hover:shadow-[0_15px_40px_-10px_rgba(245,158,11,0.2)] hover:bg-amber-500/[0.03]">
-               <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mb-2">
-                 <AlertTriangle className="w-5 h-5 text-amber-400" />
-               </div>
-               <div>
-                 <div className="text-3xl font-semibold text-amber-400">{stats?.pendingOrders ?? '-'}</div>
-                 <div className="text-sm text-amber-500/80 mt-1 font-medium">Pending Tasks</div>
-               </div>
-            </GlassCard>
+            <motion.div variants={itemAnim}>
+              <GlassCard className="border-l-4 border-l-amber-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-2 hover:border-y-amber-500/30 hover:border-r-amber-500/30 hover:shadow-[0_25px_50px_-12px_rgba(245,158,11,0.3)] hover:bg-amber-500/[0.05]">
+                 <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                   <AlertTriangle className="w-5 h-5 text-amber-400" />
+                 </div>
+                 <div>
+                   <div className="text-3xl font-semibold text-amber-400">{stats?.pendingOrders ?? '-'}</div>
+                   <div className="text-sm text-amber-500/80 mt-1 font-medium group-hover:text-amber-400 transition-colors">Pending Tasks</div>
+                 </div>
+              </GlassCard>
+            </motion.div>
 
-            <GlassCard className="border-l-4 border-l-emerald-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-1 hover:border-y-emerald-500/30 hover:border-r-emerald-500/30 hover:shadow-[0_15px_40px_-10px_rgba(16,185,129,0.2)] hover:bg-emerald-500/[0.03]">
-               <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2">
-                 <Users className="w-5 h-5 text-emerald-400" />
-               </div>
-               <div>
-                 <div className="text-3xl font-semibold text-slate-100">{stats?.usersCount ?? '-'}</div>
-                 <div className="text-sm text-slate-500 mt-1 font-medium">Active Users</div>
-               </div>
-            </GlassCard>
+            <motion.div variants={itemAnim}>
+              <GlassCard className="border-l-4 border-l-emerald-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-2 hover:border-y-emerald-500/30 hover:border-r-emerald-500/30 hover:shadow-[0_25px_50px_-12px_rgba(16,185,129,0.3)] hover:bg-emerald-500/[0.05]">
+                 <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                   <Users className="w-5 h-5 text-emerald-400" />
+                 </div>
+                 <div>
+                   <div className="text-3xl font-semibold text-slate-100">{stats?.usersCount ?? '-'}</div>
+                   <div className="text-sm text-slate-500 mt-1 font-medium group-hover:text-emerald-400/80 transition-colors">Active Users</div>
+                 </div>
+              </GlassCard>
+            </motion.div>
           </div>
-        </section>
+        </motion.section>
 
         {/* --- SYSTEM NODES (PORTALS) --- */}
         <section className="flex-1 flex flex-col">
@@ -207,43 +237,63 @@ export function LaunchpadView({ user }: { user: User | null }) {
               const themeBg = THEME_BG_MAP[app.theme];
               
               return (
-                <motion.div key={app.id} variants={itemAnim} className="h-full">
+                <motion.div 
+                  key={app.id} 
+                  variants={itemAnim} 
+                  className="h-full"
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
                   <GlassCard 
                     onClick={() => setPortal(app.id)}
                     className={cn(
-                      "group flex flex-col p-0 h-[220px] !bg-black/20 border-white/5 hover:border-white/20 transition-all duration-500 overflow-hidden cursor-pointer"
+                      "group flex flex-col p-0 h-[240px] !bg-black/40 border-white/5 hover:border-white/30 transition-all duration-500 overflow-hidden cursor-pointer relative",
+                      "hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)]"
                     )}
                   >
-                    {/* Big blur background */}
-                    <div className={cn("absolute -top-12 -right-12 w-40 h-40 blur-[50px] opacity-20 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none", themeBg)} />
+                    {/* Dynamic Glow Reflex */}
+                    <div className={cn(
+                      "absolute -top-24 -right-24 w-64 h-64 blur-[80px] opacity-10 group-hover:opacity-40 transition-all duration-1000 pointer-events-none rounded-full",
+                      themeBg
+                    )} />
+                    
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
 
-                    <div className="p-6 relative z-10 flex-1 flex flex-col">
+                    <div className="p-8 relative z-10 flex-1 flex flex-col">
                        <div className="flex justify-between items-start mb-auto relative">
                            <div className={cn(
-                             "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all group-hover:scale-105 duration-500 shadow-lg",
+                             "w-16 h-16 rounded-2xl flex items-center justify-center border transition-all duration-700 shadow-xl group-hover:rotate-[5deg]",
                              themeStyle
                            )}>
-                             <app.icon className="w-7 h-7 stroke-[1.5]" />
+                             <app.icon className="w-8 h-8 stroke-[1.2] group-hover:scale-110 transition-transform" />
                            </div>
-                           {getUnreadCountByPortal(app.id) > 0 && (
-                               <span className={cn(
-                                   "absolute -top-2 -left-2 w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-white shadow-lg border border-black/50 animate-bounce",
+                           
+                           <div className="flex flex-col items-end gap-2">
+                             <span className="text-[9px] font-bold text-slate-500 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 uppercase tracking-[0.2em]">{app.sysCode}</span>
+                             {getUnreadCountByPortal(app.id) > 0 && (
+                               <motion.span 
+                                 initial={{ scale: 0 }}
+                                 animate={{ scale: 1 }}
+                                 className={cn(
+                                   "flex items-center justify-center px-2 py-0.5 rounded-md text-[10px] font-bold text-white shadow-lg border border-white/20",
                                    themeBg
-                               )}>
-                                   {getUnreadCountByPortal(app.id)}
-                               </span>
-                           )}
-                           <span className="text-[10px] font-bold text-slate-400 bg-white/5 backdrop-blur-md px-2 py-1 rounded-full border border-white/5 transition-colors">{app.sysCode}</span>
+                                 )}
+                               >
+                                 {getUnreadCountByPortal(app.id)} NEW
+                               </motion.span>
+                             )}
+                           </div>
                        </div>
 
-                       <div>
-                           <h3 className="text-xl font-bold text-slate-200 tracking-tight mb-1 group-hover:text-white transition-colors drop-shadow-md">{app.title}</h3>
-                           <p className="text-xs text-slate-400 font-medium leading-relaxed">{app.desc}</p>
+                       <div className="transform group-hover:translate-x-1 transition-transform duration-500">
+                           <h3 className="text-2xl font-bold text-slate-100 tracking-tight mb-2 group-hover:text-white transition-colors">{app.title}</h3>
+                           <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-[80%] group-hover:text-slate-300 transition-colors">{app.desc}</p>
                        </div>
                     </div>
                     
-                    <div className="h-[3px] w-full bg-white/5 group-hover:bg-white/10 transition-colors">
-                       <div className={cn("h-full w-0 group-hover:w-full transition-all duration-700 ease-in-out", themeBg)} />
+                    <div className="h-1 w-full bg-white/5 relative overflow-hidden">
+                       <div className={cn("h-full w-0 group-hover:w-full transition-all duration-1000 ease-out", themeBg)} />
+                       <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_infinite] pointer-events-none opacity-0 group-hover:opacity-100" />
                     </div>
                   </GlassCard>
                 </motion.div>
