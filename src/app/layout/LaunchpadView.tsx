@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Box, ShieldCheck, PieChart, Network, Settings, Factory, Activity, Cpu, Database, AlertTriangle, Users } from 'lucide-react';
-import { useOsStore, PortalType } from '../store/useOsStore';
+import { useOsStore } from '../store/useOsStore';
+import { type PortalType } from '../store';
 import type { User } from '@/core/db';
 import { hasPortalAccess } from '@/core/permissions';
 import { useLiveQuery } from 'dexie-react-hooks';

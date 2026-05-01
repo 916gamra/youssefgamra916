@@ -141,6 +141,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
   const openPartDetail = (blueprintId: string, reference: string) => {
     openTab({
       id: `part-detail:${blueprintId}`,
+      portalId: 'PDR',
       title: `Part: ${reference}`,
       component: 'part-detail'
     });

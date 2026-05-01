@@ -49,7 +49,7 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
       await createPendingOrder('SYSTEM_AUTO_GENERATED', lines);
       showSuccess('Order Injunction Sent', `Pending Purchase Order generated for ${lines.length} critical items.`);
       setTimeout(() => {
-        openTab({ id: 'procurement', title: 'Procurement v4', component: 'procurement' });
+        openTab({ id: 'procurement', portalId: 'PDR', title: 'Procurement v4', component: 'procurement' });
       }, 1500);
     } catch(err: any) {
       showError('Sync Error', err.message);

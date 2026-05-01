@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 
+export type PortalType = 'HOME' | 'PDR' | 'PREVENTIVE' | 'ANALYTICS' | 'ORGANIZATION' | 'SETTINGS' | 'FACTORY';
+
 export interface Tab {
-  id: string;
+  id: string; // The specific page/view ID within the engine
+  portalId: PortalType; // The engine/portal ID (e.g., 'PDR', 'PREVENTIVE')
   title: string;
   component: string;
   isActive: boolean;
@@ -9,43 +12,51 @@ export interface Tab {
 
 interface TabState {
   tabs: Tab[];
-  activeTabId: string | null;
   openTab: (tab: Omit<Tab, 'isActive'>) => void;
-  closeTab: (id: string) => void;
-  setActiveTab: (id: string) => void;
+  closeTab: (portalId: PortalType) => void;
+  setActiveTab: (portalId: PortalType) => void;
   clearTabs: () => void;
 }
 
 export const useTabStore = create<TabState>((set) => ({
   tabs: [],
-  activeTabId: null,
   openTab: (newTab) => set((state) => {
-    const existingTab = state.tabs.find(t => t.id === newTab.id);
-    if (existingTab) {
+    // 1. Check if a tab for this portal already exists
+    const existingPortalTabIndex = state.tabs.findIndex(t => t.portalId === newTab.portalId);
+
+    if (existingPortalTabIndex !== -1) {
+      // Update the existing engine tab with the new page/view
+      const updatedTabs = state.tabs.map((t, idx) => {
+        if (idx === existingPortalTabIndex) {
+          return { ...t, id: newTab.id, title: newTab.title, component: newTab.component, isActive: true };
+        }
+        return { ...t, isActive: false };
+      });
+
       return {
-        tabs: state.tabs.map(t => ({ ...t, isActive: t.id === newTab.id })),
-        activeTabId: newTab.id
+        tabs: updatedTabs
       };
     }
-    return {
-      tabs: [...state.tabs.map(t => ({ ...t, isActive: false })), { ...newTab, isActive: true }],
-      activeTabId: newTab.id
-    };
-  }),
-  closeTab: (id) => set((state) => {
-    const newTabs = state.tabs.filter(t => t.id !== id);
-    let newActiveId = state.activeTabId;
-    if (state.activeTabId === id) {
-      newActiveId = newTabs.length > 0 ? newTabs[newTabs.length - 1].id : null;
+
+    // 2. FIFO Logic: If it's a new portal tab and we are at the limit (4)
+    let currentTabs = [...state.tabs.map(t => ({ ...t, isActive: false }))];
+    if (currentTabs.length >= 4) {
+      currentTabs.shift(); // Remove the oldest tab (the one at index 0)
     }
+
+    // 3. Add the new portal tab at the end
     return {
-      tabs: newTabs.map(t => ({ ...t, isActive: t.id === newActiveId })),
-      activeTabId: newActiveId
+      tabs: [...currentTabs, { ...newTab, isActive: true }]
     };
   }),
-  setActiveTab: (id) => set((state) => ({
-    tabs: state.tabs.map(t => ({ ...t, isActive: t.id === id })),
-    activeTabId: id
+  closeTab: (portalId) => set((state) => {
+    const newTabs = state.tabs.filter(t => t.portalId !== portalId);
+    return {
+      tabs: newTabs
+    };
+  }),
+  setActiveTab: (portalId) => set((state) => ({
+    tabs: state.tabs.map(t => ({ ...t, isActive: t.portalId === portalId }))
   })),
-  clearTabs: () => set({ tabs: [], activeTabId: null })
+  clearTabs: () => set({ tabs: [] })
 }));

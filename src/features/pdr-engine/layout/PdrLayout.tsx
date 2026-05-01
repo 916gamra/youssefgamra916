@@ -26,13 +26,17 @@ const PDR_COMPONENTS = {
 };
 
 export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
-  const { tabs, activeTabId, openTab } = useTabStore();
+  const { tabs, openTab } = useTabStore();
+
+  const currentTab = tabs.find(t => t.portalId === 'PDR');
+  const activeTabId = currentTab?.id;
 
   useEffect(() => {
-    if (tabs.length === 0) {
-      openTab({ id: 'dashboard', title: 'Stock Radar', component: 'pdr-dashboard' });
+    // Only open default if no PDR tab exists at all
+    if (!currentTab) {
+      openTab({ id: 'dashboard', portalId: 'PDR', title: 'Stock Radar', component: 'pdr-dashboard' });
     }
-  }, [tabs.length, openTab]);
+  }, [currentTab, openTab]);
 
   return (
     <div className="flex flex-1 overflow-hidden h-full">
@@ -46,37 +50,37 @@ export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () 
         <PortalSidebarItem 
           icon={<LayoutDashboard />} 
           isActive={activeTabId === 'dashboard'} 
-          onClick={() => openTab({ id: 'dashboard', title: 'Stock Radar', component: 'pdr-dashboard' })}
+          onClick={() => openTab({ id: 'dashboard', portalId: 'PDR', title: 'Stock Radar', component: 'pdr-dashboard' })}
           title="Stock Radar"
         />
         <PortalSidebarItem 
           icon={<Activity />} 
           isActive={activeTabId === 'advanced-dashboard'} 
-          onClick={() => openTab({ id: 'advanced-dashboard', title: 'Inventory Analytics', component: 'advanced-dashboard' })}
+          onClick={() => openTab({ id: 'advanced-dashboard', portalId: 'PDR', title: 'Inventory Analytics', component: 'advanced-dashboard' })}
           title="Inventory Analytics"
         />
         <PortalSidebarItem 
           icon={<Wrench />} 
           isActive={activeTabId === 'reconciliation'} 
-          onClick={() => openTab({ id: 'reconciliation', title: 'Reconciliation Center', component: 'reconciliation' })}
+          onClick={() => openTab({ id: 'reconciliation', portalId: 'PDR', title: 'Reconciliation Center', component: 'reconciliation' })}
           title="Reconciliation Center"
         />
         <PortalSidebarItem 
           icon={<Package />} 
           isActive={activeTabId === 'inventory'} 
-          onClick={() => openTab({ id: 'inventory', title: 'PDR Library', component: 'inventory-list' })}
+          onClick={() => openTab({ id: 'inventory', portalId: 'PDR', title: 'PDR Library', component: 'inventory-list' })}
           title="PDR Library"
         />
         <PortalSidebarItem 
           icon={<ShoppingCart />} 
           isActive={activeTabId === 'procurement'} 
-          onClick={() => openTab({ id: 'procurement', title: 'Procurement v4', component: 'procurement' })}
+          onClick={() => openTab({ id: 'procurement', portalId: 'PDR', title: 'Procurement v4', component: 'procurement' })}
           title="Procurement"
         />
         <PortalSidebarItem 
           icon={<ClipboardCheck />} 
           isActive={activeTabId === 'requisition-hub'} 
-          onClick={() => openTab({ id: 'requisition-hub', title: 'Requisition Hub', component: 'requisition-hub' })}
+          onClick={() => openTab({ id: 'requisition-hub', portalId: 'PDR', title: 'Requisition Hub', component: 'requisition-hub' })}
           title="Requisition Hub"
         />
       </PortalSidebar>

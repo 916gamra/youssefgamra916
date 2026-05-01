@@ -16,13 +16,16 @@ const MASTER_COMPONENTS = {
 };
 
 export function MasterDataLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
-  const { tabs, activeTabId, openTab } = useTabStore();
+  const { tabs, openTab } = useTabStore();
+
+  const currentTab = tabs.find(t => t.portalId === 'ORGANIZATION');
+  const activeTabId = currentTab?.id;
 
   useEffect(() => {
-    if (tabs.length === 0) {
-      openTab({ id: 'part-master', title: 'Part Master Core', component: 'part-master' });
+    if (!currentTab) {
+      openTab({ id: 'part-master', portalId: 'ORGANIZATION', title: 'Part Master Core', component: 'part-master' });
     }
-  }, [tabs.length, openTab]);
+  }, [currentTab, openTab]);
 
   return (
     <div className="flex flex-1 overflow-hidden h-full">
@@ -36,14 +39,14 @@ export function MasterDataLayout({ user, onLogout }: { user: User | null, onLogo
         <PortalSidebarItem 
           icon={<FileJson />} 
           isActive={activeTabId === 'part-master'} 
-          onClick={() => openTab({ id: 'part-master', title: 'Part Master Core', component: 'part-master' })}
+          onClick={() => openTab({ id: 'part-master', portalId: 'ORGANIZATION', title: 'Part Master Core', component: 'part-master' })}
           title="Part Master Core"
           colorClass="text-amber-400"
         />
         <PortalSidebarItem 
           icon={<FolderTree />} 
           isActive={activeTabId === 'taxonomy'} 
-          onClick={() => openTab({ id: 'taxonomy', title: 'Taxonomy Logic', component: 'taxonomy' })}
+          onClick={() => openTab({ id: 'taxonomy', portalId: 'ORGANIZATION', title: 'Taxonomy Logic', component: 'taxonomy' })}
           title="Taxonomy & Classes"
           colorClass="text-amber-400"
         />

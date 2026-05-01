@@ -14,13 +14,16 @@ const ANALYTICS_COMPONENTS = {
 };
 
 export function AnalyticsLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
-  const { tabs, activeTabId, openTab } = useTabStore();
+  const { tabs, openTab } = useTabStore();
+
+  const currentTab = tabs.find(t => t.portalId === 'ANALYTICS');
+  const activeTabId = currentTab?.id;
 
   useEffect(() => {
-    if (tabs.length === 0) {
-      openTab({ id: 'analytics-dashboard', title: 'The Oracle', component: 'analytics-dashboard' });
+    if (!currentTab) {
+      openTab({ id: 'analytics-dashboard', portalId: 'ANALYTICS', title: 'The Oracle', component: 'analytics-dashboard' });
     }
-  }, [tabs.length, openTab]);
+  }, [currentTab, openTab]);
 
   return (
     <div className="flex flex-1 overflow-hidden h-full">
@@ -34,7 +37,7 @@ export function AnalyticsLayout({ user, onLogout }: { user: User | null, onLogou
         <PortalSidebarItem 
           icon={<LineChart />} 
           isActive={activeTabId === 'analytics-dashboard'} 
-          onClick={() => openTab({ id: 'analytics-dashboard', title: 'Executive Hub', component: 'analytics-dashboard' })}
+          onClick={() => openTab({ id: 'analytics-dashboard', portalId: 'ANALYTICS', title: 'Executive Hub', component: 'analytics-dashboard' })}
           title="Executive Hub"
           colorClass="text-fuchsia-400"
         />

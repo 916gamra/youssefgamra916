@@ -10,8 +10,7 @@ import { Skeleton } from '@/shared/components/Skeleton';
 import { SystemBackground } from '@/shared/components/SystemBackground';
 import { NotificationHub } from '@/components/notifications/NotificationHub';
 import { useNotificationsContext } from '@/shared/context/NotificationContext';
-
-// Lazy loading the micro-frontends
+import { PortalTabs } from './layout/PortalTabs';
 const PdrLayout = React.lazy(() => import('@/features/pdr-engine/layout/PdrLayout').then(m => ({ default: m.PdrLayout })));
 const MasterDataLayout = React.lazy(() => import('@/features/organization/layout/MasterDataLayout').then(m => ({ default: m.MasterDataLayout })));
 const AnalyticsLayout = React.lazy(() => import('@/features/analytics/layout/AnalyticsLayout').then(m => ({ default: m.AnalyticsLayout })));
@@ -85,7 +84,7 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
       });
       sessionStorage.setItem('os_signal_init', 'true');
     }
-  }, [user]);
+  }, [user, addNotification]);
 
   // Security Guard: Prevent unauthorized portal access
   useEffect(() => {
@@ -104,7 +103,6 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
     return () => clearInterval(interval);
   }, []);
 
-
   const formatSessionTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -115,36 +113,36 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
     <div className="flex flex-col h-screen w-full overflow-hidden font-sans selection:bg-blue-500/30 relative">
       <SystemBackground />
       <NotificationHub isOpen={isHubOpen} onClose={() => setIsHubOpen(false)} />
-      {/* The Unified Global Dock */}
-      {activePortal === 'HOME' ? (
-        <GlobalDock user={user} onLogout={onLogout} onToggleNotifications={() => setIsHubOpen(!isHubOpen)} />
-      ) : null}
+      
+      {/* The Unified Global Dock - Fixed position, highest z-index */}
+      <GlobalDock user={user} onLogout={onLogout} onToggleNotifications={() => setIsHubOpen(!isHubOpen)} />
 
-      <div className="flex flex-1 overflow-hidden relative">
-        <ErrorBoundary>
-          {activePortal === 'HOME' ? (
-            <LaunchpadView user={user} />
-          ) : (
-            <Suspense fallback={<PortalFallback />}>
-              <div className="flex flex-col w-full h-full relative">
-                 {/* Portal Header with Dock Integration */}
-                 <GlobalDock user={user} onLogout={onLogout} onToggleNotifications={() => setIsHubOpen(!isHubOpen)} />
-                 
-                 {/* Dynamic Portal Content (Self-contained sidebars) */}
-                 <div className="flex flex-1 overflow-hidden">
-                   <ErrorBoundary componentName={activePortal}>
-                     {activePortal === 'PDR' && <PdrLayout user={user} onLogout={onLogout} />}
-                     {activePortal === 'ORGANIZATION' && <MasterDataLayout user={user} onLogout={onLogout} />}
-                     {activePortal === 'FACTORY' && <FactoryLayout user={user} onLogout={onLogout} />}
-                     {activePortal === 'ANALYTICS' && <AnalyticsLayout user={user} onLogout={onLogout} />}
-                     {activePortal === 'PREVENTIVE' && <PreventiveLayout user={user} onLogout={onLogout} />}
-                     {activePortal === 'SETTINGS' && <SystemSettingsLayout user={user} onLogout={onLogout} />}
-                   </ErrorBoundary>
-                 </div>
-              </div>
-            </Suspense>
-          )}
-        </ErrorBoundary>
+      <div className="flex flex-1 flex-col overflow-hidden relative">
+        {/* Persistent Tab Bar */}
+        <PortalTabs />
+        
+        <div className="flex-1 flex overflow-hidden relative">
+          <ErrorBoundary>
+            {activePortal === 'HOME' ? (
+              <LaunchpadView user={user} />
+            ) : (
+              <Suspense fallback={<PortalFallback />}>
+                <div className="flex flex-col w-full h-full relative">
+                   <div className="flex flex-1 overflow-hidden">
+                     <ErrorBoundary componentName={activePortal}>
+                       {activePortal === 'PDR' && <PdrLayout user={user} onLogout={onLogout} />}
+                       {activePortal === 'ORGANIZATION' && <MasterDataLayout user={user} onLogout={onLogout} />}
+                       {activePortal === 'FACTORY' && <FactoryLayout user={user} onLogout={onLogout} />}
+                       {activePortal === 'ANALYTICS' && <AnalyticsLayout user={user} onLogout={onLogout} />}
+                       {activePortal === 'PREVENTIVE' && <PreventiveLayout user={user} onLogout={onLogout} />}
+                       {activePortal === 'SETTINGS' && <SystemSettingsLayout user={user} onLogout={onLogout} />}
+                     </ErrorBoundary>
+                   </div>
+                </div>
+              </Suspense>
+            )}
+          </ErrorBoundary>
+        </div>
       </div>
       
       {/* OS Footer */}

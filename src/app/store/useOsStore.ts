@@ -1,7 +1,5 @@
 import { create } from 'zustand';
-import { useTabStore } from '../../app/store';
-
-export type PortalType = 'HOME' | 'PDR' | 'PREVENTIVE' | 'ANALYTICS' | 'ORGANIZATION' | 'SETTINGS' | 'FACTORY';
+import { useTabStore, type PortalType } from '../../app/store';
 
 interface OsState {
   activePortal: PortalType;

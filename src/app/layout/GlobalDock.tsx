@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useOsStore, PortalType } from '../store/useOsStore';
-import { useTabStore } from '../store';
+import { useOsStore } from '../store/useOsStore';
+import { useTabStore, type PortalType } from '../store';
 import { Home, Settings as SettingsIcon, LogOut, User as UserIcon, Bell, Box, ShieldCheck, PieChart, Network, Factory } from 'lucide-react';
 import type { User } from '@/core/db';
 import { cn } from '@/shared/utils';
@@ -80,7 +80,6 @@ export function GlobalDock({ user, onLogout, onToggleNotifications }: { user: Us
   // Return to launchpad action
   const handleGoHome = () => {
     setPortal('HOME');
-    clearTabs();
   };
 
   const handleOpenSettings = () => {

@@ -19,13 +19,16 @@ const PREVENTIVE_COMPONENTS = {
 };
 
 export function PreventiveLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
-  const { tabs, activeTabId, openTab } = useTabStore();
+  const { tabs, openTab } = useTabStore();
+
+  const currentTab = tabs.find(t => t.portalId === 'PREVENTIVE');
+  const activeTabId = currentTab?.id;
 
   useEffect(() => {
-    if (tabs.length === 0) {
-      openTab({ id: 'pm-dashboard', title: 'Maintenance KPI', component: 'pm-dashboard' });
+    if (!currentTab) {
+      openTab({ id: 'pm-dashboard', portalId: 'PREVENTIVE', title: 'Maintenance KPI', component: 'pm-dashboard' });
     }
-  }, [tabs.length, openTab]);
+  }, [currentTab, openTab]);
 
   return (
     <div className="flex flex-1 overflow-hidden h-full">
@@ -39,28 +42,28 @@ export function PreventiveLayout({ user, onLogout }: { user: User | null, onLogo
         <PortalSidebarItem 
           icon={<LayoutDashboard />} 
           isActive={activeTabId === 'pm-dashboard'} 
-          onClick={() => openTab({ id: 'pm-dashboard', title: 'Maintenance KPI', component: 'pm-dashboard' })}
+          onClick={() => openTab({ id: 'pm-dashboard', portalId: 'PREVENTIVE', title: 'Maintenance KPI', component: 'pm-dashboard' })}
           title="Maintenance KPI"
           colorClass="text-emerald-400"
         />
         <PortalSidebarItem 
           icon={<KanbanSquare />} 
           isActive={activeTabId === 'pm-checklists'} 
-          onClick={() => openTab({ id: 'pm-checklists', title: 'Standard Protocols', component: 'pm-checklists' })}
+          onClick={() => openTab({ id: 'pm-checklists', portalId: 'PREVENTIVE', title: 'Standard Protocols', component: 'pm-checklists' })}
           title="Protocols Lib"
           colorClass="text-emerald-400"
         />
         <PortalSidebarItem 
           icon={<CalendarClock />} 
           isActive={activeTabId === 'pm-schedules'} 
-          onClick={() => openTab({ id: 'pm-schedules', title: 'PM Schedules', component: 'pm-schedules' })}
+          onClick={() => openTab({ id: 'pm-schedules', portalId: 'PREVENTIVE', title: 'PM Schedules', component: 'pm-schedules' })}
           title="PM Scheduler"
           colorClass="text-emerald-400"
         />
         <PortalSidebarItem 
           icon={<HardHat />} 
           isActive={activeTabId === 'pm-work-orders'} 
-          onClick={() => openTab({ id: 'pm-work-orders', title: 'Work Orders', component: 'pm-work-orders' })}
+          onClick={() => openTab({ id: 'pm-work-orders', portalId: 'PREVENTIVE', title: 'Work Orders', component: 'pm-work-orders' })}
           title="Work Orders"
           colorClass="text-emerald-400"
         />

@@ -18,13 +18,16 @@ const FACTORY_COMPONENTS = {
 };
 
 export function FactoryLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
-  const { tabs, activeTabId, openTab } = useTabStore();
+  const { tabs, openTab } = useTabStore();
+
+  const currentTab = tabs.find(t => t.portalId === 'FACTORY');
+  const activeTabId = currentTab?.id;
 
   useEffect(() => {
-    if (tabs.length === 0) {
-      openTab({ id: 'sectors', title: 'Production Zones', component: 'sectors' });
+    if (!currentTab) {
+      openTab({ id: 'sectors', portalId: 'FACTORY', title: 'Production Zones', component: 'sectors' });
     }
-  }, [tabs.length, openTab]);
+  }, [currentTab, openTab]);
 
   return (
     <div className="flex flex-1 overflow-hidden h-full">
@@ -38,21 +41,21 @@ export function FactoryLayout({ user, onLogout }: { user: User | null, onLogout:
         <PortalSidebarItem 
           icon={<Network />} 
           isActive={activeTabId === 'sectors'} 
-          onClick={() => openTab({ id: 'sectors', title: 'Production Zones', component: 'sectors' })}
+          onClick={() => openTab({ id: 'sectors', portalId: 'FACTORY', title: 'Production Zones', component: 'sectors' })}
           title="Production Zones"
           colorClass="text-indigo-400"
         />
         <PortalSidebarItem 
           icon={<Users />} 
           isActive={activeTabId === 'staff'} 
-          onClick={() => openTab({ id: 'staff', title: 'Operational Staff', component: 'staff' })}
+          onClick={() => openTab({ id: 'staff', portalId: 'FACTORY', title: 'Operational Staff', component: 'staff' })}
           title="Operational Staff"
           colorClass="text-indigo-400"
         />
         <PortalSidebarItem 
           icon={<Cpu />} 
           isActive={activeTabId === 'machine-registry'} 
-          onClick={() => openTab({ id: 'machine-registry', title: 'Machine Registry', component: 'machine-registry' })}
+          onClick={() => openTab({ id: 'machine-registry', portalId: 'FACTORY', title: 'Machine Registry', component: 'machine-registry' })}
           title="Machine Registry"
           colorClass="text-indigo-400"
         />

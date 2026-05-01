@@ -22,13 +22,16 @@ const SETTINGS_COMPONENTS = {
 };
 
 export function SystemSettingsLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
-  const { tabs, activeTabId, openTab } = useTabStore();
+  const { tabs, openTab } = useTabStore();
+
+  const currentTab = tabs.find(t => t.portalId === 'SETTINGS');
+  const activeTabId = currentTab?.id;
 
   useEffect(() => {
-    if (tabs.length === 0) {
-      openTab({ id: 'user-management', title: 'User Management', component: 'user-management' });
+    if (!currentTab) {
+      openTab({ id: 'user-management', portalId: 'SETTINGS', title: 'User Management', component: 'user-management' });
     }
-  }, [tabs.length, openTab]);
+  }, [currentTab, openTab]);
 
   return (
     <div className="flex flex-1 overflow-hidden h-full">
@@ -42,35 +45,35 @@ export function SystemSettingsLayout({ user, onLogout }: { user: User | null, on
         <PortalSidebarItem 
           icon={<Users />} 
           isActive={activeTabId === 'user-management'} 
-          onClick={() => openTab({ id: 'user-management', title: 'User Management', component: 'user-management' })}
+          onClick={() => openTab({ id: 'user-management', portalId: 'SETTINGS', title: 'User Management', component: 'user-management' })}
           title="User Management"
           colorClass="text-slate-400"
         />
         <PortalSidebarItem 
           icon={<ArrowRightLeft />} 
           isActive={activeTabId === 'data-exchange'} 
-          onClick={() => openTab({ id: 'data-exchange', title: 'Data Exchange Hub', component: 'data-exchange' })}
+          onClick={() => openTab({ id: 'data-exchange', portalId: 'SETTINGS', title: 'Data Exchange Hub', component: 'data-exchange' })}
           title="Data Exchange Hub"
           colorClass="text-slate-400"
         />
         <PortalSidebarItem 
           icon={<HardDriveDownload />} 
           isActive={activeTabId === 'data-core'} 
-          onClick={() => openTab({ id: 'data-core', title: 'Database Backup', component: 'data-core' })}
+          onClick={() => openTab({ id: 'data-core', portalId: 'SETTINGS', title: 'Database Backup', component: 'data-core' })}
           title="Database Backup"
           colorClass="text-slate-400"
         />
         <PortalSidebarItem 
           icon={<Shield />} 
           isActive={activeTabId === 'security-policies'} 
-          onClick={() => openTab({ id: 'security-policies', title: 'Security Policies', component: 'security-policies' })}
+          onClick={() => openTab({ id: 'security-policies', portalId: 'SETTINGS', title: 'Security Policies', component: 'security-policies' })}
           title="Security Policies"
           colorClass="text-slate-400"
         />
         <PortalSidebarItem 
           icon={<ShieldAlert />} 
           isActive={activeTabId === 'audit-trail'} 
-          onClick={() => openTab({ id: 'audit-trail', title: 'Audit Trail', component: 'audit-trail' })}
+          onClick={() => openTab({ id: 'audit-trail', portalId: 'SETTINGS', title: 'Audit Trail', component: 'audit-trail' })}
           title="System Audit Trail"
           colorClass="text-slate-400"
         />
