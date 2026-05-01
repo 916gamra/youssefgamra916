@@ -48,30 +48,32 @@ export default function App() {
         <SystemLifecycle />
         {/* Global Toast Notifications */}
         <Toaster 
-          position="top-right" 
-          expand={false}
+          position="bottom-right" 
+          expand={true}
           richColors
+          visibleToasts={3}
           closeButton
+          pauseWhenPageIsHidden
           theme="dark" 
           toastOptions={{
-            className: 'bg-black/40 backdrop-blur-[20px] border border-white/10 text-white shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-[1.25rem] py-3 px-4 flex gap-3 items-center',
-            descriptionClassName: 'text-slate-500 font-medium text-[11px] leading-tight',
-            titleClassName: 'font-bold tracking-tight text-[13px]',
+            className: 'titanic-toast group',
             style: {
-              fontFamily: 'inherit',
+              background: 'transparent',
+              border: 'none',
             },
+            duration: 4000, // Default for Info
             success: {
-              className: 'border-emerald-500/30 bg-emerald-500/5',
-            },
-            error: {
-              className: 'border-rose-500/30 bg-rose-500/5',
+              duration: 4000,
             },
             warning: {
-              className: 'border-amber-500/30 bg-amber-500/5',
+              duration: 7000,
             },
-            info: {
-              className: 'border-cyan-500/30 bg-cyan-500/5',
-            }
+            error: {
+              duration: Infinity, // Persistent until closed
+            },
+          }}
+          mobileOptions={{
+            position: 'top-center',
           }}
         />
 

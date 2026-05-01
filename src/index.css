@@ -176,37 +176,79 @@
   }
 }
 
-/* Titanic OS Sonner Refinements */
-[data-sonner-toast] {
-  --radius: 20px !important;
-  --normal-bg: rgba(10, 11, 16, 0.45) !important;
-  --normal-border: rgba(255, 255, 255, 0.08) !important;
-  --normal-text: #fff !important;
-  --success-bg: rgba(16, 185, 129, 0.08) !important;
-  --success-border: rgba(16, 185, 129, 0.2) !important;
-  --success-text: #10b981 !important;
-  --error-bg: rgba(244, 63, 94, 0.08) !important;
-  --error-border: rgba(244, 63, 94, 0.2) !important;
-  --error-text: #f43f5e !important;
+/* Titanic OS Premium Toasts (The Golden Rules) */
+[data-sonner-toast].titanic-toast {
+  @apply !bg-black/45 !backdrop-blur-[20px] !border !border-white/10 !rounded-[1.25rem] !shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] !p-4 !flex !items-center !gap-4 !relative !overflow-hidden !transition-all !duration-300;
+  min-width: 320px;
 }
 
-[data-sonner-toast] [data-close-button] {
-  @apply !bg-white/5 !border-white/10 !text-slate-400 hover:!bg-white/10 hover:!text-white !transition-all;
-  right: 12px !important;
-  top: 12px !important;
+/* Base Semantic Accents (Left Border) */
+[data-sonner-toast].titanic-toast::before {
+  content: '';
+  @apply absolute left-0 top-3 bottom-3 w-[4px] rounded-r-full transition-colors duration-500 opacity-80;
 }
 
-[data-sonner-toast] [data-icon] {
-  @apply !text-current;
+/* The Visual Timer Bar (Bottom Progress) */
+[data-sonner-toast].titanic-toast::after {
+  content: '';
+  @apply absolute bottom-0 left-0 h-[2px] opacity-40;
+  width: 100%;
+  transform-origin: left;
+  animation: toast-timer linear forwards;
+  animation-duration: inherit; /* Inherit duration from sonner's internal logic if possible, or fallback */
 }
 
+/* Type Specific Styles */
+[data-sonner-toast][data-type='success'].titanic-toast::before,
+[data-sonner-toast][data-type='success'].titanic-toast::after { @apply bg-emerald-500; }
+[data-sonner-toast][data-type='info'].titanic-toast::before,
+[data-sonner-toast][data-type='info'].titanic-toast::after { @apply bg-cyan-500; }
+[data-sonner-toast][data-type='warning'].titanic-toast::before,
+[data-sonner-toast][data-type='warning'].titanic-toast::after { @apply bg-amber-500; }
+[data-sonner-toast][data-type='error'].titanic-toast::before,
+[data-sonner-toast][data-type='error'].titanic-toast::after { @apply bg-rose-500; }
+
+/* Persistent/Error behavior - Hide bar for Infinite duration */
+[data-sonner-toast][data-type='error'].titanic-toast::after { display: none; }
+
+/* Progress Bar Logic - Sync with durations */
+@keyframes toast-timer {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+[data-sonner-toast][data-type='info']::after,
+[data-sonner-toast][data-type='success']::after {
+  animation: toast-timer 4s linear forwards;
+}
+
+[data-sonner-toast][data-type='warning']::after {
+  animation: toast-timer 7s linear forwards;
+}
+
+[data-sonner-toast]:hover::after {
+  animation-play-state: paused !important;
+}
+
+/* Shared typography refinements */
 [data-sonner-toast] [data-title] {
-  @apply !text-[13px] !font-bold !tracking-tight !mb-1;
+  @apply !text-[13px] !font-bold !tracking-tight !text-white !mb-0.5;
 }
 
 [data-sonner-toast] [data-description] {
-  @apply !text-slate-500 !text-[11px] !font-medium !leading-relaxed;
+  @apply !text-slate-400 !text-[11px] !font-medium !leading-relaxed;
 }
+
+[data-sonner-toast] [data-close-button] {
+  @apply !bg-white/5 !border-white/10 !text-slate-400 hover:!bg-rose-500/20 hover:!text-rose-500 !transition-all !rounded-lg;
+  right: 8px !important;
+  top: 8px !important;
+}
+
+[data-sonner-toast] [data-icon] {
+  @apply !shrink-0 !scale-110;
+}
+
 
 
 
