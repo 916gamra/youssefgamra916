@@ -118,10 +118,10 @@ export function LaunchpadView({ user }: { user: User | null }) {
   const visibleApps = APPS.filter(app => hasPortalAccess(user, app.id));
 
   return (
-    <div className="flex flex-col h-auto w-full relative bg-transparent">
+    <div className="flex flex-col h-full w-full relative overflow-y-auto overflow-x-hidden bg-transparent custom-scrollbar">
       <SystemBackground />
 
-      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 lg:px-12 py-8 flex flex-col">
+      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 lg:px-12 py-8 min-h-full flex flex-col">
         
         {/* --- OS HEADER --- */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">

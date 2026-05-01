@@ -31,9 +31,9 @@ export function AnalyticsDashboardPage() {
   };
 
   return (
-    <div className="w-full space-y-8 pb-24 px-4 relative z-10 lg:px-8">
+    <div className="w-full h-auto flex flex-col gap-8 pb-24 px-4 relative z-10 lg:px-8">
       {/* Oracle Header */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4 flex-shrink-0">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-4 pt-4 flex-shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
             <Eye className="w-8 h-8 text-fuchsia-500" /> Executive Analytics Hub
@@ -46,7 +46,7 @@ export function AnalyticsDashboardPage() {
       </header>
 
       {/* KPI Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0 }}>
           <GlassCard className="relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)] !p-6 border-white/5 ">
              <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-emerald-500/0 via-emerald-500/50 to-emerald-500/0 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -100,11 +100,11 @@ export function AnalyticsDashboardPage() {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[450px]">
         
         {/* Left: Top Consuming Machines */}
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.3 }}>
-          <GlassCard className="h-[450px] flex flex-col relative overflow-hidden group !p-8 shadow-[0_0_30px_rgba(0,0,0,0.5)] border-white/5 ">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.3 }} className="h-[450px]">
+          <GlassCard className="h-full flex flex-col relative overflow-hidden group !p-8 shadow-[0_0_30px_rgba(0,0,0,0.5)] border-white/5 ">
             <div className="absolute top-0 right-0 p-8 opacity-5">
               <BarChart2 className="w-32 h-32 text-indigo-500 rotate-12" />
             </div>
@@ -117,7 +117,7 @@ export function AnalyticsDashboardPage() {
               </h2>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-11">Top Consuming Machines (Units Drafted)</p>
             </div>
-            <div className="flex-1 relative z-10 -ml-4">
+            <div className="flex-1 relative z-10 -ml-4 min-h-0">
               {topMachines.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={topMachines} layout="vertical" margin={{ top: 0, right: 30, left: 0, bottom: 0 }}>
@@ -143,8 +143,8 @@ export function AnalyticsDashboardPage() {
         </motion.div>
 
         {/* Right: Stock Health Pie */}
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.4 }}>
-          <GlassCard className="h-[450px] flex flex-col relative overflow-hidden group !p-8 shadow-[0_0_30px_rgba(0,0,0,0.5)] border-white/5 ">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5, delay: 0.4 }} className="h-[450px]">
+          <GlassCard className="h-full flex flex-col relative overflow-hidden group !p-8 shadow-[0_0_30px_rgba(0,0,0,0.5)] border-white/5 ">
             <div className="absolute top-0 right-0 p-8 opacity-5">
               <PieChart className="w-32 h-32 text-emerald-500" />
             </div>
@@ -157,8 +157,8 @@ export function AnalyticsDashboardPage() {
               </h2>
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest ml-11">Inventory Viability Index</p>
             </div>
-            <div className="flex-1 relative z-10 flex flex-col items-center">
-              <div className="h-[240px] w-full">
+            <div className="flex-1 relative z-10 flex flex-col items-center min-h-0">
+              <div className="flex-1 w-full min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -183,7 +183,7 @@ export function AnalyticsDashboardPage() {
               </div>
               
               {/* Custom Legend */}
-              <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 mt-4">
+              <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 mt-4 shrink-0">
                 {stockHealth.map(item => (
                   <div key={item.name} className="flex items-center gap-2 bg-white/[0.02] border border-white/5 px-3 py-1.5 rounded-lg">
                     <span className="w-2 h-2 rounded-sm" style={{ backgroundColor: item.color }} />
@@ -198,7 +198,7 @@ export function AnalyticsDashboardPage() {
       </div>
 
       {/* Bottom Row */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.5 }} className="shrink-0">
         <GlassCard className="relative overflow-hidden border-orange-500/10  !p-8 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
            <div className="absolute top-0 right-1/4 w-96 h-96 bg-fuchsia-500/5 rounded-full blur-3xl pointer-events-none" />
            <div className="relative z-10">
