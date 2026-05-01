@@ -8,6 +8,7 @@ import { ErrorBoundary } from '@/shared/components/ErrorBoundary';
 import { hasPortalAccess } from '@/core/permissions';
 import { Skeleton } from '@/shared/components/Skeleton';
 import { SystemBackground } from '@/shared/components/SystemBackground';
+import { NotificationHub } from '@/components/notifications/NotificationHub';
 
 // Lazy loading the micro-frontends
 const PdrLayout = React.lazy(() => import('@/features/pdr-engine/layout/PdrLayout').then(m => ({ default: m.PdrLayout })));
@@ -67,6 +68,7 @@ function PortalFallback() {
 export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
   const { activePortal, setPortal } = useOsStore();
   const [sessionTime, setSessionTime] = useState(0);
+  const [isHubOpen, setIsHubOpen] = useState(false);
 
   // Security Guard: Prevent unauthorized portal access
   useEffect(() => {
@@ -95,9 +97,10 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden font-sans selection:bg-blue-500/30 relative">
       <SystemBackground />
+      <NotificationHub isOpen={isHubOpen} onClose={() => setIsHubOpen(false)} />
       {/* The Unified Global Dock */}
       {activePortal === 'HOME' ? (
-        <GlobalDock user={user} onLogout={onLogout} />
+        <GlobalDock user={user} onLogout={onLogout} onOpenNotifications={() => setIsHubOpen(true)} />
       ) : null}
 
       <div className="flex flex-1 overflow-hidden relative">
@@ -108,7 +111,7 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
             <Suspense fallback={<PortalFallback />}>
               <div className="flex flex-col w-full h-full relative">
                  {/* Portal Header with Dock Integration */}
-                 <GlobalDock user={user} onLogout={onLogout} />
+                 <GlobalDock user={user} onLogout={onLogout} onOpenNotifications={() => setIsHubOpen(true)} />
                  
                  {/* Dynamic Portal Content (Self-contained sidebars) */}
                  <div className="flex flex-1 overflow-hidden">

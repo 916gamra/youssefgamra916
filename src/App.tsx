@@ -15,6 +15,8 @@ import { seedUsers } from '@/core/seed';
 
 const queryClient = new QueryClient();
 
+import { NotificationProvider } from '@/shared/context/NotificationContext';
+
 export default function App() {
   const [isSplashScreenDone, setIsSplashScreenDone] = useState(false);
   const [isSessionVerified, setIsSessionVerified] = useState(false);
@@ -40,24 +42,29 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Global Toast Notifications */}
-      <Toaster 
-        position="top-right" 
-        theme="dark" 
-        toastOptions={{
-          className: 'bg-black/90 backdrop-blur-xl border border-white/10 text-white shadow-2xl rounded-xl',
-          descriptionClassName: 'text-slate-400 font-medium',
-          titleClassName: 'font-semibold tracking-wide'
-        }}
-      />
+      <NotificationProvider>
+        {/* Global Toast Notifications */}
+        <Toaster 
+          position="top-right" 
+          theme="dark" 
+          toastOptions={{
+            className: 'bg-black/80 backdrop-blur-3xl border border-white/10 text-white shadow-2xl shadow-black/50 rounded-2xl group',
+            descriptionClassName: 'text-slate-400 font-medium text-xs',
+            titleClassName: 'font-semibold tracking-wide text-sm',
+            style: {
+              borderLeft: '4px solid transparent',
+            }
+          }}
+        />
 
-      {isBooting && (
-        <SplashScreen onComplete={() => setIsSplashScreenDone(true)} />
-      )}
-      
-      {!isBooting && !isAuthenticated && <LoginScreen />}
-      
-      {!isBooting && isAuthenticated && <DesktopLayout user={currentUser} onLogout={logout} />}
+        {isBooting && (
+          <SplashScreen onComplete={() => setIsSplashScreenDone(true)} />
+        )}
+        
+        {!isBooting && !isAuthenticated && <LoginScreen />}
+        
+        {!isBooting && isAuthenticated && <DesktopLayout user={currentUser} onLogout={logout} />}
+      </NotificationProvider>
     </QueryClientProvider>
   );
 }

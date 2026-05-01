@@ -9,6 +9,7 @@ import { db } from '@/core/db';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { cn } from '@/shared/utils';
 import { SystemBackground } from '@/shared/components/SystemBackground';
+import { useNotificationsContext } from '@/shared/context/NotificationContext';
 
 // --- SYSTEM NODES CONFIGURATION ---
 const APPS = [
@@ -92,6 +93,7 @@ const itemAnim = {
 
 export function LaunchpadView({ user }: { user: User | null }) {
   const setPortal = useOsStore(state => state.setPortal);
+  const { getUnreadCountByPortal } = useNotificationsContext();
   const [time, setTime] = useState(new Date());
 
   // --- LIVE TELEMETRY HOOKS ---
@@ -216,13 +218,21 @@ export function LaunchpadView({ user }: { user: User | null }) {
                     <div className={cn("absolute -top-12 -right-12 w-40 h-40 blur-[50px] opacity-20 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none", themeBg)} />
 
                     <div className="p-6 relative z-10 flex-1 flex flex-col">
-                       <div className="flex justify-between items-start mb-auto">
+                       <div className="flex justify-between items-start mb-auto relative">
                            <div className={cn(
                              "w-14 h-14 rounded-2xl flex items-center justify-center border transition-all group-hover:scale-105 duration-500 shadow-lg",
                              themeStyle
                            )}>
                              <app.icon className="w-7 h-7 stroke-[1.5]" />
                            </div>
+                           {getUnreadCountByPortal(app.id) > 0 && (
+                               <span className={cn(
+                                   "absolute -top-2 -left-2 w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-white shadow-lg border border-black/50 animate-bounce",
+                                   themeBg
+                               )}>
+                                   {getUnreadCountByPortal(app.id)}
+                               </span>
+                           )}
                            <span className="text-[10px] font-bold text-slate-400 bg-white/5 backdrop-blur-md px-2 py-1 rounded-full border border-white/5 transition-colors">{app.sysCode}</span>
                        </div>
 

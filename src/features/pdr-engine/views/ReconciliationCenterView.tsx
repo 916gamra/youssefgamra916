@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/core/db';
 import { AlertTriangle, CheckCircle, ArrowRightLeft, Wrench, ShieldCheck, FileWarning, Search, RefreshCw, ShoppingCart, Zap, TrendingUp, ShieldAlert, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useNotifications } from '@/shared/hooks/useNotifications';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { cn } from '@/shared/utils';
 
 export function ReconciliationCenterView() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const { notify } = useNotifications();
 
   // Fetch anomalies via live query
   const anomalies = useLiveQuery(async () => {
@@ -84,11 +85,9 @@ export function ReconciliationCenterView() {
         notes: `System auto-reconciliation: Compensated negative deficit (${item.currentValue}) to 0.`
       });
 
-      toast.success(`Anomaly Resolved: ${item.reference}`, {
-        description: `Stock reset to 0. Logged adjustment of +${adjustmentQty}.`
-      });
+      notify('success', `Anomaly Resolved: ${item.reference}`, `Stock reset to 0. Logged adjustment of +${adjustmentQty}.`, 'PDR');
     } catch (error: any) {
-      toast.error('Reconciliation Failed', { description: error.message });
+      notify('critical', 'Reconciliation Failed', error.message, 'PDR');
     } finally {
       setIsProcessing(false);
     }
@@ -123,20 +122,16 @@ export function ReconciliationCenterView() {
         }
       });
 
-      toast.success('Batch Reconciliation Complete', {
-        description: `Successfully resolved ${count} critical negative stock anomalies.`
-      });
+      notify('success', 'Batch Reconciliation Complete', `Successfully resolved ${count} critical negative stock anomalies.`, 'PDR');
     } catch (error: any) {
-      toast.error('Batch Reconciliation Failed', { description: error.message });
+      notify('critical', 'Batch Reconciliation Failed', error.message, 'PDR');
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleGeneratePO = (item: any) => {
-    toast.info('Procurement Triggered', {
-      description: `Drafting Purchase Order for ${item.reference}. Redirecting to Procurement module...`
-    });
+    notify('info', 'Procurement Triggered', `Drafting Purchase Order for ${item.reference}. Redirecting to Procurement module...`, 'PROCUREMENT');
   };
 
   const filteredAnomalies = anomalies?.filter(a => 

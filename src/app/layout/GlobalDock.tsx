@@ -2,14 +2,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useOsStore } from '../store/useOsStore';
 import { useTabStore } from '../store';
-import { Home, Settings, LogOut, User as UserIcon } from 'lucide-react';
+import { Home, Settings, LogOut, User as UserIcon, Bell } from 'lucide-react';
 import type { User } from '@/core/db';
 import { cn } from '@/shared/utils';
 import { hasPortalAccess } from '@/core/permissions';
+import { useNotificationsContext } from '@/shared/context/NotificationContext';
 
-export function GlobalDock({ user, onLogout }: { user: User | null, onLogout: () => void }) {
+export function GlobalDock({ user, onLogout, onOpenNotifications }: { user: User | null, onLogout: () => void, onOpenNotifications: () => void }) {
   const { activePortal, setPortal } = useOsStore();
   const { clearTabs } = useTabStore();
+  const { unreadCount, getUnreadCountByPortal } = useNotificationsContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -74,6 +76,18 @@ export function GlobalDock({ user, onLogout }: { user: User | null, onLogout: ()
 
         {/* Separator if not home */}
         {activePortal !== 'HOME' && <div className="w-px h-5 bg-white/10 mx-1 md:mx-2" />}
+
+        {/* Notification Bell */}
+        <button 
+          onClick={onOpenNotifications}
+          className="relative p-2 md:p-2.5 rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all"
+          title="Notifications"
+        >
+          <Bell className="w-4 h-4 md:w-5 md:h-5" />
+          {unreadCount > 0 && (
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_5px_rgba(6,182,212,0.8)] animate-pulse" />
+          )}
+        </button>
 
         {/* User Bubble */}
         <button 
