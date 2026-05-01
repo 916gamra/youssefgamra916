@@ -24,7 +24,7 @@ export function PreventiveDashboard() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-24 px-4 relative z-10 w-full">
+    <div className="space-y-8 pb-24 px-4 relative z-10 w-full lg:px-8">
       <div className="mb-12 pt-4 flex flex-col md:flex-row md:items-center justify-between gap-6 flex-shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">

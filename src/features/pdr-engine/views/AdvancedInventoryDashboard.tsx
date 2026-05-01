@@ -104,7 +104,7 @@ export function AdvancedInventoryDashboard() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 pb-12 px-4">
+    <div className="w-full space-y-8 pb-12 px-4 lg:px-8">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">

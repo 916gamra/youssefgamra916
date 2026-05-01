@@ -32,7 +32,7 @@ export function PartDetail({ tabId }: { tabId: string }) {
 
   if (data === null) {
     return (
-      <div className="max-w-5xl mx-auto space-y-6 pb-12 pt-12">
+      <div className="w-full space-y-6 pb-12 pt-12 lg:px-8">
         <GlassCard className="py-12 text-center text-slate-400 border border-dashed border-red-500/20 bg-red-500/5">
           <Box className="w-12 h-12 mx-auto mb-4 opacity-50 text-red-500" />
           <h3 className="text-lg font-medium text-white mb-1">Entity Not Found</h3>
@@ -52,7 +52,7 @@ export function PartDetail({ tabId }: { tabId: string }) {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -15 }}
-      className="max-w-6xl mx-auto space-y-6 pb-12"
+      className="w-full space-y-6 pb-12 lg:px-8"
     >
       <header className="flex flex-col md:flex-row items-start justify-between gap-6 mb-8 pt-2">
         <div>

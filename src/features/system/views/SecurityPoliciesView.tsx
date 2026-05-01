@@ -37,7 +37,7 @@ export function SecurityPoliciesView() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-10 pb-12 pt-4 px-4 md:px-0 relative w-full">
+    <div className="space-y-10 pb-12 pt-4 px-4 md:px-0 relative w-full lg:px-8">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-10 border-b border-white/[0.05] pb-6 shrink-0">
           <div>
             <h1 className="text-3xl font-semibold text-slate-100 tracking-tight flex items-center gap-3 mb-2">

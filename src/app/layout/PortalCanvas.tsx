@@ -55,9 +55,17 @@ export function PortalCanvas({ componentMap, user, onLogout }: { componentMap: R
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute inset-0 overflow-y-auto px-4 py-6 md:p-8 custom-scrollbar w-full"
+                    className={cn(
+                      "absolute inset-0 flex flex-col overflow-x-hidden custom-scrollbar w-full",
+                      tab.component === 'inventory-list' ? "overflow-y-hidden" : "overflow-y-auto"
+                    )}
                   >
-                    <Component tabId={tab.id} onLogout={onLogout} user={user} />
+                    <div className={cn(
+                      "flex flex-col px-4 py-6 md:p-8",
+                      tab.component === 'inventory-list' ? "flex-1 min-h-0" : ""
+                    )}>
+                      <Component tabId={tab.id} onLogout={onLogout} user={user} />
+                    </div>
                   </motion.div>
                 );
               })()}

@@ -108,7 +108,7 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12">
+    <div className="w-full space-y-6 pb-12 lg:px-8">
       <header className="mb-8 flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">System Settings</h1>

@@ -111,7 +111,7 @@ export function RequisitionHubView() {
   const isValidCart = cart.length > 0 && selectedTechId && selectedMachineId;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-24 relative">
+    <div className="w-full space-y-6 pb-24 relative lg:px-8">
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -271,7 +271,7 @@ export function RequisitionHubView() {
 
       {/* Floating Action Button Bar */}
       <div className="fixed bottom-0 left-[72px] right-0 bg-black/60 backdrop-blur-xl border-t border-white/10 p-4 flex justify-end z-40">
-         <div className="max-w-7xl mx-auto w-full flex justify-between items-center px-4">
+         <div className="w-full flex justify-between items-center px-4 lg:px-8">
             <div className="text-sm font-medium text-slate-400">
               {cart.length > 0 ? (
                 <span className="text-cyan-400">{cart.length} distinct items ready for checkout.</span>

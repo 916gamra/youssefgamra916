@@ -56,7 +56,7 @@ export function RealFileImporterUI() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12">
+    <div className="w-full space-y-6 pb-12 lg:px-8">
       <header className="mb-8">
         <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2">Legacy Excel Import</h1>
         <p className="text-slate-400 text-lg">Safely integrate physical Excel data into the unified database.</p>

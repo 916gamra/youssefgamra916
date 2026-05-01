@@ -14,7 +14,7 @@ export function InventoryList() {
   const inventory = useLiveQuery(() => db.inventory.toArray());
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-12">
+    <div className="w-full space-y-6 pb-12 lg:px-8">
       <header className="flex justify-between items-end mb-8">
         <div>
           <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">Spare Parts Inventory</h1>
