@@ -199,7 +199,7 @@ function QuickActionButton({ title, desc, color }: { title: string; desc: string
   );
 }
 
-function StatCard({ title, value, icon, color, label }: { title: string; value: string | number; icon: React.ReactNode; color: 'emerald' | 'amber' | 'slate' | 'cyan' }) {
+function StatCard({ title, value, icon, color, label }: { title: string; value: string | number; icon: React.ReactNode; color: 'emerald' | 'amber' | 'slate' | 'cyan'; label?: string }) {
   const colorMap: Record<string, string> = {
     emerald: "text-emerald-400 border-emerald-500/20 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.15)]",
     amber: "text-amber-400 border-amber-500/20 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.15)]",

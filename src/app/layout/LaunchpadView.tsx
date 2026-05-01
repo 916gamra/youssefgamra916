@@ -150,7 +150,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
         {/* --- TELEMETRY DASHBOARD --- */}
         <section className="mb-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <GlassCard className="p-6 flex flex-col gap-3 group">
+            <GlassCard className="border-l-4 border-l-cyan-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-1 hover:border-y-cyan-500/30 hover:border-r-cyan-500/30 hover:shadow-[0_15px_40px_-10px_rgba(6,182,212,0.2)] hover:bg-cyan-500/[0.03]">
                <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center mb-2">
                  <Database className="w-5 h-5 text-cyan-400" />
                </div>
@@ -160,7 +160,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
                </div>
             </GlassCard>
 
-            <GlassCard className="p-6 flex flex-col gap-3 group">
+            <GlassCard className="border-l-4 border-l-indigo-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-1 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.2)] hover:bg-indigo-500/[0.03]">
                <div className="w-10 h-10 rounded-full bg-indigo-500/10 flex items-center justify-center mb-2">
                  <Factory className="w-5 h-5 text-indigo-400" />
                </div>
@@ -170,7 +170,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
                </div>
             </GlassCard>
 
-            <GlassCard className="p-6 flex flex-col gap-3 group">
+            <GlassCard className="border-l-4 border-l-amber-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-1 hover:border-y-amber-500/30 hover:border-r-amber-500/30 hover:shadow-[0_15px_40px_-10px_rgba(245,158,11,0.2)] hover:bg-amber-500/[0.03]">
                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mb-2">
                  <AlertTriangle className="w-5 h-5 text-amber-400" />
                </div>
@@ -180,7 +180,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
                </div>
             </GlassCard>
 
-            <GlassCard className="p-6 flex flex-col gap-3 group">
+            <GlassCard className="border-l-4 border-l-emerald-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-1 hover:border-y-emerald-500/30 hover:border-r-emerald-500/30 hover:shadow-[0_15px_40px_-10px_rgba(16,185,129,0.2)] hover:bg-emerald-500/[0.03]">
                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center mb-2">
                  <Users className="w-5 h-5 text-emerald-400" />
                </div>

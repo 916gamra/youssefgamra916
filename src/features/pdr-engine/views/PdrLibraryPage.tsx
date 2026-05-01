@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as Tabs from '@radix-ui/react-tabs';
-import { Search, Folder, Layers, Hash, AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { Search, Folder, Layers, Hash, AlertCircle, Plus, Trash2, Database } from 'lucide-react';
 import { usePdrLibrary } from '../hooks/usePdrLibrary';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { PdrCard } from '../components/PdrCard';
@@ -12,6 +12,20 @@ import { toast } from 'sonner';
 import { useTabStore } from '@/app/store';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 import type { User } from '@/core/db';
+
+function StatCompact({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-2.5 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-colors group">
+      <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+        {icon}
+      </div>
+      <div className="flex flex-col">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{label}</span>
+        <span className="text-base font-bold text-white -mt-0.5">{value}</span>
+      </div>
+    </div>
+  );
+}
 
 export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | null }) {
   const { families, templates, blueprints, templateCounts, blueprintCounts, isLoading } = usePdrLibrary();
@@ -128,32 +142,22 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="max-w-6xl mx-auto space-y-8 pb-12 px-4"
+      className="max-w-7xl mx-auto space-y-8 pb-12 px-4 relative z-10 h-full flex flex-col"
     >
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4 flex-shrink-0">
         <div>
-          <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 uppercase">PDR Engine Library</h1>
-          <p className="text-slate-400 text-lg font-medium opacity-80">Catalog management for spare parts hierarchy and industrial assets.</p>
+          <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
+             <Layers className="w-8 h-8 text-cyan-400" /> PDR Engine Library
+          </h1>
+          <p className="text-slate-400 text-lg font-medium opacity-80 font-sans">
+             Catalog management for spare parts hierarchy and industrial assets.
+          </p>
         </div>
         
-        <div className="flex flex-col md:flex-row gap-3 items-center z-10 w-full md:w-auto">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder="Search database..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="titan-input pl-10 h-10 w-full text-sm"
-            />
-          </div>
-          <button 
-            onClick={openAddModal}
-            className="w-full md:w-auto px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20"
-          >
-            <Plus className="w-4 h-4" />
-            {getAddButtonTitle()}
-          </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <StatCompact icon={<Folder className="w-4 h-4 text-cyan-500" />} label="Families" value={families.length.toString()} />
+          <StatCompact icon={<Layers className="w-4 h-4 text-indigo-500" />} label="Templates" value={templates.length.toString()} />
+          <StatCompact icon={<Hash className="w-4 h-4 text-emerald-500" />} label="Blueprints" value={blueprints.length.toString()} />
         </div>
       </header>
 
@@ -165,50 +169,87 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
         user={user}
       />
 
-      <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="flex flex-col gap-6">
-        <Tabs.List className="flex items-center p-1.5 bg-black/20 backdrop-blur-md rounded-xl border border-white/10 w-max">
-          <Tabs.Trigger 
-            value="families"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm text-slate-400 hover:text-white"
-          >
-            <Folder className="w-4 h-4" />
-            Families
-            <span className="ml-1.5 px-2 py-0.5 rounded-full bg-black/30 text-[10px]">{families.length}</span>
-          </Tabs.Trigger>
-          <Tabs.Trigger 
-            value="templates"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm text-slate-400 hover:text-white"
-          >
-            <Layers className="w-4 h-4" />
-            Templates
-            <span className="ml-1.5 px-2 py-0.5 rounded-full bg-black/30 text-[10px]">{templates.length}</span>
-          </Tabs.Trigger>
-          <Tabs.Trigger 
-            value="blueprints"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-white/10 data-[state=active]:text-white data-[state=active]:shadow-sm text-slate-400 hover:text-white"
-          >
-            <Hash className="w-4 h-4" />
-            Blueprints
-            <span className="ml-1.5 px-2 py-0.5 rounded-full bg-black/30 text-[10px]">{blueprints.length}</span>
-          </Tabs.Trigger>
-        </Tabs.List>
+      <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full overflow-hidden flex-1">
+        <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl h-full flex flex-col min-h-[600px] flex-1">
+          <div className="p-8 border-b border-white/5 bg-white/[0.01] shrink-0 relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+                  <Database className="w-6 h-6 text-cyan-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white uppercase tracking-tight">Active Hierarchy</h2>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Global PDR Directory</p>
+                </div>
+              </div>
+              
+              <div className="relative group w-full lg:w-auto">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder="Search database..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="titan-input py-2.5 pl-11 pr-3 w-full lg:w-64 shadow-none"
+                />
+              </div>
+            </div>
 
-        <div className="relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, scale: 0.98, filter: 'blur(4px)' }}
-              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, scale: 0.98, filter: 'blur(4px)' }}
-              transition={{ duration: 0.2 }}
-            >
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <Tabs.List className="flex items-center p-1.5 bg-[#121318] rounded-xl border border-white/10 w-full md:w-max shadow-inner overflow-x-auto">
+                <Tabs.Trigger 
+                  value="families"
+                  className="flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-cyan-500/10 data-[state=active]:text-cyan-400 text-slate-400 hover:text-white"
+                >
+                  <Folder className="w-4 h-4 shrink-0" />
+                  Families
+                  <span className="ml-1.5 px-2 py-0.5 rounded-full bg-black/30 text-[10px]">{families.length}</span>
+                </Tabs.Trigger>
+                <Tabs.Trigger 
+                  value="templates"
+                  className="flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-indigo-500/10 data-[state=active]:text-indigo-400 text-slate-400 hover:text-white"
+                >
+                  <Layers className="w-4 h-4 shrink-0" />
+                  Templates
+                  <span className="ml-1.5 px-2 py-0.5 rounded-full bg-black/30 text-[10px]">{templates.length}</span>
+                </Tabs.Trigger>
+                <Tabs.Trigger 
+                  value="blueprints"
+                  className="flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-400 text-slate-400 hover:text-white"
+                >
+                  <Hash className="w-4 h-4 shrink-0" />
+                  Blueprints
+                  <span className="ml-1.5 px-2 py-0.5 rounded-full bg-black/30 text-[10px]">{blueprints.length}</span>
+                </Tabs.Trigger>
+              </Tabs.List>
+              
+              <button 
+                onClick={openAddModal}
+                className="titan-button bg-cyan-600 hover:bg-cyan-500 text-white shrink-0 !py-2.5 flex items-center justify-center gap-2 w-full md:w-auto"
+              >
+                <Plus className="w-4 h-4" />
+                {getAddButtonTitle()}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-auto custom-scrollbar bg-black/20 p-8">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, scale: 0.98, filter: 'blur(4px)' }}
+                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, scale: 0.98, filter: 'blur(4px)' }}
+                transition={{ duration: 0.2 }}
+                className="h-full"
+              >
               <Tabs.Content value="families" className="outline-none">
                 {filteredFamilies.length === 0 ? (
                   <GlassCard className="py-16 text-center text-slate-400 border-dashed border-white/10">No families found.</GlassCard>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {filteredFamilies.map(family => (
-                      <PdrCard key={family.id} className="flex flex-col h-full group/card relative">
+                      <PdrCard key={family.id} className="flex flex-col h-full group/card relative border-l-4 border-l-cyan-500 transition-all duration-500 hover:border-y-cyan-500/30 hover:border-r-cyan-500/30 hover:shadow-[0_15px_40px_-10px_rgba(6,182,212,0.2)] hover:bg-cyan-500/[0.03]">
                         <button onClick={(e) => handleDelete('family', family.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -236,7 +277,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                     {filteredTemplates.map(template => {
                       const parentFamily = families.find(f => f.id === template.familyId);
                       return (
-                        <PdrCard key={template.id} className="flex flex-col h-full group/card relative">
+                        <PdrCard key={template.id} className="flex flex-col h-full group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.2)] hover:bg-indigo-500/[0.03]">
                           <button onClick={(e) => handleDelete('template', template.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -266,7 +307,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                 )}
               </Tabs.Content>
 
-              <Tabs.Content value="blueprints" className="outline-none h-[600px] overflow-hidden flex flex-col">
+              <Tabs.Content value="blueprints" className="outline-none h-[600px] lg:h-auto lg:min-h-0 min-h-[600px] flex flex-col">
                 <div className="flex-1 overflow-auto custom-scrollbar pr-2" ref={parentRef}>
                   {filteredBlueprints.length === 0 ? (
                     <GlassCard className="py-16 text-center text-slate-400 border-dashed border-white/10">No blueprints found.</GlassCard>
@@ -296,7 +337,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                               }}
                               className="pb-4"
                             >
-                                <PdrCard onClick={() => openPartDetail(blueprint.id, blueprint.reference)} className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 hover:border-cyan-500/20 transition-all p-5 bg-black/5 hover:bg-black/10 cursor-pointer rounded-2xl">
+                                <PdrCard onClick={() => openPartDetail(blueprint.id, blueprint.reference)} className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 transition-all duration-500 hover:border-y-emerald-500/30 hover:border-r-emerald-500/30 hover:shadow-[0_15px_40px_-10px_rgba(16,185,129,0.2)] hover:bg-emerald-500/[0.03] border-l-4 border-l-emerald-500 p-5 bg-black/5 cursor-pointer rounded-2xl">
                                    <div className="flex items-center gap-4">
                                      <div className="w-11 h-11 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-inner group-hover:scale-105 transition-transform">
                                         <Hash className="w-5 h-5 text-cyan-400" />
@@ -329,7 +370,8 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
               </Tabs.Content>
             </motion.div>
           </AnimatePresence>
-        </div>
+          </div>
+        </GlassCard>
       </Tabs.Root>
     </motion.div>
   );

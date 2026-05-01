@@ -85,7 +85,7 @@ export function ReconciliationCenterView() {
         notes: `System auto-reconciliation: Compensated negative deficit (${item.currentValue}) to 0.`
       });
 
-      notify('success', `Anomaly Resolved: ${item.reference}`, `Stock reset to 0. Logged adjustment of +${adjustmentQty}.`, 'PDR');
+      notify('info', `Anomaly Resolved: ${item.reference}`, `Stock reset to 0. Logged adjustment of +${adjustmentQty}.`, 'PDR');
     } catch (error: any) {
       notify('critical', 'Reconciliation Failed', error.message, 'PDR');
     } finally {
@@ -122,7 +122,7 @@ export function ReconciliationCenterView() {
         }
       });
 
-      notify('success', 'Batch Reconciliation Complete', `Successfully resolved ${count} critical negative stock anomalies.`, 'PDR');
+      notify('info', 'Batch Reconciliation Complete', `Successfully resolved ${count} critical negative stock anomalies.`, 'PDR');
     } catch (error: any) {
       notify('critical', 'Batch Reconciliation Failed', error.message, 'PDR');
     } finally {

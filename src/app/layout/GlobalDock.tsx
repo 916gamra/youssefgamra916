@@ -1,19 +1,42 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useOsStore } from '../store/useOsStore';
+import { useOsStore, PortalType } from '../store/useOsStore';
 import { useTabStore } from '../store';
-import { Home, Settings, LogOut, User as UserIcon, Bell } from 'lucide-react';
+import { Home, Settings as SettingsIcon, LogOut, User as UserIcon, Bell, Box, ShieldCheck, PieChart, Network, Factory } from 'lucide-react';
 import type { User } from '@/core/db';
 import { cn } from '@/shared/utils';
 import { hasPortalAccess } from '@/core/permissions';
 import { useNotificationsContext } from '@/shared/context/NotificationContext';
+
+// --- PORTAL NAVIGATION CONFIGURATION ---
+const PORTALS = [
+  { id: 'PDR' as PortalType, title: 'PDR Engine', icon: Box, color: 'text-cyan-400', bgHover: 'hover:bg-cyan-500/10' },
+  { id: 'PREVENTIVE' as PortalType, title: 'Maintenance', icon: ShieldCheck, color: 'text-emerald-400', bgHover: 'hover:bg-emerald-500/10' },
+  { id: 'ORGANIZATION' as PortalType, title: 'Part Catalog', icon: Network, color: 'text-amber-400', bgHover: 'hover:bg-amber-500/10' },
+  { id: 'FACTORY' as PortalType, title: 'Factory Admin', icon: Factory, color: 'text-indigo-400', bgHover: 'hover:bg-indigo-500/10' },
+  { id: 'ANALYTICS' as PortalType, title: 'Analytics Hub', icon: PieChart, color: 'text-fuchsia-400', bgHover: 'hover:bg-fuchsia-500/10' },
+  { id: 'SETTINGS' as PortalType, title: 'System Config', icon: SettingsIcon, color: 'text-rose-400', bgHover: 'hover:bg-rose-500/10' }
+];
 
 export function GlobalDock({ user, onLogout, onOpenNotifications }: { user: User | null, onLogout: () => void, onOpenNotifications: () => void }) {
   const { activePortal, setPortal } = useOsStore();
   const { clearTabs } = useTabStore();
   const { unreadCount, getUnreadCountByPortal } = useNotificationsContext();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  let workspaceTimeout: NodeJS.Timeout;
+
+  const handleWorkspaceEnter = () => {
+    clearTimeout(workspaceTimeout);
+    setIsWorkspaceMenuOpen(true);
+  };
+
+  const handleWorkspaceLeave = () => {
+    workspaceTimeout = setTimeout(() => {
+      setIsWorkspaceMenuOpen(false);
+    }, 150);
+  };
 
   // Close on Escape or Click Outside
   useEffect(() => {
@@ -64,14 +87,62 @@ export function GlobalDock({ user, onLogout, onOpenNotifications }: { user: User
         className="flex items-center gap-2 p-1 md:p-1.5 rounded-[1.25rem] glass-panel-heavy"
       >
         {activePortal !== 'HOME' && (
-          <button 
-            onClick={handleGoHome}
-            className="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold text-white/70 hover:text-white hover:bg-white/10 transition-all uppercase tracking-wider h-[32px] md:h-[36px]"
-            title="Return to Workspace"
+          <div 
+            className="relative group"
+            onMouseEnter={handleWorkspaceEnter}
+            onMouseLeave={handleWorkspaceLeave}
           >
-            <Home className="w-4 h-4 md:w-4 md:h-4" />
-            <span className="max-w-0 overflow-hidden sm:max-w-[120px] transition-all duration-300 whitespace-nowrap">Workspace</span>
-          </button>
+            <button 
+              onClick={handleGoHome}
+              className="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold text-white/70 hover:text-white hover:bg-white/10 transition-all uppercase tracking-wider h-[32px] md:h-[36px]"
+              title="Return to Workspace"
+            >
+              <Home className="w-4 h-4 md:w-4 md:h-4" />
+              <span className="max-w-0 overflow-hidden sm:max-w-[120px] transition-all duration-300 whitespace-nowrap">Workspace</span>
+            </button>
+            
+            <AnimatePresence>
+              {isWorkspaceMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute top-10 right-0 w-64 glass-panel-heavy rounded-2xl p-2 flex flex-col shadow-2xl z-[1000] border border-white/5"
+                >
+                  <div className="px-3 py-2 mb-1 border-b border-white/5">
+                    <span className="text-[10px] uppercase tracking-widest text-white/40 font-semibold">Active Portals</span>
+                  </div>
+                  {PORTALS.filter(p => p.id !== activePortal && hasPortalAccess(user, p.id)).map(portal => (
+                    <button
+                      key={portal.id}
+                      onClick={() => {
+                        setPortal(portal.id);
+                        setIsWorkspaceMenuOpen(false);
+                      }}
+                      className={cn(
+                        "flex items-center justify-between w-full px-3 py-2.5 rounded-xl transition-all duration-200 group/item",
+                        portal.bgHover
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <portal.icon className={cn("w-4 h-4 transition-transform group-hover/item:scale-110", portal.color)} />
+                        <span className="text-sm font-medium text-white/80 group-hover/item:text-white transition-colors">{portal.title}</span>
+                      </div>
+                      {getUnreadCountByPortal(portal.id) > 0 && (
+                        <span className={cn(
+                          "flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold text-white shadow-[0_0_10px_rgba(currentColor,0.3)] bg-white/10 border border-white/20",
+                          portal.color
+                        )}>
+                          {getUnreadCountByPortal(portal.id)}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         )}
 
         {/* Separator if not home */}
@@ -126,7 +197,7 @@ export function GlobalDock({ user, onLogout, onOpenNotifications }: { user: User
                 onClick={handleOpenSettings}
                 className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm font-semibold text-white/70 hover:text-white hover:bg-white/10 rounded-xl transition-all"
               >
-                <Settings className="w-4 h-4" />
+                <SettingsIcon className="w-4 h-4" />
                 System Config
               </button>
             )}
