@@ -41,15 +41,15 @@ export function GlobalDock({ user, onLogout, onToggleNotifications }: { user: Us
     }
   };
 
-  let workspaceTimeout: NodeJS.Timeout;
+  const workspaceTimeout = useRef<NodeJS.Timeout>();
 
   const handleWorkspaceEnter = () => {
-    clearTimeout(workspaceTimeout);
+    if (workspaceTimeout.current) clearTimeout(workspaceTimeout.current);
     setIsWorkspaceMenuOpen(true);
   };
 
   const handleWorkspaceLeave = () => {
-    workspaceTimeout = setTimeout(() => {
+    workspaceTimeout.current = setTimeout(() => {
       setIsWorkspaceMenuOpen(false);
     }, 150);
   };
@@ -80,6 +80,7 @@ export function GlobalDock({ user, onLogout, onToggleNotifications }: { user: Us
   // Return to launchpad action
   const handleGoHome = () => {
     setPortal('HOME');
+    setIsWorkspaceMenuOpen(false);
   };
 
   const handleOpenSettings = () => {

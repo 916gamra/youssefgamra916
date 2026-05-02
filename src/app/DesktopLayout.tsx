@@ -119,9 +119,13 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
 
       <div className="flex flex-1 flex-col overflow-hidden relative">
         {/* Persistent Tab Bar */}
-        <PortalTabs />
+        {activePortal !== 'HOME' && (
+          <div className="w-full pl-[84px]">
+            <PortalTabs />
+          </div>
+        )}
         
-        <div className="flex-1 flex overflow-hidden relative">
+        <div className="flex-1 flex overflow-hidden relative pl-[84px]">
           <ErrorBoundary>
             {activePortal === 'HOME' ? (
               <LaunchpadView user={user} />

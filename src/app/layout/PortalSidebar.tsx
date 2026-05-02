@@ -12,15 +12,16 @@ interface PortalSidebarProps {
   borderClass: string;
   textClass: string;
   children: React.ReactNode;
+  className?: string; // Add className
 }
 
-export function PortalSidebar({ portalName, portalIcon, colorClass, borderClass, textClass, children }: PortalSidebarProps) {
+export function PortalSidebar({ portalName, portalIcon, colorClass, borderClass, textClass, children, className }: PortalSidebarProps) {
   const logout = useAuthStore(state => state.logout);
   const { theme, toggleTheme } = useThemeStore();
   const { language, cycleLanguage } = useLanguageStore();
 
   return (
-    <aside className="w-[84px] bg-[#050505] border-r border-white/10 flex flex-col items-center py-6 gap-2 shrink-0 z-40 overflow-y-auto custom-scrollbar shadow-[20px_0_40px_rgba(0,0,0,0.5)] relative">
+    <aside className={cn("w-[84px] bg-[#050505] border-r border-white/10 flex flex-col items-center py-6 gap-2 shrink-0 z-40 overflow-y-auto custom-scrollbar shadow-[20px_0_40px_rgba(0,0,0,0.5)] fixed top-0 left-0 bottom-0", className)}>
       
       {/* Titanic OS Minimal Hub Indicator */}
       <div className="flex flex-col items-center shrink-0 mt-2 mb-6 group cursor-pointer relative z-10 w-full" title={portalName}>

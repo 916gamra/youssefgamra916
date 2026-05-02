@@ -9,7 +9,6 @@ interface OsState {
 export const useOsStore = create<OsState>((set) => ({
   activePortal: 'HOME',
   setPortal: (portal) => {
-    useTabStore.getState().clearTabs();
     set({ activePortal: portal });
   }
 }));
