@@ -21,6 +21,8 @@ export function MachineRegistryView() {
   const { machines, sectors, createMachine, updateMachine, deleteMachine } = useOrganizationEngine();
   const { showSuccess, showError } = useNotifications();
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterSector, setFilterSector] = useState('ALL');
+  const [filterTemplate, setFilterTemplate] = useState('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedMachineForBom, setSelectedMachineForBom] = useState<{ id: string, name: string } | null>(null);
@@ -32,15 +34,18 @@ export function MachineRegistryView() {
   const [family, setFamily] = useState('');
   const [template, setTemplate] = useState('');
 
+  const uniqueTemplates = useMemo(() => Array.from(new Set(machines.map(m => m.template))).sort(), [machines]);
+
   const filteredMachines = useMemo(() => {
-    if (!searchTerm) return machines;
-    const lower = searchTerm.toLowerCase();
-    return machines.filter(m => 
-      m.name.toLowerCase().includes(lower) || 
-      m.referenceCode.toLowerCase().includes(lower) ||
-      m.sectorName.toLowerCase().includes(lower)
-    );
-  }, [machines, searchTerm]);
+    return machines.filter(m => {
+      const matchSearch = !searchTerm || m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        m.referenceCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        m.sectorName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchSector = filterSector === 'ALL' || m.sectorId === filterSector;
+      const matchTemplate = filterTemplate === 'ALL' || m.template === filterTemplate;
+      return matchSearch && matchSector && matchTemplate;
+    });
+  }, [machines, searchTerm, filterSector, filterTemplate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,9 +140,29 @@ export function MachineRegistryView() {
                   placeholder="Search assets..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="titan-input py-2.5 pl-11 pr-3 w-64 shadow-none"
+                  className="titan-input py-2.5 pl-11 pr-3 w-48 lg:w-64 shadow-none"
                 />
               </div>
+              <select 
+                value={filterSector}
+                onChange={e => setFilterSector(e.target.value)}
+                className="titan-input py-2.5 px-4 bg-white/[0.03] text-sm font-medium w-40"
+              >
+                <option value="ALL">All Sectors</option>
+                {sectors.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+              <select 
+                value={filterTemplate}
+                onChange={e => setFilterTemplate(e.target.value)}
+                className="titan-input py-2.5 px-4 bg-white/[0.03] text-sm font-medium w-40"
+              >
+                <option value="ALL">All Templates</option>
+                {uniqueTemplates.map(t => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
               <button 
                 onClick={() => setIsModalOpen(true)}
                 className="titan-button titan-button-primary bg-indigo-500 hover:bg-indigo-400 text-white shadow-[0_0_15px_rgba(99,102,241,0.3)] shrink-0 !py-2.5"
@@ -212,9 +237,17 @@ export function MachineRegistryView() {
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
                             <h3 className="text-xl font-bold text-slate-100 leading-none tracking-tight uppercase truncate group-hover/title:text-indigo-400 transition-colors">{machine.name}</h3>
                           </div>
-                          <p className="text-[10px] font-bold text-slate-500 flex items-center gap-1.5 uppercase tracking-widest mt-3">
-                            <Activity className="w-3.5 h-3.5 opacity-40 text-indigo-400" /> {machine.sectorName}
-                          </p>
+                          <div className="flex flex-col gap-1.5 mt-3">
+                            <p className="text-[10px] font-bold text-slate-500 flex items-center gap-1.5 uppercase tracking-widest">
+                              <Activity className="w-3.5 h-3.5 opacity-40 text-indigo-400" /> {machine.sectorName}
+                            </p>
+                            {machine.managerName && (
+                               <p className="text-[10px] font-bold text-indigo-400/80 flex items-center gap-1.5 uppercase tracking-widest">
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                 Resp: {machine.managerName}
+                               </p>
+                            )}
+                          </div>
                         </div>
                         
                         <div className="mt-auto grid grid-cols-2 divide-x divide-white/5 border-t border-white/5 bg-white/[0.02] text-[10px] font-bold text-slate-400 uppercase tracking-widest relative z-10">

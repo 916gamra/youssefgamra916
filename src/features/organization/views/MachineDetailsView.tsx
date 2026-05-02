@@ -73,11 +73,19 @@ export function MachineDetailsView({ tabId }: { tabId: string }) {
 
       {/* Machine Tech Specs / Metadata Grid */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-4">
-         <GlassCard className="p-4 border-l-2 border-l-indigo-500 flex items-center gap-4">
-            <Factory className="w-5 h-5 text-indigo-400" />
-            <div>
-               <span className="block text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Sector</span>
-               <span className="text-sm font-bold text-white uppercase">{machine.sectorName}</span>
+         <GlassCard className="p-4 border-l-2 border-l-indigo-500 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Factory className="w-5 h-5 text-indigo-400" />
+              <div>
+                 <span className="block text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Sector</span>
+                 <span className="text-sm font-bold text-white uppercase">{machine.sectorName}</span>
+                 {machine.managerName && (
+                   <span className="block text-[9px] uppercase tracking-widest text-indigo-400 font-bold mt-1.5 flex items-center gap-1">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                     {machine.managerName}
+                   </span>
+                 )}
+              </div>
             </div>
          </GlassCard>
          <GlassCard className="p-4 border-l-2 border-l-indigo-500 flex items-center gap-4">

@@ -88,6 +88,30 @@ export interface Technician {
   specialty?: string;
 }
 
+export interface MachineFamily {
+  id: string; // UUID
+  name: string;
+  description?: string;
+  createdAt: string;
+}
+
+export interface MachineTemplate {
+  id: string; // UUID
+  familyId: string;
+  name: string;
+  skuBase: string; // e.g. MP for Mechanical Press
+  createdAt: string;
+}
+
+export interface MachineBlueprint {
+  id: string; // UUID
+  templateId: string;
+  reference: string; // e.g. MP-2013
+  category?: string; // Optional metadata
+  minThreshold?: number; // Might not apply to machines, but keeping shape
+  createdAt: string;
+}
+
 export interface Machine {
   id: string; // UUID
   name: string;
@@ -200,6 +224,11 @@ export class GmaoDatabase extends Dexie {
   pdrTemplates!: Table<PdrTemplate, string>;
   pdrBlueprints!: Table<PdrBlueprint, string>;
   
+  // Machine Master Data Tables
+  machineFamilies!: Table<MachineFamily, string>;
+  machineTemplates!: Table<MachineTemplate, string>;
+  machineBlueprints!: Table<MachineBlueprint, string>;
+  
   // Stock Engine Tables
   inventory!: Table<StockItem, string>;
   movements!: Table<StockMovement, string>;
@@ -233,11 +262,14 @@ export class GmaoDatabase extends Dexie {
   constructor() {
     super('CIOB_GMAO_DB');
     
-    // Schema Version 11 (Added Machine Part Mappings for BOM)
-    this.version(11).stores({
+    // Schema Version 12 (Added Machine Master Data tables)
+    this.version(12).stores({
       pdrFamilies: 'id, name',
       pdrTemplates: 'id, familyId, name, skuBase',
       pdrBlueprints: 'id, templateId, reference',
+      machineFamilies: 'id, name',
+      machineTemplates: 'id, familyId, name, skuBase',
+      machineBlueprints: 'id, templateId, reference',
       inventory: 'id, blueprintId, warehouseId',
       movements: 'id, stockId, type, timestamp',
       purchaseOrders: 'id, supplierName, status, orderDate',

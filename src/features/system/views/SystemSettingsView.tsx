@@ -45,19 +45,36 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
         severity: 'CRITICAL'
       });
 
-      await db.transaction('rw', [db.users, db.machines, db.sectors, db.pdrBlueprints, db.pdrTemplates, db.pdrFamilies, db.pdrStock], async () => {
+      await db.transaction('rw', [
+        db.users, db.machines, db.machinePartMappings, db.sectors, db.technicians, 
+        db.pdrBlueprints, db.pdrTemplates, db.pdrFamilies, db.inventory, db.movements,
+        db.purchaseOrders, db.purchaseOrderLines, db.partRequisitions, db.partRequisitionLines,
+        db.pmChecklists, db.pmTasks, db.pmSchedules, db.pmWorkOrders, db.auditLogs
+      ], async () => {
         await db.users.clear();
         await db.machines.clear();
+        await db.machinePartMappings.clear();
         await db.sectors.clear();
+        await db.technicians.clear();
         await db.pdrBlueprints.clear();
         await db.pdrTemplates.clear();
         await db.pdrFamilies.clear();
-        await db.pdrStock.clear();
+        await db.inventory.clear();
+        await db.movements.clear();
+        await db.purchaseOrders.clear();
+        await db.purchaseOrderLines.clear();
+        await db.partRequisitions.clear();
+        await db.partRequisitionLines.clear();
+        await db.pmChecklists.clear();
+        await db.pmTasks.clear();
+        await db.pmSchedules.clear();
+        await db.pmWorkOrders.clear();
+        await db.auditLogs.clear();
       });
 
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const seedFunc = runDatabaseSeed();
+      const seedFunc = runDatabaseSeed(true);
       await seedFunc();
 
       toast.success('Master Data Reseeded Successfully!', {

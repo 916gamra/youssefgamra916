@@ -11,10 +11,13 @@ import { SectorRegistryView } from '../../organization/views/SectorRegistryView'
 import { StaffRegistryView } from '../../organization/views/StaffRegistryView';
 import { MachineRegistryView } from '../../organization/views/MachineRegistryView';
 import { MachineDetailsView } from '../../organization/views/MachineDetailsView';
+import { EngineeringLabView } from '../../organization/views/EngineeringLabView';
+import { Wrench } from 'lucide-react';
 
 const FACTORY_COMPONENTS = {
   'sectors': SectorRegistryView,
   'staff': StaffRegistryView,
+  'engineering-lab': EngineeringLabView,
   'machine-registry': MachineRegistryView,
 };
 
@@ -59,6 +62,13 @@ export function FactoryLayout({ user, onLogout }: { user: User | null, onLogout:
           isActive={activeTabId === 'staff'} 
           onClick={() => openTab({ id: 'staff', portalId: 'FACTORY', title: 'Operational Staff', component: 'staff' })}
           title="Operational Staff"
+          colorClass="text-indigo-400"
+        />
+        <PortalSidebarItem 
+          icon={<Wrench />} 
+          isActive={activeTabId === 'engineering-lab'} 
+          onClick={() => openTab({ id: 'engineering-lab', portalId: 'FACTORY', title: 'Engineering Lab', component: 'engineering-lab' })}
+          title="Engineering Lab"
           colorClass="text-indigo-400"
         />
         <PortalSidebarItem 

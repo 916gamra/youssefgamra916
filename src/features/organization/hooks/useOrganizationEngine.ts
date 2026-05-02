@@ -7,6 +7,7 @@ import { organizationRepository } from '../repositories/OrganizationRepository';
 
 export interface EnrichedMachine extends Machine {
   sectorName: string;
+  managerName?: string;
 }
 
 export interface EnrichedTechnician extends Technician {
@@ -43,13 +44,17 @@ export function useOrganizationEngine() {
 
   const enrichedMachines = useMemo((): EnrichedMachine[] => {
     if (!machines || !sectors) return [];
-    const sectorMap = new Map<string, string>();
-    sectors.forEach(s => sectorMap.set(s.id, s.name));
+    const sectorMap = new Map<string, { name: string, managerName?: string }>();
+    sectors.forEach(s => sectorMap.set(s.id, { name: s.name, managerName: s.managerName }));
 
-    return machines.map(m => ({
-      ...m,
-      sectorName: sectorMap.get(m.sectorId) || 'Unknown Sector'
-    }));
+    return machines.map(m => {
+      const sectorInfo = sectorMap.get(m.sectorId);
+      return {
+        ...m,
+        sectorName: sectorInfo?.name || 'Unknown Sector',
+        managerName: sectorInfo?.managerName
+      };
+    });
   }, [machines, sectors]);
 
   const enrichedTechnicians = useMemo((): EnrichedTechnician[] => {

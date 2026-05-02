@@ -3,13 +3,13 @@ import { db } from '../db';
 import { INITIAL_DATA } from './seedData';
 import { toast } from 'sonner';
 
-export function runDatabaseSeed() {
+export function runDatabaseSeed(force = false) {
   return async () => {
     try {
       const familyCount = await db.pdrFamilies.count();
       const machineCount = await db.machines.count();
 
-      if (familyCount === 0 || machineCount === 0) {
+      if (force || familyCount === 0 || machineCount === 0) {
         await db.transaction('rw', [db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, db.sectors, db.machines], async () => {
           // Clear tables just in case of partial failed seed
           await db.pdrFamilies.clear();

@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as Tabs from '@radix-ui/react-tabs';
-import { Search, Folder, Layers, Hash, AlertCircle, Plus, Trash2, Database } from 'lucide-react';
-import { usePdrLibrary } from '../hooks/usePdrLibrary';
+import { Search, Folder, Layers, Hash, AlertCircle, Plus, Trash2, Database, Wrench } from 'lucide-react';
+import { useMachineLibrary } from '../hooks/useMachineLibrary';
 import { GlassCard } from '@/shared/components/GlassCard';
-import { PdrCard } from '../components/PdrCard';
+import { MachineLibraryCard } from '../components/MachineLibraryCard';
 import { db } from '@/core/db';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { PdrModals, ModalType } from '../components/PdrModals';
+import { MachineModals, ModalType } from '../components/MachineModals';
 import { toast } from 'sonner';
 import { useTabStore } from '@/app/store';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
@@ -37,8 +37,8 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
 };
 
-export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | null }) {
-  const { families, templates, blueprints, templateCounts, blueprintCounts, isLoading } = usePdrLibrary();
+export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User | null }) {
+  const { families, templates, blueprints, templateCounts, blueprintCounts, isLoading } = useMachineLibrary();
   const [activeTab, setActiveTab] = useState('families');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeModal, setActiveModal] = useState<ModalType>(null);
@@ -50,8 +50,8 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
        setActiveTab('blueprints'); // switch to blueprint
        setActiveModal('blueprint');
     };
-    document.addEventListener('open-add-pdr-blueprint', handleOpen);
-    return () => document.removeEventListener('open-add-pdr-blueprint', handleOpen);
+    document.addEventListener('open-add-machine-blueprint', handleOpen);
+    return () => document.removeEventListener('open-add-machine-blueprint', handleOpen);
   }, []);
 
   const filteredFamilies = useMemo(() => {
@@ -84,38 +84,38 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
     try {
       if (type === 'family') {
         const item = families.find(f => f.id === id);
-        await db.pdrFamilies.delete(id);
+        await db.machineFamilies.delete(id);
         await logEvent({
           userId: user?.id || 'GUEST',
           userName: user?.name || 'Guest User',
           action: 'DELETE',
-          entityType: 'PDR_FAMILY',
+          entityType: 'MACHINE_FAMILY',
           entityId: id,
-          details: `Deleted PDR Family: ${item?.name || id}`,
+          details: `Deleted Machine Family: ${item?.name || id}`,
           severity: 'WARNING'
         });
       } else if (type === 'template') {
         const item = templates.find(t => t.id === id);
-        await db.pdrTemplates.delete(id);
+        await db.machineTemplates.delete(id);
         await logEvent({
           userId: user?.id || 'GUEST',
           userName: user?.name || 'Guest User',
           action: 'DELETE',
-          entityType: 'PDR_TEMPLATE',
+          entityType: 'MACHINE_TEMPLATE',
           entityId: id,
-          details: `Deleted PDR Template: ${item?.name || id}`,
+          details: `Deleted Machine Template: ${item?.name || id}`,
           severity: 'WARNING'
         });
       } else if (type === 'blueprint') {
         const item = blueprints.find(b => b.id === id);
-        await db.pdrBlueprints.delete(id);
+        await db.machineBlueprints.delete(id);
         await logEvent({
           userId: user?.id || 'GUEST',
           userName: user?.name || 'Guest User',
           action: 'DELETE',
-          entityType: 'PDR_BLUEPRINT',
+          entityType: 'MACHINE_BLUEPRINT',
           entityId: id,
-          details: `Deleted PDR Blueprint: ${item?.reference || id}`,
+          details: `Deleted Machine Blueprint: ${item?.reference || id}`,
           severity: 'WARNING'
         });
       }
@@ -127,7 +127,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
   };
 
   if (isLoading) {
-    return <div className="p-8 text-slate-400">Loading PDR Library...</div>;
+    return <div className="p-8 text-slate-400">Loading Engineering Lab...</div>;
   }
 
   const getAddButtonTitle = () => {
@@ -147,13 +147,9 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
     }
   };
 
-  const openPartDetail = (blueprintId: string, reference: string) => {
-    openTab({
-      id: `part-detail:${blueprintId}`,
-      portalId: 'PDR',
-      title: `Part: ${reference}`,
-      component: 'part-detail'
-    });
+  const openBlueprintDetail = (blueprintId: string, reference: string) => {
+    // We can open a specific machine blueprint detail view here later
+    console.log(`Open blueprint ${reference}`);
   };
 
   return (
@@ -166,21 +162,21 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
       <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
-             <Layers className="w-8 h-8 text-cyan-400" /> PDR Engine Library
+             <Wrench className="w-8 h-8 text-indigo-400" /> Engineering Lab
           </h1>
           <p className="text-slate-400 text-lg font-medium opacity-80 font-sans">
-             Catalog management for spare parts hierarchy and industrial assets.
+             Master data and genetic code for your machinery.
           </p>
         </div>
         
         <div className="flex flex-wrap items-center gap-3">
-          <StatCompact icon={<Folder className="w-4 h-4 text-cyan-500" />} label="Families" value={families.length.toString()} />
-          <StatCompact icon={<Layers className="w-4 h-4 text-indigo-500" />} label="Templates" value={templates.length.toString()} />
-          <StatCompact icon={<Hash className="w-4 h-4 text-emerald-500" />} label="Blueprints" value={blueprints.length.toString()} />
+          <StatCompact icon={<Folder className="w-4 h-4 text-indigo-500" />} label="Families" value={families.length.toString()} />
+          <StatCompact icon={<Layers className="w-4 h-4 text-blue-500" />} label="Templates" value={templates.length.toString()} />
+          <StatCompact icon={<Hash className="w-4 h-4 text-violet-500" />} label="Blueprints" value={blueprints.length.toString()} />
         </div>
       </motion.header>
 
-      <PdrModals 
+      <MachineModals 
         activeModal={activeModal} 
         onClose={() => setActiveModal(null)} 
         families={families} 
@@ -193,17 +189,17 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
         <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl flex flex-col flex-1 min-h-0">
           <div className="p-6 md:p-8 border-b border-white/5 bg-white/[0.01] shrink-0 relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                <Database className="w-6 h-6 text-cyan-400" />
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                <Database className="w-6 h-6 text-indigo-400" />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white uppercase tracking-tight">Active Hierarchy</h2>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Global PDR Directory</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Global Master Data Directory</p>
               </div>
             </div>
             
             <div className="relative group w-full lg:w-auto">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
               <input 
                 type="text" 
                 placeholder="Search database..." 
@@ -220,7 +216,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                 <Tabs.List className="flex items-center p-1.5 bg-[#121318] rounded-xl border border-white/10 w-full md:w-max shadow-inner overflow-x-auto">
                   <Tabs.Trigger 
                     value="families"
-                    className="flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-cyan-500/10 data-[state=active]:text-cyan-400 text-slate-400 hover:text-white"
+                    className="flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-indigo-500/10 data-[state=active]:text-indigo-400 text-slate-400 hover:text-white"
                   >
                     <Folder className="w-4 h-4 shrink-0" />
                     Families
@@ -228,7 +224,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                   </Tabs.Trigger>
                   <Tabs.Trigger 
                     value="templates"
-                    className="flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-indigo-500/10 data-[state=active]:text-indigo-400 text-slate-400 hover:text-white"
+                    className="flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-blue-500/10 data-[state=active]:text-blue-400 text-slate-400 hover:text-white"
                   >
                     <Layers className="w-4 h-4 shrink-0" />
                     Templates
@@ -236,7 +232,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                   </Tabs.Trigger>
                   <Tabs.Trigger 
                     value="blueprints"
-                    className="flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-400 text-slate-400 hover:text-white"
+                    className="flex items-center whitespace-nowrap gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all data-[state=active]:bg-violet-500/10 data-[state=active]:text-violet-400 text-slate-400 hover:text-white"
                   >
                     <Hash className="w-4 h-4 shrink-0" />
                     Blueprints
@@ -246,7 +242,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                 
                 <button 
                   onClick={openAddModal}
-                  className="titan-button bg-cyan-600 hover:bg-cyan-500 text-white shrink-0 !py-2.5 flex items-center justify-center gap-2 w-full md:w-auto"
+                  className="titan-button bg-indigo-600 hover:bg-indigo-500 text-white shrink-0 !py-2.5 flex items-center justify-center gap-2 w-full md:w-auto"
                 >
                   <Plus className="w-4 h-4" />
                   {getAddButtonTitle()}
@@ -274,13 +270,13 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 h-fit">
                       {filteredFamilies.map(family => (
-                        <PdrCard key={family.id} className="flex flex-col group/card relative border-l-4 border-l-cyan-500 transition-all duration-500 hover:border-y-cyan-500/30 hover:border-r-cyan-500/30 hover:shadow-[0_15px_40px_-10px_rgba(6,182,212,0.2)] hover:bg-cyan-500/[0.03] min-h-[140px]">
+                        <MachineLibraryCard key={family.id} className="flex flex-col group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(6,182,212,0.2)] hover:bg-indigo-500/[0.03] min-h-[140px]">
                           <button onClick={(e) => handleDelete('family', family.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
                             <Trash2 className="w-4 h-4" />
                           </button>
                           <div className="flex items-start justify-between mb-3 pr-8">
                             <h3 className="text-lg font-semibold text-white">{family.name}</h3>
-                            <div className="px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 text-xs font-semibold flex items-center gap-1.5">
+                            <div className="px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 text-xs font-semibold flex items-center gap-1.5">
                               <Layers className="w-3.5 h-3.5" />
                               {templateCounts.get(family.id) || 0}
                             </div>
@@ -288,7 +284,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                           <p className="text-slate-400 text-xs flex-1 leading-relaxed">
                             {family.description}
                           </p>
-                        </PdrCard>
+                        </MachineLibraryCard>
                       ))}
                     </div>
                   )}
@@ -306,7 +302,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                       {filteredTemplates.map(template => {
                         const parentFamily = families.find(f => f.id === template.familyId);
                         return (
-                          <PdrCard key={template.id} className="flex flex-col group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.2)] hover:bg-indigo-500/[0.03] min-h-[160px]">
+                          <MachineLibraryCard key={template.id} className="flex flex-col group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.2)] hover:bg-blue-500/[0.03] min-h-[160px]">
                             <button onClick={(e) => handleDelete('template', template.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -329,7 +325,7 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                                 {blueprintCounts.get(template.id) || 0} BPs
                               </div>
                             </div>
-                          </PdrCard>
+                          </MachineLibraryCard>
                         );
                       })}
                     </div>
@@ -370,13 +366,13 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                                 }}
                                 className="pb-4"
                               >
-                                  <PdrCard onClick={() => openPartDetail(blueprint.id, blueprint.reference)} className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 transition-all duration-500 hover:border-y-emerald-500/30 hover:border-r-emerald-500/30 hover:shadow-[0_15px_40px_-10px_rgba(16,185,129,0.2)] hover:bg-emerald-500/[0.03] border-l-4 border-l-emerald-500 p-4 md:p-5 bg-black/5 cursor-pointer rounded-2xl">
+                                  <MachineLibraryCard onClick={() => openBlueprintDetail(blueprint.id, blueprint.reference)} className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 transition-all duration-500 hover:border-y-violet-500/30 hover:border-r-violet-500/30 hover:shadow-[0_15px_40px_-10px_rgba(16,185,129,0.2)] hover:bg-violet-500/[0.03] border-l-4 border-l-violet-500 p-4 md:p-5 bg-black/5 cursor-pointer rounded-2xl">
                                      <div className="flex items-center gap-4">
-                                       <div className="w-11 h-11 rounded-xl bg-cyan-500/10 flex items-center justify-center border border-cyan-500/20 shadow-inner group-hover:scale-105 transition-transform">
-                                          <Hash className="w-5 h-5 text-cyan-400" />
+                                       <div className="w-11 h-11 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 shadow-inner group-hover:scale-105 transition-transform">
+                                          <Hash className="w-5 h-5 text-indigo-400" />
                                        </div>
                                        <div>
-                                          <h3 className="text-sm md:text-base font-mono font-bold text-white tracking-tight group-hover:text-cyan-400 transition-colors uppercase">{blueprint.reference}</h3>
+                                          <h3 className="text-sm md:text-base font-mono font-bold text-white tracking-tight group-hover:text-indigo-400 transition-colors uppercase">{blueprint.reference}</h3>
                                           <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{parentTemplate?.name || 'Item'}</span>
                                        </div>
                                      </div>
@@ -387,13 +383,13 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                                         </div>
                                         <div className="text-right flex-shrink-0 min-w[60px] md:min-w[80px]">
                                           <span className="block text-[9px] text-slate-600 font-bold uppercase tracking-widest mb-0.5">Threshold</span>
-                                          <span className="text-xs font-mono font-bold text-emerald-500">{blueprint.minThreshold}</span>
+                                          <span className="text-xs font-mono font-bold text-violet-500">{blueprint.minThreshold}</span>
                                         </div>
                                         <button onClick={(e) => handleDelete('blueprint', blueprint.id, e)} className="absolute right-0 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">
                                           <Trash2 className="w-4 h-4" />
                                         </button>
                                      </div>
-                                  </PdrCard>
+                                  </MachineLibraryCard>
                               </div>
                             );
                          })}
