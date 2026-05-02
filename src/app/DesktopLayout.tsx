@@ -11,6 +11,9 @@ import { SystemBackground } from '@/shared/components/SystemBackground';
 import { NotificationHub } from '@/components/notifications/NotificationHub';
 import { useNotificationsContext } from '@/shared/context/NotificationContext';
 import { PortalTabs } from './layout/PortalTabs';
+import { Plus, Settings, Factory, Box } from 'lucide-react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+
 const PdrLayout = React.lazy(() => import('@/features/pdr-engine/layout/PdrLayout').then(m => ({ default: m.PdrLayout })));
 const MasterDataLayout = React.lazy(() => import('@/features/organization/layout/MasterDataLayout').then(m => ({ default: m.MasterDataLayout })));
 const AnalyticsLayout = React.lazy(() => import('@/features/analytics/layout/AnalyticsLayout').then(m => ({ default: m.AnalyticsLayout })));
@@ -148,6 +151,33 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
           </ErrorBoundary>
         </div>
       </div>
+      
+      {/* GLOBAL QUICK ACTION FAB */}
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild>
+          <button className="fixed bottom-12 right-6 w-14 h-14 rounded-full bg-indigo-500 hover:bg-indigo-400 text-white shadow-[0_0_30px_rgba(99,102,241,0.5)] hover:shadow-[0_0_50px_rgba(99,102,241,0.8)] flex items-center justify-center transition-all z-50 group border border-indigo-400/50">
+             <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
+          </button>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Portal>
+           <DropdownMenu.Content align="end" sideOffset={10} className="z-50 bg-black/80 backdrop-blur-3xl border border-white/10 rounded-2xl p-2 min-w-[220px] shadow-2xl animate-in fade-in slide-in-from-bottom-5">
+              <DropdownMenu.Label className="px-3 py-2 text-[10px] uppercase tracking-widest text-slate-500 font-bold">Quick Inject</DropdownMenu.Label>
+              <DropdownMenu.Separator className="h-px bg-white/10 my-1" />
+              <DropdownMenu.Item 
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-indigo-500/20 hover:border-indigo-500/30 cursor-pointer outline-none border border-transparent transition-all"
+                onClick={() => { setPortal('FACTORY'); setTimeout(() => document.dispatchEvent(new CustomEvent('open-add-machine')), 100); }}
+              >
+                 <Factory className="w-4 h-4 text-indigo-400" /> Register Machine
+              </DropdownMenu.Item>
+              <DropdownMenu.Item 
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:text-white hover:bg-cyan-500/20 hover:border-cyan-500/30 cursor-pointer outline-none border border-transparent transition-all"
+                onClick={() => { setPortal('PDR'); setTimeout(() => document.dispatchEvent(new CustomEvent('open-add-pdr-blueprint')), 100); }}
+              >
+                 <Box className="w-4 h-4 text-cyan-400" /> Link Spare Part
+              </DropdownMenu.Item>
+           </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
       
       {/* OS Footer */}
       <footer className="h-[28px] bg-black/80 backdrop-blur-3xl border-t border-white/5 flex items-center px-4 md:px-6 text-[9px] md:text-[10px] text-white/40 gap-4 md:gap-6 shrink-0 z-50 relative tracking-widest uppercase font-mono shadow-[0_-5px_20px_rgba(0,0,0,0.5)] overflow-x-auto whitespace-nowrap custom-scrollbar">

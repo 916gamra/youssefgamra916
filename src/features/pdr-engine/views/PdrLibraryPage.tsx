@@ -147,6 +147,15 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
     });
   };
 
+  React.useEffect(() => {
+    const handleOpen = () => {
+       setActiveTab('blueprints'); // switch to blueprint
+       setActiveModal('blueprint');
+    };
+    document.addEventListener('open-add-pdr-blueprint', handleOpen);
+    return () => document.removeEventListener('open-add-pdr-blueprint', handleOpen);
+  }, []);
+
   return (
     <motion.div 
       variants={containerVariants}

@@ -218,41 +218,51 @@ export function DataExchangeView() {
     { header: 'Family (Required)', key: 'family', width: 25 },
     { header: 'Template/Type (Required)', key: 'template', width: 30 },
     { header: 'Reference/SKU (Required)', key: 'reference', width: 25 },
+    { header: 'Linked Machine Ref (Optional)', key: 'machineRef', width: 30 },
     { header: 'Unit', key: 'unit', width: 15 },
     { header: 'Min Threshold', key: 'minThreshold', width: 15 }
   ];
 
   const processCatalogData = async (ws: ExcelJS.Worksheet) => {
      // DB Fetch
-     const [dbFamilies, dbTemplates, dbBlueprints] = await Promise.all([
+     const [dbFamilies, dbTemplates, dbBlueprints, dbMachines, dbMappings] = await Promise.all([
        db.pdrFamilies.toArray(),
        db.pdrTemplates.toArray(),
-       db.pdrBlueprints.toArray()
+       db.pdrBlueprints.toArray(),
+       db.machines.toArray(),
+       db.machinePartMappings.toArray()
      ]);
 
      const fMap = new Map<string, string>(); dbFamilies.forEach(f => fMap.set(f.name.toUpperCase(), f.id));
      const tMap = new Map<string, string>(); dbTemplates.forEach(t => tMap.set(`${t.familyId}_${t.name.toUpperCase()}`, t.id));
-     const bpSet = new Set(dbBlueprints.map(b => b.reference.toUpperCase()));
+     const bpMap = new Map<string, any>(); dbBlueprints.forEach(b => bpMap.set(b.reference.toUpperCase(), b));
+     const machineMap = new Map<string, string>(); dbMachines.forEach(m => machineMap.set(m.referenceCode?.toUpperCase() || '', m.id));
+     const existingMappings = new Set(dbMappings.map(m => `${m.machineId}_${m.blueprintId}`));
 
      const newFamilies = new Map<string, any>();
      const newTemplates = new Map<string, any>();
      const newBlueprints: any[] = [];
-     let rowCount = 0; let skippedRef = 0;
+     const updateBlueprints: any[] = [];
+     const newBoms: any[] = [];
+     
+     let rowCount = 0; let updatedRef = 0; let newBomsCount = 0;
 
      ws.eachRow((row, rowNumber) => {
         if (rowNumber === 1) return;
         const familyRow = row.getCell(1).text?.trim();
         const templateRow = row.getCell(2).text?.trim();
         const referenceRow = row.getCell(3).text?.trim();
+        const machineRefRow = row.getCell(4).text?.trim();
+        
         if (!familyRow || !templateRow || !referenceRow) return;
 
-        if (bpSet.has(referenceRow.toUpperCase())) { skippedRef++; return; }
-
         let thresholdValue = 0;
-        const rawT = row.getCell(5).value;
+        const rawT = row.getCell(6).value;
         if (typeof rawT === 'number') thresholdValue = rawT;
         else if (typeof rawT === 'string') thresholdValue = parseInt(rawT, 10);
         if (isNaN(thresholdValue)) thresholdValue = 0;
+        
+        const unitVal = row.getCell(5).text?.trim() || 'Pcs';
 
         // Family resolution
         let familyId = fMap.get(familyRow.toUpperCase());
@@ -275,27 +285,65 @@ export function DataExchangeView() {
            }
         }
 
-        newBlueprints.push({
-          id: crypto.randomUUID(),
-          templateId,
-          reference: referenceRow,
-          unit: row.getCell(4).text?.trim() || 'Pcs',
-          minThreshold: thresholdValue,
-          createdAt: new Date().toISOString()
-        });
-        bpSet.add(referenceRow.toUpperCase());
+        let blueprintId;
+        const existingBp = bpMap.get(referenceRow.toUpperCase());
+        
+        if (existingBp) {
+           // Upsert Logic: Update existing record instead of skipping
+           blueprintId = existingBp.id;
+           updateBlueprints.push({
+              ...existingBp,
+              templateId, // Allow correcting the template
+              unit: unitVal,
+              minThreshold: thresholdValue // Allow updating threshold
+           });
+           updatedRef++;
+        } else {
+           blueprintId = crypto.randomUUID();
+           newBlueprints.push({
+             id: blueprintId,
+             templateId,
+             reference: referenceRow,
+             unit: unitVal,
+             minThreshold: thresholdValue,
+             createdAt: new Date().toISOString()
+           });
+           bpMap.set(referenceRow.toUpperCase(), { id: blueprintId }); // mark as seen locally
+        }
+
+        // BOM Validation Linker
+        if (machineRefRow) {
+           const dbMachineId = machineMap.get(machineRefRow.toUpperCase());
+           if (dbMachineId) {
+              const linkageKey = `${dbMachineId}_${blueprintId}`;
+              if (!existingMappings.has(linkageKey)) {
+                 newBoms.push({
+                    id: crypto.randomUUID(),
+                    machineId: dbMachineId,
+                    blueprintId: blueprintId,
+                    addedAt: new Date().toISOString()
+                 });
+                 existingMappings.add(linkageKey);
+                 newBomsCount++;
+              }
+           }
+        }
+
         rowCount++;
      });
 
      if (rowCount === 0) throw new Error("No valid new catalog items found.");
 
-     await db.transaction('rw', db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, async () => {
+     await db.transaction('rw', db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, db.machinePartMappings, async () => {
         if (newFamilies.size > 0) await db.pdrFamilies.bulkAdd(Array.from(newFamilies.values()));
         if (newTemplates.size > 0) await db.pdrTemplates.bulkAdd(Array.from(newTemplates.values()));
         if (newBlueprints.length > 0) await db.pdrBlueprints.bulkAdd(newBlueprints);
+        if (updateBlueprints.length > 0) await db.pdrBlueprints.bulkPut(updateBlueprints);
+        if (newBoms.length > 0) await db.machinePartMappings.bulkAdd(newBoms);
      });
 
-     if(skippedRef > 0) toast.info(`Skipped ${skippedRef} references that already exist in DB.`);
+     if(updatedRef > 0) toast.info(`Upsert complete: Updated ${updatedRef} existing references.`);
+     if(newBomsCount > 0) toast.success(`BOM Linker: Created ${newBomsCount} new spare part links to machines.`);
   };
 
   // --- MODULE 4: INVENTORY STOCK ---

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { Factory, Cpu, Plus, X, Search, Activity, Box, Tag, Trash2, Edit3, Save, Wrench } from 'lucide-react';
@@ -88,6 +88,12 @@ export function MachineRegistryView() {
     setIsModalOpen(false);
   };
 
+  useEffect(() => {
+    const handleOpen = () => setIsModalOpen(true);
+    document.addEventListener('open-add-machine', handleOpen);
+    return () => document.removeEventListener('open-add-machine', handleOpen);
+  }, []);
+
   return (
     <motion.div 
       variants={containerVariants}
@@ -175,20 +181,20 @@ export function MachineRegistryView() {
                             </span>
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 backdrop-blur-md border border-white/10 p-1 rounded-lg">
                               <button 
-                                onClick={() => setSelectedMachineForBom({ id: machine.id, name: machine.name })}
+                                onClick={(e) => { e.stopPropagation(); setSelectedMachineForBom({ id: machine.id, name: machine.name }); }}
                                 className="p-1.5 rounded-md hover:bg-indigo-500/20 text-indigo-400 transition-colors"
                                 title="BOM Configuration"
                               >
                                 <Wrench className="w-3.5 h-3.5" />
                               </button>
                               <button 
-                                onClick={() => handleEdit(machine)}
+                                onClick={(e) => { e.stopPropagation(); handleEdit(machine); }}
                                 className="p-1.5 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
                               </button>
                               <button 
-                                onClick={() => handleDelete(machine.id, machine.name)}
+                                onClick={(e) => { e.stopPropagation(); handleDelete(machine.id, machine.name); }}
                                 className="p-1.5 rounded-md hover:bg-white/10 text-slate-400 hover:text-red-400 transition-colors"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
@@ -196,9 +202,15 @@ export function MachineRegistryView() {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3 mb-2">
+                          <div 
+                            className="flex items-center gap-3 mb-2 cursor-pointer group/title"
+                            onClick={() => {
+                               const { openTab } = require('@/app/store').useTabStore.getState();
+                               openTab({ id: `machine-detail:${machine.id}`, portalId: 'FACTORY', title: `Asset: ${machine.name}`, component: `machine-detail:${machine.id}` });
+                            }}
+                          >
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
-                            <h3 className="text-xl font-bold text-slate-100 leading-none tracking-tight uppercase truncate">{machine.name}</h3>
+                            <h3 className="text-xl font-bold text-slate-100 leading-none tracking-tight uppercase truncate group-hover/title:text-indigo-400 transition-colors">{machine.name}</h3>
                           </div>
                           <p className="text-[10px] font-bold text-slate-500 flex items-center gap-1.5 uppercase tracking-widest mt-3">
                             <Activity className="w-3.5 h-3.5 opacity-40 text-indigo-400" /> {machine.sectorName}

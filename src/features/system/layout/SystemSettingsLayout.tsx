@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Settings, Shield, Users, HardDriveDownload, ShieldAlert } from 'lucide-react';
+import { Settings, Shield, Users, HardDriveDownload, ShieldAlert, DatabaseZap } from 'lucide-react';
 import { useTabStore } from '@/app/store';
 import { PortalCanvas } from '@/app/layout/PortalCanvas';
 import { PortalSidebar } from '@/app/layout/PortalSidebar';
@@ -11,6 +11,7 @@ import { DataExchangeView } from '../views/DataExchangeView';
 import { DataCoreView } from '../views/DataCoreView';
 import { SecurityPoliciesView } from '../views/SecurityPoliciesView';
 import { AuditTrailView } from '../views/AuditTrailView';
+import { SystemSettingsView } from '../views/SystemSettingsView';
 import { ArrowRightLeft } from 'lucide-react';
 
 const SETTINGS_COMPONENTS = {
@@ -19,6 +20,7 @@ const SETTINGS_COMPONENTS = {
   'data-core': DataCoreView,
   'security-policies': SecurityPoliciesView,
   'audit-trail': AuditTrailView,
+  'system-dev-tools': SystemSettingsView,
 };
 
 export function SystemSettingsLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
@@ -75,6 +77,13 @@ export function SystemSettingsLayout({ user, onLogout }: { user: User | null, on
           isActive={activeTabId === 'audit-trail'} 
           onClick={() => openTab({ id: 'audit-trail', portalId: 'SETTINGS', title: 'Audit Trail', component: 'audit-trail' })}
           title="System Audit Trail"
+          colorClass="text-slate-400"
+        />
+        <PortalSidebarItem 
+          icon={<DatabaseZap />} 
+          isActive={activeTabId === 'system-dev-tools'} 
+          onClick={() => openTab({ id: 'system-dev-tools', portalId: 'SETTINGS', title: 'Master Data Admin', component: 'system-dev-tools' })}
+          title="Master Data Admin"
           colorClass="text-slate-400"
         />
       </PortalSidebar>

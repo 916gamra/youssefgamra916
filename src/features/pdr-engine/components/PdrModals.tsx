@@ -199,7 +199,16 @@ export function PdrModals({ activeModal, onClose, families, templates, user }: P
               </>
             )}
 
-            {activeModal === 'blueprint' && (
+            {activeModal === 'blueprint' && (() => {
+              const selectedTemplate = templates.find(t => t.id === formData.templateId);
+              const templateNameLower = (selectedTemplate?.name || '').toLowerCase();
+              
+              const isMotor = templateNameLower.includes('motor') || templateNameLower.includes('engine');
+              const isCable = templateNameLower.includes('cable') || templateNameLower.includes('wire');
+              const isBearing = templateNameLower.includes('bearing');
+              const isPump = templateNameLower.includes('pump');
+
+              return (
               <>
                 <div>
                   <label className="titan-label">Parent Template</label>
@@ -226,6 +235,78 @@ export function PdrModals({ activeModal, onClose, families, templates, user }: P
                     placeholder="e.g., 6205-2RS"
                   />
                 </div>
+
+                {/* DYNAMIC TEMPLATE FIELDS */}
+                <AnimatePresence>
+                  {selectedTemplate && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 pt-2 pb-2">
+                       <div className="flex items-center gap-2 mb-2">
+                          <Layers className="w-4 h-4 text-cyan-400" />
+                          <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Template Requirements: {selectedTemplate.name}</span>
+                       </div>
+                       
+                       <div className="grid grid-cols-2 gap-4">
+                         {isMotor && (
+                           <>
+                             <div>
+                               <label className="titan-label">Power (kW/HP)</label>
+                               <input type="text" className="titan-input text-xs" placeholder="e.g., 15kW" />
+                             </div>
+                             <div>
+                               <label className="titan-label">Voltage (V)</label>
+                               <input type="text" className="titan-input text-xs" placeholder="e.g., 400V 3Ph" />
+                             </div>
+                           </>
+                         )}
+                         {isCable && (
+                           <>
+                             <div>
+                               <label className="titan-label">Length (m)</label>
+                               <input type="number" className="titan-input text-xs" placeholder="e.g., 100" />
+                             </div>
+                             <div>
+                               <label className="titan-label">Gauge / Section</label>
+                               <input type="text" className="titan-input text-xs" placeholder="e.g., 3x2.5mm²" />
+                             </div>
+                           </>
+                         )}
+                         {isBearing && (
+                           <>
+                             <div>
+                               <label className="titan-label">Inner Diameter (mm)</label>
+                               <input type="number" className="titan-input text-xs" placeholder="e.g., 25" />
+                             </div>
+                             <div>
+                               <label className="titan-label">Outer Diameter (mm)</label>
+                               <input type="number" className="titan-input text-xs" placeholder="e.g., 52" />
+                             </div>
+                           </>
+                         )}
+                         {isPump && (
+                           <>
+                             <div>
+                               <label className="titan-label">Flow Rate (m³/h)</label>
+                               <input type="text" className="titan-input text-xs" placeholder="e.g., 50 m³/h" />
+                             </div>
+                             <div>
+                               <label className="titan-label">Max Head (m)</label>
+                               <input type="text" className="titan-input text-xs" placeholder="e.g., 30m" />
+                             </div>
+                           </>
+                         )}
+                         {(!isMotor && !isCable && !isBearing && !isPump) && (
+                           <>
+                             <div className="col-span-2">
+                               <label className="titan-label">Custom Specification</label>
+                               <input type="text" className="titan-input text-xs" placeholder="Key = Value (e.g., Material = SUS304)" />
+                             </div>
+                           </>
+                         )}
+                       </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="titan-label">Unit</label>
@@ -257,7 +338,7 @@ export function PdrModals({ activeModal, onClose, families, templates, user }: P
                   </div>
                 </div>
               </>
-            )}
+            )})}
 
             <div className="pt-4 mt-6 border-t border-white/5 flex gap-3">
               <button

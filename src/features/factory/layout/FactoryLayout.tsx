@@ -10,6 +10,7 @@ import { cn } from '@/shared/utils';
 import { SectorRegistryView } from '../../organization/views/SectorRegistryView';
 import { StaffRegistryView } from '../../organization/views/StaffRegistryView';
 import { MachineRegistryView } from '../../organization/views/MachineRegistryView';
+import { MachineDetailsView } from '../../organization/views/MachineDetailsView';
 
 const FACTORY_COMPONENTS = {
   'sectors': SectorRegistryView,
@@ -22,6 +23,14 @@ export function FactoryLayout({ user, onLogout }: { user: User | null, onLogout:
 
   const currentTab = tabs.find(t => t.portalId === 'FACTORY');
   const activeTabId = currentTab?.id;
+
+  // We inject the components map dynamically to support active/closable tabs
+  const componentMap = {
+    ...FACTORY_COMPONENTS,
+    ...(currentTab?.id.startsWith('machine-detail:') ? {
+      [currentTab.id]: MachineDetailsView
+    } : {})
+  };
 
   useEffect(() => {
     if (!currentTab) {
@@ -61,7 +70,7 @@ export function FactoryLayout({ user, onLogout }: { user: User | null, onLogout:
         />
       </PortalSidebar>
 
-      <PortalCanvas componentMap={FACTORY_COMPONENTS} user={user} onLogout={onLogout} />
+      <PortalCanvas componentMap={componentMap as any} user={user} onLogout={onLogout} />
     </div>
   );
 }
