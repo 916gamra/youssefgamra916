@@ -27,10 +27,12 @@ export function SectorRegistryView() {
   // Form State
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [managerName, setManagerName] = useState('');
 
   const filteredSectors = sectors.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (s.description || '').toLowerCase().includes(searchTerm.toLowerCase())
+    (s.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (s.managerName || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,10 +40,10 @@ export function SectorRegistryView() {
     if (!name) return;
     try {
       if (editingId) {
-        await updateSector(editingId, { name, description });
+        await updateSector(editingId, { name, description, managerName });
         showSuccess('Zone Updated', `${name} parameters adjusted.`);
       } else {
-        await createSector(name, description);
+        await createSector(name, description, managerName);
         showSuccess('Zone Initialized', `${name} is active.`);
       }
       handleCancel();
@@ -54,6 +56,7 @@ export function SectorRegistryView() {
     setEditingId(sector.id);
     setName(sector.name);
     setDescription(sector.description || '');
+    setManagerName(sector.managerName || '');
     setIsAdding(true);
   };
 
@@ -81,6 +84,7 @@ export function SectorRegistryView() {
     setEditingId(null);
     setName('');
     setDescription('');
+    setManagerName('');
   };
 
   return (
@@ -152,7 +156,7 @@ export function SectorRegistryView() {
                 </h2>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div className="space-y-2">
                       <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Zone Designation</label>
                       <input 
@@ -165,12 +169,22 @@ export function SectorRegistryView() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Operational Directive (Optional)</label>
+                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Sector Manager (Opt)</label>
+                      <input 
+                        type="text"
+                        value={managerName}
+                        onChange={(e) => setManagerName(e.target.value)}
+                        placeholder="e.g., Mohammed Zaradi" 
+                        className="titan-input py-3"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Operational Directive (Opt)</label>
                       <input 
                         type="text"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="e.g., Primary bottling line and secondary packaging." 
+                        placeholder="e.g., Deep Drawing..." 
                         className="titan-input py-3"
                       />
                     </div>
@@ -244,6 +258,13 @@ export function SectorRegistryView() {
                         <p className="text-xs text-slate-400 font-medium line-clamp-2 h-8 leading-relaxed">
                           {sector.description || 'No direct operational parameters defined. Following universal factory protocol.'}
                         </p>
+                        
+                        {sector.managerName && (
+                          <div className="mt-4 flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-lg w-max">
+                            <Users className="w-3.5 h-3.5 text-indigo-400" />
+                            <span className="text-[10px] uppercase tracking-widest font-bold text-indigo-400">Head: {sector.managerName}</span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-2 divide-x divide-white/5 bg-white/[0.02] border-t border-white/5 mt-auto relative z-10">

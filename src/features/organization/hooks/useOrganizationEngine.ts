@@ -17,6 +17,7 @@ export interface EnrichedTechnician extends Technician {
 const sectorSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   description: z.string().optional(),
+  managerName: z.string().optional(),
 });
 
 const technicianSchema = z.object({
@@ -62,8 +63,8 @@ export function useOrganizationEngine() {
     }));
   }, [technicians, sectors]);
 
-  const createSector = async (name: string, description?: string) => {
-    const validated = validatePayload(sectorSchema, { name, description }, 'CREATE_SECTOR');
+  const createSector = async (name: string, description?: string, managerName?: string) => {
+    const validated = validatePayload(sectorSchema, { name, description, managerName }, 'CREATE_SECTOR');
     return organizationRepository.createSector(validated);
   };
 

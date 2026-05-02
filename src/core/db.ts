@@ -78,6 +78,7 @@ export interface Sector {
   id: string; // UUID
   name: string;
   description?: string;
+  managerName?: string;
 }
 
 export interface Technician {
