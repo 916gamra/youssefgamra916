@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { useTabStore } from '@/app/store';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 import type { User } from '@/core/db';
+import { cn } from '@/shared/utils';
 
 function StatCompact({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) {
   return (
@@ -275,13 +276,33 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                             <Trash2 className="w-4 h-4" />
                           </button>
                           <div className="flex items-start justify-between mb-3 pr-8">
-                            <h3 className="text-lg font-semibold text-white">{family.name}</h3>
-                            <div className="px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 text-xs font-semibold flex items-center gap-1.5">
+                            <div className="flex flex-col relative group/info">
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-lg font-semibold text-white">{family.name}</h3>
+                                {family.technicalDescription && (
+                                  <div className="w-4 h-4 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center cursor-help">
+                                    <AlertCircle className="w-2.5 h-2.5 text-indigo-400" />
+                                    {/* Italy Lux info box */}
+                                    <div className="absolute bottom-full left-0 mb-2 w-64 p-3 bg-[#0a0b10] border border-white/10 rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all z-20 pointer-events-none translate-y-1 group-hover/info:translate-y-0 text-left">
+                                      <div className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Mechanical Identity</div>
+                                      <p className="text-xs text-slate-300 leading-relaxed italic font-sans">{family.technicalDescription}</p>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-[10px] font-mono font-bold text-indigo-400 uppercase tracking-[0.2em]">{family.code}</span>
+                            </div>
+                            <div className="px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 text-xs font-semibold flex items-center gap-1.5 h-fit">
                               <Layers className="w-3.5 h-3.5" />
                               {templateCounts.get(family.id) || 0}
                             </div>
                           </div>
-                          <p className="text-slate-400 text-xs flex-1 leading-relaxed">
+                          {family.technicalDescription && (
+                            <p className="text-[11px] text-slate-400 leading-relaxed mb-3 italic line-clamp-2">
+                              "{family.technicalDescription}"
+                            </p>
+                          )}
+                          <p className="text-slate-500 text-[10px] flex-1 line-clamp-1 italic">
                             {family.description}
                           </p>
                         </MachineLibraryCard>
@@ -307,11 +328,46 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                               <Trash2 className="w-4 h-4" />
                             </button>
                             <div className="mb-4 pr-8 flex-1">
-                              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5 mb-1">
-                                <Folder className="w-3 h-3" />
-                                {parentFamily?.name || 'Unknown Family'}
-                              </span>
-                              <h3 className="text-[15px] font-semibold text-white mb-0.5">{template.name}</h3>
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5">
+                                  <Folder className="w-3 h-3" />
+                                  {parentFamily?.name || 'Unknown Family'}
+                                </span>
+                                <span className={cn(
+                                  "px-2 py-0.5 rounded text-[9px] font-bold border uppercase tracking-wider",
+                                  template.type === 'A' ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+                                  template.type === 'I' ? "bg-fuchsia-500/10 text-fuchsia-400 border-fuchsia-500/20" :
+                                  template.type === 'H' ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" :
+                                  template.type === 'P' ? "bg-sky-500/10 text-sky-400 border-sky-500/20" :
+                                  template.type === 'E' ? "bg-amber-500/10 text-amber-400 border-amber-500/20" :
+                                  template.type === 'S' ? "bg-violet-500/10 text-violet-400 border-violet-500/20" :
+                                  "bg-slate-500/10 text-slate-400 border-slate-500/20"
+                                )}>
+                                  {template.type === 'A' ? 'Automatic' : 
+                                   template.type === 'I' ? 'Injection' : 
+                                   template.type === 'H' ? 'Hydraulic' : 
+                                   template.type === 'P' ? 'Pneumatic' : 
+                                   template.type === 'E' ? 'Electric' : 
+                                   template.type === 'S' ? 'Special/Unique' : 'Manual'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 mb-0.5 group/tinfo relative">
+                                <h3 className="text-[15px] font-semibold text-white">{template.name}</h3>
+                                {template.technicalDescription && (
+                                  <AlertCircle className="w-3 h-3 text-slate-500 cursor-help" />
+                                )}
+                                {template.technicalDescription && (
+                                  <div className="absolute bottom-full left-0 mb-1.5 w-56 p-2.5 bg-[#0a0b10] border border-white/10 rounded-lg shadow-[0_10px_30px_rgba(0,0,0,0.5)] opacity-0 invisible group-hover/tinfo:opacity-100 group-hover/tinfo:visible transition-all z-20 pointer-events-none translate-y-1 group-hover/tinfo:translate-y-0">
+                                    <div className="text-[9px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Functional Identity</div>
+                                    <p className="text-[11px] text-slate-300 leading-snug italic">{template.technicalDescription}</p>
+                                  </div>
+                                )}
+                              </div>
+                              {template.technicalDescription && (
+                                <p className="text-[10px] text-slate-500 italic mt-1 line-clamp-1 opacity-70 group-hover/tinfo:opacity-100 transition-opacity">
+                                  {template.technicalDescription}
+                                </p>
+                              )}
                             </div>
                             
                             <div className="mt-auto flex items-center justify-between shrink-0">
@@ -377,14 +433,6 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                                        </div>
                                      </div>
                                      <div className="flex gap-4 md:gap-8 items-center pr-10 relative">
-                                        <div className="text-right hidden sm:block">
-                                          <span className="block text-[9px] text-slate-600 font-bold uppercase tracking-widest mb-0.5">Unit</span>
-                                          <span className="text-xs font-bold text-slate-200">{blueprint.unit}</span>
-                                        </div>
-                                        <div className="text-right flex-shrink-0 min-w[60px] md:min-w[80px]">
-                                          <span className="block text-[9px] text-slate-600 font-bold uppercase tracking-widest mb-0.5">Threshold</span>
-                                          <span className="text-xs font-mono font-bold text-violet-500">{blueprint.minThreshold}</span>
-                                        </div>
                                         <button onClick={(e) => handleDelete('blueprint', blueprint.id, e)} className="absolute right-0 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">
                                           <Trash2 className="w-4 h-4" />
                                         </button>

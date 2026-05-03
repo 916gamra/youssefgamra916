@@ -28,6 +28,7 @@ export function SectorRegistryView() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [managerName, setManagerName] = useState('');
+  const [preventiveTechId, setPreventiveTechId] = useState('');
 
   const filteredSectors = sectors.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -40,10 +41,10 @@ export function SectorRegistryView() {
     if (!name) return;
     try {
       if (editingId) {
-        await updateSector(editingId, { name, description, managerName });
+        await updateSector(editingId, { name, description, managerName, preventiveTechId });
         showSuccess('Zone Updated', `${name} parameters adjusted.`);
       } else {
-        await createSector(name, description, managerName);
+        await createSector(name, description, managerName, preventiveTechId);
         showSuccess('Zone Initialized', `${name} is active.`);
       }
       handleCancel();
@@ -57,6 +58,7 @@ export function SectorRegistryView() {
     setName(sector.name);
     setDescription(sector.description || '');
     setManagerName(sector.managerName || '');
+    setPreventiveTechId(sector.preventiveTechId || '');
     setIsAdding(true);
   };
 
@@ -85,6 +87,7 @@ export function SectorRegistryView() {
     setName('');
     setDescription('');
     setManagerName('');
+    setPreventiveTechId('');
   };
 
   return (
@@ -156,35 +159,51 @@ export function SectorRegistryView() {
                 </h2>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Zone Designation</label>
-                      <input 
-                        required 
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="e.g., PACKAGING SECTOR A" 
-                        className="titan-input py-3"
-                      />
+                       <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Zone Designation</label>
+                       <input 
+                         required 
+                         type="text"
+                         value={name}
+                         onChange={(e) => setName(e.target.value)}
+                         placeholder="e.g., PACKAGING SECTOR A" 
+                         className="titan-input py-3"
+                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Sector Manager (Opt)</label>
-                      <input 
-                        type="text"
-                        value={managerName}
-                        onChange={(e) => setManagerName(e.target.value)}
-                        placeholder="e.g., Mohammed Zaradi" 
-                        className="titan-input py-3"
-                      />
+                       <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Sector Manager (Head)</label>
+                       <input 
+                         type="text"
+                         value={managerName}
+                         onChange={(e) => setManagerName(e.target.value)}
+                         placeholder="e.g., Mohammed Zaradi" 
+                         className="titan-input py-3"
+                       />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Assigned Preventive Technician</label>
+                      <select
+                        value={preventiveTechId}
+                        onChange={(e) => setPreventiveTechId(e.target.value)}
+                        className="titan-input py-3 appearance-none"
+                      >
+                        <option value="">No specific technician (Generalist Pool)</option>
+                        {technicians.filter(t => t.sectorId === editingId || !editingId).map(t => (
+                          <option key={t.id} value={t.id}>{t.name} ({t.specialty || 'Generalist'})</option>
+                        ))}
+                      </select>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Operational Directive (Opt)</label>
+                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Operational Directive / Area Details</label>
                       <input 
                         type="text"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="e.g., Deep Drawing..." 
+                        placeholder="e.g., Critical Line 1, Main Hall..." 
                         className="titan-input py-3"
                       />
                     </div>
@@ -260,9 +279,23 @@ export function SectorRegistryView() {
                         </p>
                         
                         {sector.managerName && (
-                          <div className="mt-4 flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1.5 rounded-lg w-max">
-                            <Users className="w-3.5 h-3.5 text-indigo-400" />
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-indigo-400">Head: {sector.managerName}</span>
+                          <div className="mt-4 flex flex-col gap-2">
+                             <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-slate-500 mb-1 ml-1 opacity-70">Sector Leadership</div>
+                             <div className="flex items-center gap-3 bg-indigo-500/10 border border-indigo-500/20 px-4 py-3 rounded-2xl group/manager hover:bg-indigo-500/20 transition-all duration-300">
+                               <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 group-hover/manager:scale-110 transition-transform">
+                                 <Users className="w-4 h-4 text-indigo-400" />
+                               </div>
+                               <div className="flex flex-col">
+                                 <span className="text-[11px] font-bold text-white uppercase tracking-wider">{sector.managerName}</span>
+                                 <span className="text-[9px] text-indigo-400 font-bold uppercase tracking-widest opacity-80">Operational Head</span>
+                               </div>
+                             </div>
+                             {sector.preventiveTechId && (
+                               <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg">
+                                 <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                                 <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-400">PM Tech Assigned</span>
+                               </div>
+                             )}
                           </div>
                         )}
                       </div>

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { Factory, Cpu, Plus, X, Search, Activity, Box, Tag, Trash2, Edit3, Save, Wrench } from 'lucide-react';
 import { useOrganizationEngine } from '../hooks/useOrganizationEngine';
+import { useMachineLibrary } from '../hooks/useMachineLibrary';
 import { useNotifications } from '@/shared/hooks/useNotifications';
 import { MachineBomModal } from '../components/MachineBomModal';
 import { cn } from '@/shared/utils';
@@ -18,7 +19,8 @@ const itemVariants = {
 };
 
 export function MachineRegistryView() {
-  const { machines, sectors, createMachine, updateMachine, deleteMachine } = useOrganizationEngine();
+  const { machines, sectors, families, createMachine, updateMachine, deleteMachine } = useOrganizationEngine();
+  const { blueprints, templates } = useMachineLibrary();
   const { showSuccess, showError } = useNotifications();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSector, setFilterSector] = useState('ALL');
@@ -31,32 +33,56 @@ export function MachineRegistryView() {
   const [name, setName] = useState('');
   const [referenceCode, setReferenceCode] = useState('');
   const [sectorId, setSectorId] = useState('');
-  const [family, setFamily] = useState('');
-  const [template, setTemplate] = useState('');
+  const [blueprintId, setBlueprintId] = useState('');
 
-  const uniqueTemplates = useMemo(() => Array.from(new Set(machines.map(m => m.template))).sort(), [machines]);
+  // Auto-generate Reference Code for new machines
+  useEffect(() => {
+    if (!editingId && blueprintId && blueprints.length > 0 && templates.length > 0) {
+      const selectedBlueprint = blueprints.find(b => b.id === blueprintId);
+      if (selectedBlueprint) {
+        // Extract genetic prefix (Blueprint ref without the 00- suffix)
+        // e.g. STA1-00-V1 -> STA1
+        const blueprintPrefix = selectedBlueprint.reference.split('-')[0];
+        
+        // Find parent template and family
+        const template = templates.find(t => t.id === selectedBlueprint.templateId);
+        const family = families.find(f => f.id === template?.familyId);
+        
+        // Count all existing machines sharing the SAME Family
+        // Regardless of specific template/blueprint version
+        const sameFamilyMachines = machines.filter(m => m.familyName === family?.name);
+        
+        const nextSequence = sameFamilyMachines.length + 1;
+        
+        setReferenceCode(`${blueprintPrefix}-${String(nextSequence).padStart(2, '0')}`);
+      }
+    }
+  }, [blueprintId, editingId, blueprints, templates, machines]);
+
+  const uniqueTemplates = useMemo(() => Array.from(new Set(machines.map(m => m.templateName))).sort(), [machines]);
 
   const filteredMachines = useMemo(() => {
     return machines.filter(m => {
       const matchSearch = !searchTerm || m.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         m.referenceCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        m.blueprintReference.toLowerCase().includes(searchTerm.toLowerCase()) ||
         m.sectorName.toLowerCase().includes(searchTerm.toLowerCase());
       const matchSector = filterSector === 'ALL' || m.sectorId === filterSector;
-      const matchTemplate = filterTemplate === 'ALL' || m.template === filterTemplate;
+      const matchTemplate = filterTemplate === 'ALL' || m.templateName === filterTemplate;
       return matchSearch && matchSector && matchTemplate;
     });
   }, [machines, searchTerm, filterSector, filterTemplate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !referenceCode || !sectorId || !family || !template) return;
+    if (!name || !referenceCode || !sectorId || !blueprintId) return;
     
     try {
       if (editingId) {
-        await updateMachine(editingId, { name, sectorId, family, template, referenceCode });
+        await updateMachine(editingId, { name, sectorId, blueprintId, referenceCode });
         showSuccess('Machine Updated', `${name} digital twin updated.`);
       } else {
-        await createMachine(name, sectorId, family, template, referenceCode);
+        await createMachine(name, sectorId, blueprintId, referenceCode);
         showSuccess('Machine Created', `${name} added to the registry.`);
       }
       
@@ -71,8 +97,7 @@ export function MachineRegistryView() {
     setName(machine.name);
     setReferenceCode(machine.referenceCode);
     setSectorId(machine.sectorId);
-    setFamily(machine.family);
-    setTemplate(machine.template);
+    setBlueprintId(machine.blueprintId);
     setIsModalOpen(true);
   };
 
@@ -88,8 +113,7 @@ export function MachineRegistryView() {
     setName('');
     setReferenceCode('');
     setSectorId('');
-    setFamily('');
-    setTemplate('');
+    setBlueprintId('');
     setIsModalOpen(false);
   };
 
@@ -253,11 +277,11 @@ export function MachineRegistryView() {
                         <div className="mt-auto grid grid-cols-2 divide-x divide-white/5 border-t border-white/5 bg-white/[0.02] text-[10px] font-bold text-slate-400 uppercase tracking-widest relative z-10">
                           <div className="p-4 flex items-center gap-2 justify-center" title="Family">
                             <Box className="w-4 h-4 text-slate-500" />
-                            <span className="truncate">{machine.family}</span>
+                            <span className="truncate">{machine.familyName}</span>
                           </div>
                           <div className="p-4 flex items-center gap-2 justify-center" title="Template">
                             <Tag className="w-4 h-4 text-slate-500" />
-                            <span className="truncate">{machine.template}</span>
+                            <span className="truncate">{machine.templateName}</span>
                           </div>
                         </div>
                       </GlassCard>
@@ -331,23 +355,19 @@ export function MachineRegistryView() {
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-5">
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Classification (Family)</label>
-                      <input 
-                        type="text" required value={family} onChange={e => setFamily(e.target.value)}
-                        placeholder="e.g. Hydraulic"
-                        className="titan-input py-3"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Model (Template)</label>
-                      <input 
-                        type="text" required value={template} onChange={e => setTemplate(e.target.value)}
-                        placeholder="e.g. Standard V2"
-                        className="titan-input py-3"
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Machine Model (Blueprint)</label>
+                    <select
+                      required value={blueprintId} onChange={e => setBlueprintId(e.target.value)}
+                      className="titan-input appearance-none transition-all cursor-pointer py-3"
+                    >
+                      <option value="" disabled className="bg-[#14161f]">Select machine archetype...</option>
+                      {blueprints.map(b => (
+                        <option key={b.id} value={b.id} className="bg-[#14161f]">
+                          {b.reference}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   <div className="pt-6 flex justify-end gap-3">

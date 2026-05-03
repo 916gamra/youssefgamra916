@@ -47,7 +47,11 @@ export async function seedUsers() {
 export async function seedDatabase() {
   try {
     // 1. فتح معاملة (Transaction) لضمان سلامة الحقن (إما ينجح كله أو يفشل كله)
-    await db.transaction('rw', [db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, db.inventory, db.movements], async () => {
+    await db.transaction('rw', [
+      db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, 
+      db.inventory, db.movements,
+      db.machineFamilies, db.machineTemplates // Added machine tables
+    ], async () => {
       
       // تنظيف القاعدة للبدء على أرضية صلبة
       await db.pdrFamilies.clear();
@@ -55,10 +59,25 @@ export async function seedDatabase() {
       await db.pdrBlueprints.clear();
       await db.inventory.clear();
       await db.movements.clear();
+      await db.machineFamilies.clear();
+      await db.machineTemplates.clear();
 
       const now = new Date().toISOString();
 
-      // --- 1. حقن العائلات (Families) ---
+      // --- 1. حقن عائلات الآلات (Machine Families) ---
+      const famST = generateId();
+      await db.machineFamilies.bulkAdd([
+        { id: famST, name: 'Satinage Machine', code: 'ST', createdAt: now }
+      ]);
+
+      // --- 2. حقن قوالب الآلات (Machine Templates) ---
+      await db.machineTemplates.bulkAdd([
+        { id: generateId(), familyId: famST, name: 'Satinage Automatic', type: 'A', skuBase: 'STA', createdAt: now },
+        { id: generateId(), familyId: famST, name: 'Satinage Electric', type: 'E', skuBase: 'STE', createdAt: now },
+        { id: generateId(), familyId: famST, name: 'Satinage Manual/Mechanical', type: 'M', skuBase: 'STM', createdAt: now },
+      ]);
+
+      // --- 3. حقن العائلات (Families - PDR) ---
       const familyRoulementsId = generateId();
       const familyCourroiesId = generateId();
       const familyElectriqueId = generateId();

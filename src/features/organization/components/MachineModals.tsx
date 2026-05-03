@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Save, FolderPlus, Layers, Hash } from 'lucide-react';
-import { db } from '@/core/db';
+import { db, type MachineFamily, type MachineTemplate, type MachineOperationType } from '@/core/db';
 import { toast } from 'sonner';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 
@@ -10,8 +10,8 @@ export type ModalType = 'family' | 'template' | 'blueprint' | null;
 interface MachineModalsProps {
   activeModal: ModalType;
   onClose: () => void;
-  families: any[];
-  templates: any[];
+  families: MachineFamily[];
+  templates: MachineTemplate[];
   user?: any;
 }
 
@@ -19,6 +19,24 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
   const [formData, setFormData] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { logEvent } = useAuditTrail();
+
+  // Auto-generate SKU Base for Templates
+  useEffect(() => {
+    if (activeModal === 'template' && formData.familyId && formData.type) {
+      const family = families.find(f => f.id === formData.familyId);
+      if (family) {
+        let sku = '';
+        if (formData.type === 'S') {
+          // Special/Unique: First 3 letters of Family Name
+          sku = family.name.substring(0, 3).toUpperCase();
+        } else {
+          // Functional Keys: Family Code (2 letters) + Type (1 letter)
+          sku = `${family.code}${formData.type}`;
+        }
+        setFormData(prev => ({ ...prev, skuBase: sku }));
+      }
+    }
+  }, [formData.familyId, formData.type, families, activeModal, formData.name]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,11 +47,13 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
       const createdAt = new Date().toISOString();
 
       if (activeModal === 'family') {
-        if (!formData.name) throw new Error('Family name is required');
+        if (!formData.name || !formData.code) throw new Error('Name and Code are required');
         await db.machineFamilies.add({
           id,
           name: formData.name,
+          code: formData.code.toUpperCase().substring(0, 2),
           description: formData.description || '',
+          technicalDescription: formData.technicalDescription || '',
           createdAt,
         });
         await logEvent({
@@ -42,18 +62,20 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
           action: 'CREATE',
           entityType: 'MACHINE_FAMILY',
           entityId: id,
-          details: `Created Machine Family: ${formData.name}`,
+          details: `Created Machine Family: ${formData.name} (${formData.code})`,
           severity: 'INFO'
         });
         toast.success('Machine Family created');
       } else if (activeModal === 'template') {
-        if (!formData.name || !formData.familyId || !formData.skuBase) throw new Error('Missing required fields');
+        if (!formData.name || !formData.familyId || !formData.skuBase || !formData.type) throw new Error('Missing required fields');
         await db.machineTemplates.add({
           id,
           familyId: formData.familyId,
           name: formData.name,
+          type: formData.type as MachineOperationType,
           skuBase: formData.skuBase,
           description: formData.description || '',
+          technicalDescription: formData.technicalDescription || '',
           createdAt,
         });
         await logEvent({
@@ -62,18 +84,16 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
           action: 'CREATE',
           entityType: 'MACHINE_TEMPLATE',
           entityId: id,
-          details: `Created Machine Template: ${formData.name}`,
+          details: `Created Machine Template: ${formData.name} Type: ${formData.type}`,
           severity: 'INFO'
         });
         toast.success('Machine Template created');
       } else if (activeModal === 'blueprint') {
-        if (!formData.templateId || !formData.reference || !formData.unit) throw new Error('Missing required fields');
+        if (!formData.templateId || !formData.reference) throw new Error('Missing required fields');
         await db.machineBlueprints.add({
           id,
           templateId: formData.templateId,
           reference: formData.reference,
-          unit: formData.unit,
-          minThreshold: Number(formData.minThreshold) || 0,
           createdAt,
         });
         await logEvent({
@@ -135,24 +155,47 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
             {activeModal === 'family' && (
               <>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2">
+                    <label className="titan-label">Family Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name || ''}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                      className="titan-input"
+                      placeholder="e.g., Satinage, Press"
+                    />
+                  </div>
+                  <div>
+                    <label className="titan-label">Code</label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={2}
+                      value={formData.code || ''}
+                      onChange={e => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                      className="titan-input font-mono uppercase text-center"
+                      placeholder="ST"
+                    />
+                  </div>
+                </div>
                 <div>
-                  <label className="titan-label">Family Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name || ''}
-                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    className="titan-input"
-                    placeholder="e.g., Bearings, Motors"
+                  <label className="titan-label">Industrial/Mechanical Definition</label>
+                  <textarea
+                    value={formData.technicalDescription || ''}
+                    onChange={e => setFormData({ ...formData, technicalDescription: e.target.value })}
+                    className="titan-input h-20 resize-none"
+                    placeholder="Physical process (e.g., removal of material via rotation)..."
                   />
                 </div>
                 <div>
-                  <label className="titan-label">Description</label>
+                  <label className="titan-label">Internal Notes</label>
                   <textarea
                     value={formData.description || ''}
                     onChange={e => setFormData({ ...formData, description: e.target.value })}
-                    className="titan-input h-24 resize-none"
-                    placeholder="Optional description..."
+                    className="titan-input h-20 resize-none"
+                    placeholder="Logistical hints or site-specific notes..."
                   />
                 </div>
               </>
@@ -160,19 +203,39 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
 
             {activeModal === 'template' && (
               <>
-                <div>
-                  <label className="titan-label">Parent Family</label>
-                  <select
-                    required
-                    value={formData.familyId || ''}
-                    onChange={e => setFormData({ ...formData, familyId: e.target.value })}
-                    className="titan-input appearance-none"
-                  >
-                    <option value="" disabled>Select Family...</option>
-                    {families.map(f => (
-                      <option key={f.id} value={f.id}>{f.name}</option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="titan-label">Parent Family</label>
+                    <select
+                      required
+                      value={formData.familyId || ''}
+                      onChange={e => setFormData({ ...formData, familyId: e.target.value })}
+                      className="titan-input appearance-none"
+                    >
+                      <option value="" disabled>Select Family...</option>
+                      {families.map(f => (
+                        <option key={f.id} value={f.id}>{f.name} ({f.code})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="titan-label">Operation Type</label>
+                    <select
+                      required
+                      value={formData.type || ''}
+                      onChange={e => setFormData({ ...formData, type: e.target.value })}
+                      className="titan-input appearance-none"
+                    >
+                      <option value="" disabled>Select Type (Priority Logic Applied)...</option>
+                      <option value="A">A - Automatic (CNC/PLC Controlled)</option>
+                      <option value="I">I - Injection (Plastic/Metal Molding)</option>
+                      <option value="H">H - Hydraulic (Fluid Power)</option>
+                      <option value="P">P - Pneumatic (Compressed Air)</option>
+                      <option value="E">E - Electric (Electromechanical)</option>
+                      <option value="M">M - Manual (Pure Mechanical)</option>
+                      <option value="S">S - Special/Unique (Tri-Char ID)</option>
+                    </select>
+                  </div>
                 </div>
                 <div>
                   <label className="titan-label">Template Name</label>
@@ -182,33 +245,31 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
                     value={formData.name || ''}
                     onChange={e => setFormData({ ...formData, name: e.target.value })}
                     className="titan-input"
-                    placeholder="e.g., Roller Bearings"
+                    placeholder="e.g., Standard Satinage"
                   />
                 </div>
                 <div>
-                  <label className="titan-label">SKU Base</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.skuBase || ''}
-                    onChange={e => setFormData({ ...formData, skuBase: e.target.value })}
-                    className="titan-input font-mono"
-                    placeholder="e.g., RLM-6200"
+                  <label className="titan-label">Functional Mechanical Identity</label>
+                  <textarea
+                    rows={2}
+                    value={formData.technicalDescription || ''}
+                    onChange={e => setFormData({ ...formData, technicalDescription: e.target.value })}
+                    className="titan-input resize-none"
+                    placeholder="Specific mechanical purpose of this template..."
+                  />
+                </div>
+                <div className="hidden">
+                  <label className="titan-label">Notes</label>
+                  <textarea
+                    value={formData.description || ''}
+                    onChange={e => setFormData({ ...formData, description: e.target.value })}
+                    className="titan-input resize-none"
                   />
                 </div>
               </>
             )}
 
-            {activeModal === 'blueprint' && (() => {
-              const selectedTemplate = templates.find(t => t.id === formData.templateId);
-              const templateNameLower = (selectedTemplate?.name || '').toLowerCase();
-              
-              const isMotor = templateNameLower.includes('motor') || templateNameLower.includes('engine');
-              const isCable = templateNameLower.includes('cable') || templateNameLower.includes('wire');
-              const isBearing = templateNameLower.includes('bearing');
-              const isPump = templateNameLower.includes('pump');
-
-              return (
+            {activeModal === 'blueprint' && (
               <>
                 <div>
                   <label className="titan-label">Parent Template</label>
@@ -225,120 +286,18 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
                   </select>
                 </div>
                 <div>
-                  <label className="titan-label">Reference / Part No.</label>
+                  <label className="titan-label">Catalog Reference / Version ID</label>
                   <input
                     type="text"
                     required
                     value={formData.reference || ''}
                     onChange={e => setFormData({ ...formData, reference: e.target.value })}
                     className="titan-input font-mono"
-                    placeholder="e.g., 6205-2RS"
+                    placeholder="e.g., STM1-00-V1"
                   />
                 </div>
-
-                {/* DYNAMIC TEMPLATE FIELDS */}
-                <AnimatePresence>
-                  {selectedTemplate && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 pt-2 pb-2">
-                       <div className="flex items-center gap-2 mb-2">
-                          <Layers className="w-4 h-4 text-indigo-400" />
-                          <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Template Requirements: {selectedTemplate.name}</span>
-                       </div>
-                       
-                       <div className="grid grid-cols-2 gap-4">
-                         {isMotor && (
-                           <>
-                             <div>
-                               <label className="titan-label">Power (kW/HP)</label>
-                               <input type="text" className="titan-input text-xs" placeholder="e.g., 15kW" />
-                             </div>
-                             <div>
-                               <label className="titan-label">Voltage (V)</label>
-                               <input type="text" className="titan-input text-xs" placeholder="e.g., 400V 3Ph" />
-                             </div>
-                           </>
-                         )}
-                         {isCable && (
-                           <>
-                             <div>
-                               <label className="titan-label">Length (m)</label>
-                               <input type="number" className="titan-input text-xs" placeholder="e.g., 100" />
-                             </div>
-                             <div>
-                               <label className="titan-label">Gauge / Section</label>
-                               <input type="text" className="titan-input text-xs" placeholder="e.g., 3x2.5mm²" />
-                             </div>
-                           </>
-                         )}
-                         {isBearing && (
-                           <>
-                             <div>
-                               <label className="titan-label">Inner Diameter (mm)</label>
-                               <input type="number" className="titan-input text-xs" placeholder="e.g., 25" />
-                             </div>
-                             <div>
-                               <label className="titan-label">Outer Diameter (mm)</label>
-                               <input type="number" className="titan-input text-xs" placeholder="e.g., 52" />
-                             </div>
-                           </>
-                         )}
-                         {isPump && (
-                           <>
-                             <div>
-                               <label className="titan-label">Flow Rate (m³/h)</label>
-                               <input type="text" className="titan-input text-xs" placeholder="e.g., 50 m³/h" />
-                             </div>
-                             <div>
-                               <label className="titan-label">Max Head (m)</label>
-                               <input type="text" className="titan-input text-xs" placeholder="e.g., 30m" />
-                             </div>
-                           </>
-                         )}
-                         {(!isMotor && !isCable && !isBearing && !isPump) && (
-                           <>
-                             <div className="col-span-2">
-                               <label className="titan-label">Custom Specification</label>
-                               <input type="text" className="titan-input text-xs" placeholder="Key = Value (e.g., Material = SUS304)" />
-                             </div>
-                           </>
-                         )}
-                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="titan-label">Unit</label>
-                    <select
-                      required
-                      value={formData.unit || ''}
-                      onChange={e => setFormData({ ...formData, unit: e.target.value })}
-                      className="titan-input appearance-none"
-                    >
-                      <option value="" disabled>Select...</option>
-                      <option value="Pcs">Pieces (Pcs)</option>
-                      <option value="Kg">Kilograms (Kg)</option>
-                      <option value="L">Liters (L)</option>
-                      <option value="M">Meters (M)</option>
-                      <option value="Set">Set</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="titan-label">Min Threshold</label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      value={formData.minThreshold || ''}
-                      onChange={e => setFormData({ ...formData, minThreshold: e.target.value })}
-                      className="titan-input font-mono"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
               </>
-            )})}
+            )}
 
             <div className="pt-4 mt-6 border-t border-white/5 flex gap-3">
               <button
@@ -351,7 +310,7 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 py-3 px-4 bg-indigo-500 hover:bg-indigo-400 text-[#050508] font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
+                className="flex-1 py-3 px-4 bg-indigo-500 hover:bg-indigo-400 text-[#050508] font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
               >
                 <Save className="w-5 h-5" />
                 {isSubmitting ? 'Saving...' : 'Deploy Data'}

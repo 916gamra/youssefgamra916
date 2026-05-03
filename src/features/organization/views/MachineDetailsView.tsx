@@ -21,7 +21,7 @@ export function MachineDetailsView({ tabId }: { tabId: string }) {
   const machineId = tabId.replace('machine-detail:', '');
   const { machines } = useOrganizationEngine();
   const { blueprints, getMachineBOM, templates } = usePdrLibrary();
-  const { openTab, closeTab } = useTabStore();
+  const { openTab } = useTabStore();
   
   const machine = machines.find(m => m.id === machineId);
   const machineParts = getMachineBOM(machineId) || [];
@@ -64,7 +64,7 @@ export function MachineDetailsView({ tabId }: { tabId: string }) {
         </div>
 
         <button 
-           onClick={() => closeTab(tabId)}
+           onClick={() => openTab({ id: 'machine-registry', portalId: 'FACTORY', title: 'Machine Registry', component: 'machine-registry' })}
            className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 text-slate-400 hover:text-white transition-all absolute top-0 right-0 sm:relative z-10"
         >
           <X className="w-5 h-5" />
@@ -92,14 +92,14 @@ export function MachineDetailsView({ tabId }: { tabId: string }) {
             <Layers className="w-5 h-5 text-indigo-400" />
             <div>
                <span className="block text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Family</span>
-               <span className="text-sm font-bold text-white uppercase">{machine.family}</span>
+               <span className="text-sm font-bold text-white uppercase">{machine.familyName}</span>
             </div>
          </GlassCard>
          <GlassCard className="p-4 border-l-2 border-l-indigo-500 flex items-center gap-4">
             <Wrench className="w-5 h-5 text-indigo-400" />
             <div>
                <span className="block text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-1">Template</span>
-               <span className="text-sm font-bold text-white uppercase">{machine.template}</span>
+               <span className="text-sm font-bold text-white uppercase">{machine.templateName}</span>
             </div>
          </GlassCard>
          <GlassCard className="p-4 border-l-2 border-l-emerald-500 flex items-center gap-4">

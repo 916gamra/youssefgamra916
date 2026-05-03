@@ -6,23 +6,32 @@ import { toast } from 'sonner';
 export function runDatabaseSeed(force = false) {
   return async () => {
     try {
-      const familyCount = await db.pdrFamilies.count();
+      const pdrFamilyCount = await db.pdrFamilies.count();
+      const machineFamilyCount = await db.machineFamilies.count();
       const machineCount = await db.machines.count();
 
-      if (force || familyCount === 0 || machineCount === 0) {
-        await db.transaction('rw', [db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, db.sectors, db.machines], async () => {
-          // Clear tables just in case of partial failed seed
+      if (force || pdrFamilyCount === 0 || machineFamilyCount === 0 || machineCount === 0) {
+        await db.transaction('rw', [
+          db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, 
+          db.machineFamilies, db.machineTemplates, 
+          db.sectors, db.machines
+        ], async () => {
+          // Clear tables
           await db.pdrFamilies.clear();
           await db.pdrTemplates.clear();
           await db.pdrBlueprints.clear();
+          await db.machineFamilies.clear();
+          await db.machineTemplates.clear();
           await db.sectors.clear();
           await db.machines.clear();
 
           // Inject Master Data
-          await db.pdrFamilies.bulkAdd(INITIAL_DATA.families);
+          await db.pdrFamilies.bulkAdd(INITIAL_DATA.pdrFamilies);
+          await db.machineFamilies.bulkAdd(INITIAL_DATA.machineFamilies);
+          await db.machineTemplates.bulkAdd(INITIAL_DATA.machineTemplates);
           await db.sectors.bulkAdd(INITIAL_DATA.sectors);
           await db.machines.bulkAdd(INITIAL_DATA.machines);
-          await db.pdrTemplates.bulkAdd(INITIAL_DATA.templates);
+          await db.pdrTemplates.bulkAdd(INITIAL_DATA.pdrTemplates);
           await db.pdrBlueprints.bulkAdd(INITIAL_DATA.blueprints);
         });
 

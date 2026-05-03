@@ -79,6 +79,7 @@ export interface Sector {
   name: string;
   description?: string;
   managerName?: string;
+  preventiveTechId?: string; // One assigned PM technician
 }
 
 export interface Technician {
@@ -91,15 +92,22 @@ export interface Technician {
 export interface MachineFamily {
   id: string; // UUID
   name: string;
+  code: string; // 2 Letters e.g. ST
   description?: string;
+  technicalDescription?: string; // Mechanical process details
   createdAt: string;
 }
+
+export type MachineOperationType = 'A' | 'I' | 'H' | 'P' | 'E' | 'M' | 'S';
 
 export interface MachineTemplate {
   id: string; // UUID
   familyId: string;
   name: string;
-  skuBase: string; // e.g. MP for Mechanical Press
+  type: MachineOperationType; // New: Automatic, Hydraulic, Pneumatic, Electric, Manual
+  skuBase: string; // e.g. STM
+  description?: string;
+  technicalDescription?: string; // Functional identity details
   createdAt: string;
 }
 
@@ -108,7 +116,6 @@ export interface MachineBlueprint {
   templateId: string;
   reference: string; // e.g. MP-2013
   category?: string; // Optional metadata
-  minThreshold?: number; // Might not apply to machines, but keeping shape
   createdAt: string;
 }
 
@@ -116,9 +123,8 @@ export interface Machine {
   id: string; // UUID
   name: string;
   sectorId: string; // Foreign Key to Sector
-  family: string;
-  template: string;
-  referenceCode: string;
+  blueprintId: string; // Foreign Key to MachineBlueprint
+  referenceCode: string; // Serial Number / Asset ID
 }
 
 export interface MachinePartMapping {
