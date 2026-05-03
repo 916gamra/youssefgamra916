@@ -3,9 +3,8 @@ import React from 'react';
 export function SystemBackground() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 select-none bg-[#020202]">
-      {/* Dynamic Orbs - Darker, more industrial/stealth */}
-      <div className="absolute top-[-30%] left-[-20%] w-[60%] h-[60%] bg-slate-800/10 blur-[130px] rounded-full mix-blend-screen" />
-      <div className="absolute bottom-[-30%] right-[-20%] w-[70%] h-[70%] bg-cyan-900/5 blur-[150px] rounded-full mix-blend-screen" />
+      {/* Dynamic Orbs - Kept right side, removed left side to fix false sidebar shadow */}
+      <div className="absolute bottom-[-10%] right-[10%] w-[50%] h-[50%] bg-cyan-900/10 blur-[150px] rounded-full mix-blend-screen" />
       
       {/* Noise Texture */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] mix-blend-overlay" />

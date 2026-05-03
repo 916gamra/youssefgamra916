@@ -34,14 +34,7 @@ export const SEED_TECHNICIANS: Technician[] = [
 ];
 
 export const SEED_USERS: User[] = [
-  { id: 1, name: 'Youssef Gamra', role: 'Technician Maintenance', initials: 'YG', color: '#6366f1', pin: '1234', isPrimary: true, allowedPortals: ['ENGINEERING', 'STOCK', 'MAINTENANCE'] },
-  { id: 2, name: 'Ismail Motmir', role: 'Technician Maintenance', initials: 'IM', color: '#8b5cf6', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { id: 3, name: 'Rachid', role: 'Technician Maintenance', initials: 'RA', color: '#ec4899', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { id: 4, name: 'Muhammad', role: 'Technician Maintenance', initials: 'MU', color: '#f59e0b', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { id: 5, name: 'Boujama Marid', role: 'Technician Maintenance', initials: 'BM', color: '#10b981', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { id: 6, name: 'Anas', role: 'Maintenance', initials: 'AN', color: '#64748b', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { id: 7, name: 'Brahime', role: 'Maintenance', initials: 'BR', color: '#64748b', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { id: 8, name: 'Mouad', role: 'Souder', initials: 'MO', color: '#ef4444', pin: '0000', allowedPortals: ['MAINTENANCE'] },
+  { id: 1, name: 'Admin', role: 'System Administrator', initials: 'AD', color: '#dc2626', pin: '1234', isPrimary: true, allowedPortals: ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS'] },
 ];
 
 export const SEED_MACHINES: Machine[] = [
