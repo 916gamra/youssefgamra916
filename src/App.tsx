@@ -11,7 +11,6 @@ import { DesktopLayout } from '@/app/DesktopLayout';
 import { LoginScreen } from '@/features/auth/views/LoginScreen';
 import { useAuthStore } from '@/app/store/useAuthStore';
 import { useSystemCognition } from '@/core/useSystemCognition';
-import { seedUsers } from '@/core/seed';
 import { runDatabaseSeed } from '@/core/db/useDatabaseSeeder';
 
 const queryClient = new QueryClient();
@@ -33,7 +32,6 @@ export default function App() {
     const verify = async () => {
        try {
          await runDatabaseSeed()(); // Inject master data if empty
-         await seedUsers(); // Ensure base users exist
          await checkSession();
        } finally {
          setIsSessionVerified(true);

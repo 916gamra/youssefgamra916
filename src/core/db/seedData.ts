@@ -34,7 +34,6 @@ export const SEED_TECHNICIANS: Technician[] = [
 ];
 
 export const SEED_USERS: User[] = [
-  { id: 1, name: 'Admin', role: 'System Administrator', initials: 'AD', color: '#dc2626', pin: '1234', isPrimary: true, allowedPortals: ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS'] },
 ];
 
 export const SEED_MACHINES: Machine[] = [
@@ -133,6 +132,90 @@ export const SEED_MACHINE_FAMILIES: MachineFamily[] = [
     technicalDescription: 'Machining process in which a cutting tool, typically a non-rotary tool bit, describes a helix toolpath by moving more or less linearly while the workpiece rotates.',
     createdAt: now 
   },
+  { 
+    id: 'fam-visseuse', 
+    name: 'Visseuse Machine', 
+    code: 'VI', 
+    technicalDescription: 'Mechanical fastening using screws.',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-poinconneuse', 
+    name: 'Poinçonneuse Machine', 
+    code: 'PC', 
+    technicalDescription: 'Punching machine for material deformation or cutting.',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-sertissage-bec', 
+    name: 'Sertissage Bec Bouilloire', 
+    code: 'SB', 
+    technicalDescription: 'Specialized seaming operation for kettle spouts.',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-moteur-meule', 
+    name: 'Moteur Meule', 
+    code: 'ME', 
+    technicalDescription: 'Grinding motor assembly.',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-scotcheuse', 
+    name: 'Scotcheuse Machine', 
+    code: 'SC', 
+    technicalDescription: 'Taping machine.',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-traitement-surf', 
+    name: 'Traitement Surface', 
+    code: 'TF', 
+    technicalDescription: 'Surface treatment, chemical baths, and finishing operations.',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-ravivage', 
+    name: 'Ravivage', 
+    code: 'RA', 
+    technicalDescription: 'Process of restoring the cutting surface of grinding wheels.',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-transpalette', 
+    name: 'Transpalette', 
+    code: 'TP', 
+    technicalDescription: 'Material handling equipment used to lift and move pallets.',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-compresseur', 
+    name: 'Compresseur', 
+    code: 'CO', 
+    technicalDescription: 'Pneumatic infrastructure machine used to increase the pressure of a gas/air by reducing its volume.',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-pompage', 
+    name: 'Système De Pompage', 
+    code: 'PM', 
+    technicalDescription: 'Hydraulic infrastructure for moving fluids. PMI specifically targets submersible pumps (Pompe Immergée).',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-elevateur', 
+    name: 'Elévateur', 
+    code: 'EL', 
+    technicalDescription: 'Vertical transport equipment used for moving goods between floors or high levels.',
+    createdAt: now 
+  },
+  { 
+    id: 'fam-transformateur', 
+    name: 'Transformateur Electrique', 
+    code: 'SY', 
+    technicalDescription: 'Electrical infrastructure device that transfers electrical energy from one circuit to another (stepping voltage up or down).',
+    createdAt: now 
+  },
 ];
 
 export const SEED_MACHINE_TEMPLATES: MachineTemplate[] = [
@@ -163,12 +246,39 @@ export const SEED_MACHINE_TEMPLATES: MachineTemplate[] = [
   { id: 'tpl-re-spec', familyId: 'fam-repoussage', name: 'Repoussage Special (REP)', type: 'S', skuBase: 'REP', technicalDescription: 'Advanced metal spinning unit for complex geometries.', createdAt: now },
   { id: 'tpl-tr-par', familyId: 'fam-tournage', name: 'Tourne Parallèle', type: 'E', skuBase: 'TRP', technicalDescription: 'Standard parallel lathe for cylindrical machining.', createdAt: now },
   { id: 'tpl-tr-spec', familyId: 'fam-tournage', name: 'Tourne Unique (TRR)', type: 'S', skuBase: 'TRR', technicalDescription: 'Specialized or unique lathe configuration.', createdAt: now },
+  { id: 'tpl-pe-per', familyId: 'fam-persage', name: 'Perceuse Specialized', type: 'S', skuBase: 'PER', technicalDescription: 'Specialized drilling operations.', createdAt: now },
+  { id: 'tpl-rv-rvs', familyId: 'fam-rivetage', name: 'Rivetage Semi-Electric', type: 'S', skuBase: 'RVS', technicalDescription: 'Type S - Semi-Electric rivetage.', createdAt: now },
+  { id: 'tpl-vi-vis', familyId: 'fam-visseuse', name: 'Visseuse Specialized', type: 'S', skuBase: 'VIS', technicalDescription: 'Specialized screwing tool.', createdAt: now },
+  { id: 'tpl-pc-pcp', familyId: 'fam-poinconneuse', name: 'Poinçonneuse Specialized', type: 'S', skuBase: 'PCP', technicalDescription: 'Specialized punching operations.', createdAt: now },
+  { id: 'tpl-pc-pcm', familyId: 'fam-poinconneuse', name: 'Poinçonneuse Mechanical', type: 'M', skuBase: 'PCM', technicalDescription: 'Mechanical punching operations.', createdAt: now },
+  { id: 'tpl-sb-sbb', familyId: 'fam-sertissage-bec', name: 'Sertissage Bec Specialized', type: 'S', skuBase: 'SBB', technicalDescription: 'Kettle Spout Seaming.', createdAt: now },
+  { id: 'tpl-me-mel', familyId: 'fam-moteur-meule', name: 'Moteur Meule Specialized', type: 'S', skuBase: 'MEL', technicalDescription: 'Grinding motor assembly.', createdAt: now },
+  { id: 'tpl-sc-sca', familyId: 'fam-scotcheuse', name: 'Scotcheuse Automatic', type: 'A', skuBase: 'SCA', technicalDescription: 'Type A - Automatic tapping machine.', createdAt: now },
+  { id: 'tpl-tf-tfa', familyId: 'fam-traitement-surf', name: 'Traitement Surface Automatic', type: 'A', skuBase: 'TFA', technicalDescription: 'Type A - Automatic surface treatment.', createdAt: now },
+  { id: 'tpl-ra-rav', familyId: 'fam-ravivage', name: 'Ravivage Specialized', type: 'S', skuBase: 'RAV', technicalDescription: 'Specialized process of restoring the cutting surface.', createdAt: now },
+  { id: 'tpl-tp-trs', familyId: 'fam-transpalette', name: 'Transpalette Specialized', type: 'S', skuBase: 'TRS', technicalDescription: 'Specialized material handling transpalette.', createdAt: now },
+  { id: 'tpl-co-com', familyId: 'fam-compresseur', name: 'Compresseur Specialized', type: 'S', skuBase: 'COM', technicalDescription: 'Specialized compressor infrastructure.', createdAt: now },
+  { id: 'tpl-pm-pmi', familyId: 'fam-pompage', name: 'Pompe Immergée (Submersible)', type: 'S', skuBase: 'PMI', technicalDescription: 'Specialized Submersible Pump (Pompe Immergée).', createdAt: now },
+  { id: 'tpl-el-elv', familyId: 'fam-elevateur', name: 'Elévateur Specialized', type: 'S', skuBase: 'ELV', technicalDescription: 'Specialized handling elevator infrastructure.', createdAt: now },
+  { id: 'tpl-sy-syc', familyId: 'fam-transformateur', name: 'Transformateur Electrique Specialized', type: 'S', skuBase: 'SYC', technicalDescription: 'Specialized electrical transformer.', createdAt: now },
 ];
 
 export const SEED_MACHINE_BLUEPRINTS: MachineBlueprint[] = [
-  { id: 'bp-mech-press-standard', templateId: 'tpl-pr-man', reference: 'MP-STANDARD-V1', createdAt: now },
-  { id: 'bp-hyd-press-nc', templateId: 'tpl-pr-hyd', reference: 'HP-NC-X200', createdAt: now },
-  { id: 'bp-tourne-p-std', templateId: 'tpl-tr-par', reference: 'TRP-1500-GEN', createdAt: now },
+  { id: 'bp-mech-press-standard', templateId: 'tpl-pr-man', reference: 'PRM1-V1', createdAt: now },
+  { id: 'bp-hyd-press-nc', templateId: 'tpl-pr-hyd', reference: 'PRH1-X200', createdAt: now },
+  { id: 'bp-tourne-p-std', templateId: 'tpl-tr-par', reference: 'TRP1-1500', createdAt: now },
+  { id: 'bp-scotcheuse-auto', templateId: 'tpl-sc-sca', reference: 'SCA1-V1', createdAt: now },
+  { id: 'bp-traitement-surf', templateId: 'tpl-tf-tfa', reference: 'TFA1-LIGNE', createdAt: now },
+  { id: 'bp-ravivage', templateId: 'tpl-ra-rav', reference: 'RAV1-V1', createdAt: now },
+  { id: 'bp-transpalette', templateId: 'tpl-tp-trs', reference: 'TRS1-MAN', createdAt: now },
+  { id: 'bp-compresseur', templateId: 'tpl-co-com', reference: 'COM1-AIR', createdAt: now },
+  { id: 'bp-pompage', templateId: 'tpl-pm-pmi', reference: 'PMI1-EAU', createdAt: now },
+  { id: 'bp-elevateur', templateId: 'tpl-el-elv', reference: 'ELV1-V1', createdAt: now },
+  { id: 'bp-transformateur', templateId: 'tpl-sy-syc', reference: 'SYC1-220V', createdAt: now },
+  { id: 'bp-visseuse', templateId: 'tpl-vi-vis', reference: 'VIS1-PNEU', createdAt: now },
+  { id: 'bp-poinconneuse', templateId: 'tpl-pc-pcp', reference: 'PCP1-CNC', createdAt: now },
+  { id: 'bp-sertissage-bec', templateId: 'tpl-sb-sbb', reference: 'SBB1-V1', createdAt: now },
+  { id: 'bp-moteur-meule', templateId: 'tpl-me-mel', reference: 'MEL1-3000', createdAt: now },
 ];
 
 export const INITIAL_DATA = {

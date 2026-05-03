@@ -203,6 +203,7 @@ export interface User {
   color: string;
   pin: string;
   isPrimary?: boolean;
+  isSystemRoot?: boolean;
   allowedPortals?: string[];
   lastActiveAt?: string;
 }

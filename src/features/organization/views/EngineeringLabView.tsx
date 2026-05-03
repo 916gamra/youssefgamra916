@@ -403,7 +403,7 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                                    template.type === 'H' ? 'Hydraulic' : 
                                    template.type === 'P' ? 'Pneumatic' : 
                                    template.type === 'E' ? 'Electric' : 
-                                   template.type === 'S' ? 'Special/Unique' : 'Manual'}
+                                   template.type === 'S' ? 'Semi-Electric / Special' : 'Manual'}
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 mb-0.5 group/tinfo relative">

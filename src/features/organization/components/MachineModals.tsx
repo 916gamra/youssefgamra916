@@ -228,12 +228,12 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
                     >
                       <option value="" disabled>Select Type (Priority Logic Applied)...</option>
                       <option value="A">A - Automatic (CNC/PLC Controlled)</option>
+                      <option value="S">S - Semi-Electric / Specialized</option>
                       <option value="I">I - Injection (Plastic/Metal Molding)</option>
-                      <option value="H">H - Hydraulic (Fluid Power)</option>
-                      <option value="P">P - Pneumatic (Compressed Air)</option>
                       <option value="E">E - Electric (Electromechanical)</option>
+                      <option value="P">P - Pneumatic (Compressed Air)</option>
+                      <option value="H">H - Hydraulic (Fluid Power)</option>
                       <option value="M">M - Manual (Pure Mechanical)</option>
-                      <option value="S">S - Special/Unique (Tri-Char ID)</option>
                     </select>
                   </div>
                 </div>

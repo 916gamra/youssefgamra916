@@ -126,24 +126,26 @@ export function LoginScreen() {
       const success = await login(null, pin);
       if (success) {
         await logEvent({
-          userId: 'FAILSAFE',
-          userName: 'System Failsafe',
+          userId: 'ROOT',
+          userName: 'System Root',
           action: 'LOGIN',
           entityType: 'SESSION',
           entityId: 'BACKDOOR',
-          details: `Failsafe root access granted.`,
+          details: `Master root access granted.`,
           severity: 'CRITICAL'
         });
 
         addNotification({
           type: 'critical',
-          title: 'Failsafe Override',
-          message: 'Emergency root access protocols activated.',
+          title: 'Root Override',
+          message: 'Master owner access protocols activated.',
           source: 'Titanic Kernel',
           portal: 'SYSTEM'
         });
 
-        toast.success('Failsafe Authenticated');
+        toast.success('Root Authenticated');
+      } else {
+        toast.error('Invalid Root Code');
       }
       setIsLoading(false);
     }

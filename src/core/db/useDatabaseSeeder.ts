@@ -19,22 +19,6 @@ export function runDatabaseSeed(force = false) {
 
       const userCount = await db.users.count();
 
-      // Ensure there is at least one admin account
-      const adminExists = await db.users.filter(u => u.isPrimary === true).count();
-      if (adminExists === 0) {
-        await db.users.put({
-          id: 1, 
-          name: 'Admin', 
-          role: 'System Administrator', 
-          initials: 'AD', 
-          color: '#dc2626', 
-          pin: '1234', 
-          isPrimary: true, 
-          allowedPortals: ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS']
-        });
-        console.log('[DatabaseSeeder] Restored Admin account.');
-      }
-
       if (force || pdrFamilyCount === 0 || machineFamilyCount === 0 || machineCount === 0) {
         console.log('[DatabaseSeeder] Initiating master data injection...');
         

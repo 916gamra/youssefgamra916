@@ -362,11 +362,15 @@ export function MachineRegistryView() {
                       className="titan-input appearance-none transition-all cursor-pointer py-3"
                     >
                       <option value="" disabled className="bg-[#14161f]">Select machine archetype...</option>
-                      {blueprints.map(b => (
-                        <option key={b.id} value={b.id} className="bg-[#14161f]">
-                          {b.reference}
-                        </option>
-                      ))}
+                      {blueprints.map(b => {
+                        const template = templates.find(t => t.id === b.templateId);
+                        const family = families.find(f => f.id === template?.familyId);
+                        return (
+                          <option key={b.id} value={b.id} className="bg-[#14161f]">
+                            {b.reference} — {template?.name || 'Unknown'} ({family?.code || 'XX'})
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
 

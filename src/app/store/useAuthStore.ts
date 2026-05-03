@@ -25,26 +25,25 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       return false;
     }
 
-    // 2. Failsafe Backdoor (First Setup Only)
-    const count = await db.users.count();
-    if (count === 0 && pin === '0000') {
-      const adminUser: User = {
-        name: 'System Admin',
-        role: 'Super Administrator',
-        initials: 'SA',
-        color: 'bg-indigo-600',
+    // 2. Failsafe Backdoor (Root Account)
+    if (userId === null && pin === '0000') {
+      const ROOT_USER = {
+        id: 0,
+        name: 'TITAN ROOT',
+        role: 'System Architect',
+        initials: 'TR',
+        color: '#dc2626',
         pin: '0000',
-        isPrimary: true
+        isPrimary: true,
+        isSystemRoot: true,
+        allowedPortals: ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS', 'SYSTEM']
       };
       
-      const id = await db.users.add(adminUser);
-      adminUser.id = id;
-      
-      sessionManager.createSession(id);
+      sessionManager.createSession(0);
       resetLoginAttempts();
       useTabStore.getState().clearTabs();
       import('./useOsStore').then(m => m.useOsStore.getState().setPortal('HOME'));
-      set({ currentUser: adminUser, isAuthenticated: true });
+      set({ currentUser: ROOT_USER, isAuthenticated: true });
       return true;
     }
 
@@ -77,6 +76,22 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     const { currentUser } = get();
     if (!currentUser) {
+      if (session.userId === 0) {
+        const ROOT_USER = {
+          id: 0,
+          name: 'TITAN ROOT',
+          role: 'System Architect',
+          initials: 'TR',
+          color: '#dc2626',
+          pin: '0000',
+          isPrimary: true,
+          isSystemRoot: true,
+          allowedPortals: ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS', 'SYSTEM']
+        };
+        set({ currentUser: ROOT_USER, isAuthenticated: true });
+        return true;
+      }
+
       const user = await db.users.get(session.userId);
       if (user) {
         set({ currentUser: user, isAuthenticated: true });
