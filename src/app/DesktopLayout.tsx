@@ -128,7 +128,7 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
           </div>
         )}
         
-        <div className="flex-1 flex overflow-hidden relative pl-[84px]">
+        <div className={`flex-1 flex overflow-hidden relative ${activePortal !== 'HOME' ? 'pl-[84px]' : ''}`}>
           <ErrorBoundary>
             {activePortal === 'HOME' ? (
               <LaunchpadView user={user} />

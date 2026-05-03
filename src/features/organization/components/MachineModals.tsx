@@ -237,16 +237,31 @@ export function MachineModals({ activeModal, onClose, families, templates, user 
                     </select>
                   </div>
                 </div>
-                <div>
-                  <label className="titan-label">Template Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name || ''}
-                    onChange={e => setFormData({ ...formData, name: e.target.value })}
-                    className="titan-input"
-                    placeholder="e.g., Standard Satinage"
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="titan-label">Template Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name || ''}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                      className="titan-input"
+                      placeholder="e.g., Standard Satinage"
+                    />
+                  </div>
+                  <div>
+                    <label className="titan-label">SKU Genetic Base</label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={3}
+                      value={formData.skuBase || ''}
+                      onChange={e => setFormData({ ...formData, skuBase: e.target.value.toUpperCase() })}
+                      className="titan-input font-mono uppercase text-center border-indigo-500/30"
+                      placeholder="e.g., TRP, STA"
+                    />
+                    <p className="text-[9px] text-indigo-400 mt-1 uppercase tracking-tighter opacity-70">Overridable Functional Code</p>
+                  </div>
                 </div>
                 <div>
                   <label className="titan-label">Functional Mechanical Identity</label>

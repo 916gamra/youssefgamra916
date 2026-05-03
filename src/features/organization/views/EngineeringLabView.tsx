@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import * as Tabs from '@radix-ui/react-tabs';
-import { Search, Folder, Layers, Hash, AlertCircle, Plus, Trash2, Database, Wrench } from 'lucide-react';
+import { Search, Folder, Layers, Hash, AlertCircle, Plus, Trash2, Database, Wrench, RefreshCw } from 'lucide-react';
 import { useMachineLibrary } from '../hooks/useMachineLibrary';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { MachineLibraryCard } from '../components/MachineLibraryCard';
@@ -11,6 +11,8 @@ import { MachineModals, ModalType } from '../components/MachineModals';
 import { toast } from 'sonner';
 import { useTabStore } from '@/app/store';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
+import { runDatabaseSeed } from '@/core/db/useDatabaseSeeder';
+import { ConfirmationModal } from '@/shared/components/ConfirmationModal';
 import type { User } from '@/core/db';
 import { cn } from '@/shared/utils';
 
@@ -40,7 +42,10 @@ const itemVariants = {
 
 export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User | null }) {
   const { families, templates, blueprints, templateCounts, blueprintCounts, isLoading } = useMachineLibrary();
-  const [activeTab, setActiveTab] = useState('families');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [deleteContext, setDeleteContext] = useState<{ type: ModalType, id: string } | null>(null);
+  const [activeTab, setActiveTab ] = useState('families');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const { openTab } = useTabStore();
@@ -54,6 +59,38 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
     document.addEventListener('open-add-machine-blueprint', handleOpen);
     return () => document.removeEventListener('open-add-machine-blueprint', handleOpen);
   }, []);
+
+  const handleSyncLaboratory = async () => {
+    try {
+      setIsSyncing(true);
+      setShowSyncModal(false);
+      await logEvent({
+        userId: user?.id || 'GUEST',
+        userName: user?.name || 'Guest User',
+        action: 'UPDATE',
+        entityType: 'KNOWLEDGE_BASE',
+        entityId: 'GENETIC_INJECTION',
+        details: 'Manual synchronization of machine taxonomy and laboratory assets.',
+        severity: 'INFO'
+      });
+
+      const seedFunc = runDatabaseSeed(true); 
+      await seedFunc();
+      
+      toast.success('Laboratory Synchronized', {
+        description: 'New industrial genes injected. Reloading laboratory system...'
+      });
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } catch (err) {
+      console.error(err);
+      toast.error('Injection Failed');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const filteredFamilies = useMemo(() => {
     return families.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -76,11 +113,15 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
     overscan: 5,
   });
 
-  const handleDelete = async (type: ModalType, id: string, e: React.MouseEvent) => {
+  const handleDelete = (type: ModalType, id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm('Are you certain you want to delete this entity? This may break relationships with other records.')) {
-      return;
-    }
+    setDeleteContext({ type, id });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteContext) return;
+    
+    const { type, id } = deleteContext;
     
     try {
       if (type === 'family') {
@@ -124,6 +165,8 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
     } catch (error) {
       console.error(error);
       toast.error('Deletion failed.');
+    } finally {
+      setDeleteContext(null);
     }
   };
 
@@ -241,13 +284,25 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                   </Tabs.Trigger>
                 </Tabs.List>
                 
-                <button 
-                  onClick={openAddModal}
-                  className="titan-button bg-indigo-600 hover:bg-indigo-500 text-white shrink-0 !py-2.5 flex items-center justify-center gap-2 w-full md:w-auto"
-                >
-                  <Plus className="w-4 h-4" />
-                  {getAddButtonTitle()}
-                </button>
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  <button 
+                    onClick={() => setShowSyncModal(true)}
+                    disabled={isSyncing}
+                    className="titan-button bg-black/40 border border-indigo-500/30 hover:bg-indigo-500/10 text-indigo-400 shrink-0 !py-2.5 flex items-center justify-center gap-2 group/sync disabled:opacity-50"
+                    title="Genetic Injection: Synchronize with Master Data"
+                  >
+                    <RefreshCw className={cn("w-4 h-4 group-hover/sync:rotate-180 transition-transform duration-500", isSyncing && "animate-spin")} />
+                    <span className="hidden sm:inline">Sync Lab</span>
+                  </button>
+                  
+                  <button 
+                    onClick={openAddModal}
+                    className="titan-button bg-indigo-600 hover:bg-indigo-500 text-white shrink-0 !py-2.5 flex items-center justify-center gap-2 flex-1 md:flex-none"
+                  >
+                    <Plus className="w-4 h-4" />
+                    {getAddButtonTitle()}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -452,6 +507,30 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
         </GlassCard>
       </Tabs.Root>
       </motion.div>
+
+      <ConfirmationModal
+        isOpen={showSyncModal}
+        onClose={() => setShowSyncModal(false)}
+        onConfirm={handleSyncLaboratory}
+        variant="warning"
+        title="Knowledge Base Injection"
+        description="This protocol will synchronize your laboratory with the latest industrial definitions from the master file. New families and machine templates will be injected. Existing custom records remain untouched. Continue injection?"
+        confirmText="Confirm Sync"
+        cancelText="Abort"
+        isLoading={isSyncing}
+        requireVerification="SYNC"
+      />
+
+      <ConfirmationModal
+        isOpen={!!deleteContext}
+        onClose={() => setDeleteContext(null)}
+        onConfirm={confirmDelete}
+        variant="danger"
+        title="Execute Permanant Deletion"
+        description="Attention: You are about to purge this record from the Engineering Lab. This action is irreversible and may affect cross-linked operational data. Confirm deletion of the selected entity?"
+        confirmText="Purge Record"
+        cancelText="Abort Deletion"
+      />
     </motion.div>
   );
 }

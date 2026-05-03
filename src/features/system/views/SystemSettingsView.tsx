@@ -7,6 +7,7 @@ import { useAuditTrail } from '../hooks/useAuditTrail';
 import { runDatabaseSeed } from '@/core/db/useDatabaseSeeder';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { useTabStore } from '@/app/store';
+import { ConfirmationModal } from '@/shared/components/ConfirmationModal';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -21,19 +22,13 @@ const itemVariants = {
 export function SystemSettingsView({ user, onLogout }: { user: User | null, onLogout: () => void }) {
   const { logEvent } = useAuditTrail();
   const [isWiping, setIsWiping] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
   const { openTab } = useTabStore();
 
   const handleWipeAndReseed = async () => {
-    if (!window.confirm('FACTORY DATA RESET INITIATED.\n\nAre you absolutely sure? This will wipe all current operational data and inject the original Master Data parameters. This action is IRREVERSIBLE!')) {
-      return;
-    }
-    
-    if (!window.confirm('FINAL WARNING: Operational data will be purged. Type OK in your mind. Resetting...')) {
-        return;
-    }
-
     try {
       setIsWiping(true);
+      setShowResetModal(false);
       
       await logEvent({
         userId: user?.id || 'GUEST',
@@ -47,6 +42,7 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
 
       await db.transaction('rw', [
         db.users, db.machines, db.machinePartMappings, db.sectors, db.technicians, 
+        db.machineFamilies, db.machineTemplates, db.machineBlueprints,
         db.pdrBlueprints, db.pdrTemplates, db.pdrFamilies, db.inventory, db.movements,
         db.purchaseOrders, db.purchaseOrderLines, db.partRequisitions, db.partRequisitionLines,
         db.pmChecklists, db.pmTasks, db.pmSchedules, db.pmWorkOrders, db.auditLogs
@@ -56,6 +52,9 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
         await db.machinePartMappings.clear();
         await db.sectors.clear();
         await db.technicians.clear();
+        await db.machineFamilies.clear();
+        await db.machineTemplates.clear();
+        await db.machineBlueprints.clear();
         await db.pdrBlueprints.clear();
         await db.pdrTemplates.clear();
         await db.pdrFamilies.clear();
@@ -77,13 +76,13 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
       const seedFunc = runDatabaseSeed(true);
       await seedFunc();
 
-      toast.success('Master Data Reseeded Successfully!', {
-         description: 'Operational data cleared. System resetting...',
+      toast.success('Nuclear Reset Complete', {
+         description: 'All nodes synchronized. System is rebooting...',
       });
 
       setTimeout(() => {
-         onLogout();
-      }, 2000);
+         window.location.reload();
+      }, 1500);
 
     } catch (error) {
       console.error(error);
@@ -173,7 +172,7 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
 
              <div className="mt-auto relative z-10">
                 <button
-                   onClick={handleWipeAndReseed}
+                   onClick={() => setShowResetModal(true)}
                    disabled={isWiping}
                    className="w-full py-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold uppercase tracking-widest text-xs transition-all shadow-lg hover:shadow-[0_0_30px_rgba(220,38,38,0.4)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 relative overflow-hidden"
                  >
@@ -267,6 +266,19 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
         </motion.div>
 
       </div>
+
+      <ConfirmationModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        onConfirm={handleWipeAndReseed}
+        variant="danger"
+        title="Nuclear Reset Initiated"
+        description="Attention: You are about to perform a Factory Data Reset. This will permanently wipe all machines, technicians, and operational logs, reverting the system to its baseline genetic state. This action cannot be undone."
+        confirmText="Execute Nuclear Wipe"
+        cancelText="Abort Mission"
+        isLoading={isWiping}
+        requireVerification="RESET"
+      />
     </motion.div>
   );
 }

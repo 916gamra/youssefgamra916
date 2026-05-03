@@ -139,7 +139,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
     <div className="flex flex-col h-full w-full relative overflow-y-auto overflow-x-hidden bg-transparent custom-scrollbar">
       <SystemBackground />
 
-      <div className="relative z-10 w-full max-w-[1400px] mx-auto px-6 lg:px-12 py-8 min-h-full flex flex-col">
+      <div className="relative z-10 w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-12 py-8 min-h-full flex flex-col">
         
         {/* --- OS HEADER --- */}
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">
@@ -172,7 +172,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
           animate="show"
           className="mb-12"
         >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
             <motion.div variants={itemAnim}>
               <GlassCard className="border-l-4 border-l-cyan-500 p-6 flex flex-col gap-3 group transition-all duration-500 hover:-translate-y-2 hover:border-y-cyan-500/30 hover:border-r-cyan-500/30 hover:shadow-[0_25px_50px_-12px_rgba(6,182,212,0.3)] hover:bg-cyan-500/[0.05]">
                  <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
@@ -231,7 +231,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
             variants={containerAnim}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6"
           >
             {visibleApps.map((app) => {
               const themeStyle = THEME_MAP[app.theme];
@@ -248,7 +248,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
                   <GlassCard 
                     onClick={() => setPortal(app.id)}
                     className={cn(
-                      "group flex flex-col p-0 h-[240px] !bg-black/40 border-white/5 hover:border-white/30 transition-all duration-500 overflow-hidden cursor-pointer relative",
+                      "group flex flex-col p-0 min-h-[200px] sm:min-h-[220px] md:min-h-[240px] !bg-black/40 border-white/5 hover:border-white/30 transition-all duration-500 overflow-hidden cursor-pointer relative",
                       "hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)]"
                     )}
                   >
@@ -260,17 +260,17 @@ export function LaunchpadView({ user }: { user: User | null }) {
                     
                     <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
 
-                    <div className="p-8 relative z-10 flex-1 flex flex-col">
+                    <div className="p-6 sm:p-8 relative z-10 flex-1 flex flex-col">
                        <div className="flex justify-between items-start mb-auto relative">
                            <div className={cn(
-                             "w-16 h-16 rounded-2xl flex items-center justify-center border transition-all duration-700 shadow-xl group-hover:rotate-[5deg]",
+                             "w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center border transition-all duration-700 shadow-xl group-hover:rotate-[5deg]",
                              themeStyle
                            )}>
-                             <app.icon className="w-8 h-8 stroke-[1.2] group-hover:scale-110 transition-transform" />
+                             <app.icon className="w-6 h-6 sm:w-8 sm:h-8 stroke-[1.2] group-hover:scale-110 transition-transform" />
                            </div>
                            
-                           <div className="flex flex-col items-end gap-2">
-                             <span className="text-[9px] font-bold text-slate-500 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 uppercase tracking-[0.2em]">{app.sysCode}</span>
+                           <div className="flex flex-col items-end gap-1 sm:gap-2">
+                             <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 bg-white/5 px-2 py-1 sm:px-2.5 rounded-full border border-white/10 uppercase tracking-[0.2em]">{app.sysCode}</span>
                              {getUnreadCountByPortal(app.id) > 0 && (
                                <motion.span 
                                  initial={{ scale: 0 }}
@@ -287,8 +287,8 @@ export function LaunchpadView({ user }: { user: User | null }) {
                        </div>
 
                        <div className="transform group-hover:translate-x-1 transition-transform duration-500">
-                           <h3 className="text-2xl font-bold text-slate-100 tracking-tight mb-2 group-hover:text-white transition-colors">{app.title}</h3>
-                           <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-[80%] group-hover:text-slate-300 transition-colors">{app.desc}</p>
+                           <h3 className="text-xl sm:text-2xl font-bold text-slate-100 tracking-tight mb-1 sm:mb-2 group-hover:text-white transition-colors">{app.title}</h3>
+                           <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-relaxed max-w-[90%] sm:max-w-[80%] group-hover:text-slate-300 transition-colors">{app.desc}</p>
                        </div>
                     </div>
                     

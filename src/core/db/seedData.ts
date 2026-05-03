@@ -1,4 +1,4 @@
-import { PdrFamily, PdrTemplate, PdrBlueprint, Sector, Machine, MachineFamily, MachineTemplate, Technician, User } from '../db';
+import { PdrFamily, PdrTemplate, PdrBlueprint, Sector, Machine, MachineFamily, MachineTemplate, MachineBlueprint, Technician, User } from '../db';
 
 const now = new Date().toISOString();
 
@@ -34,14 +34,14 @@ export const SEED_TECHNICIANS: Technician[] = [
 ];
 
 export const SEED_USERS: User[] = [
-  { name: 'Youssef Gamra', role: 'Technician Maintenance', initials: 'YG', color: '#6366f1', pin: '1234', isPrimary: true, allowedPortals: ['ENGINEERING', 'STOCK', 'MAINTENANCE'] },
-  { name: 'Ismail Motmir', role: 'Technician Maintenance', initials: 'IM', color: '#8b5cf6', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { name: 'Rachid', role: 'Technician Maintenance', initials: 'RA', color: '#ec4899', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { name: 'Muhammad', role: 'Technician Maintenance', initials: 'MU', color: '#f59e0b', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { name: 'Boujama Marid', role: 'Technician Maintenance', initials: 'BM', color: '#10b981', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { name: 'Anas', role: 'Maintenance', initials: 'AN', color: '#64748b', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { name: 'Brahime', role: 'Maintenance', initials: 'BR', color: '#64748b', pin: '0000', allowedPortals: ['MAINTENANCE'] },
-  { name: 'Mouad', role: 'Souder', initials: 'MO', color: '#ef4444', pin: '0000', allowedPortals: ['MAINTENANCE'] },
+  { id: 1, name: 'Youssef Gamra', role: 'Technician Maintenance', initials: 'YG', color: '#6366f1', pin: '1234', isPrimary: true, allowedPortals: ['ENGINEERING', 'STOCK', 'MAINTENANCE'] },
+  { id: 2, name: 'Ismail Motmir', role: 'Technician Maintenance', initials: 'IM', color: '#8b5cf6', pin: '0000', allowedPortals: ['MAINTENANCE'] },
+  { id: 3, name: 'Rachid', role: 'Technician Maintenance', initials: 'RA', color: '#ec4899', pin: '0000', allowedPortals: ['MAINTENANCE'] },
+  { id: 4, name: 'Muhammad', role: 'Technician Maintenance', initials: 'MU', color: '#f59e0b', pin: '0000', allowedPortals: ['MAINTENANCE'] },
+  { id: 5, name: 'Boujama Marid', role: 'Technician Maintenance', initials: 'BM', color: '#10b981', pin: '0000', allowedPortals: ['MAINTENANCE'] },
+  { id: 6, name: 'Anas', role: 'Maintenance', initials: 'AN', color: '#64748b', pin: '0000', allowedPortals: ['MAINTENANCE'] },
+  { id: 7, name: 'Brahime', role: 'Maintenance', initials: 'BR', color: '#64748b', pin: '0000', allowedPortals: ['MAINTENANCE'] },
+  { id: 8, name: 'Mouad', role: 'Souder', initials: 'MO', color: '#ef4444', pin: '0000', allowedPortals: ['MAINTENANCE'] },
 ];
 
 export const SEED_MACHINES: Machine[] = [
@@ -133,6 +133,13 @@ export const SEED_MACHINE_FAMILIES: MachineFamily[] = [
     technicalDescription: 'Metal spinning process where a disc or tube of metal is rotated at high speed and formed over a mandrel.',
     createdAt: now 
   },
+  { 
+    id: 'fam-tournage', 
+    name: 'Tournage Machine', 
+    code: 'TR', 
+    technicalDescription: 'Machining process in which a cutting tool, typically a non-rotary tool bit, describes a helix toolpath by moving more or less linearly while the workpiece rotates.',
+    createdAt: now 
+  },
 ];
 
 export const SEED_MACHINE_TEMPLATES: MachineTemplate[] = [
@@ -161,6 +168,14 @@ export const SEED_MACHINE_TEMPLATES: MachineTemplate[] = [
   { id: 'tpl-td-auto', familyId: 'fam-taraudage', name: 'Taraudage Automatic', type: 'A', skuBase: 'TDA', technicalDescription: 'High-precision automated threading for mass production.', createdAt: now },
   { id: 'tpl-td-elec', familyId: 'fam-taraudage', name: 'Taraudage Electric', type: 'E', skuBase: 'TDE', technicalDescription: 'Standard electric tapping machines for industrial maintenance and fabrication.', createdAt: now },
   { id: 'tpl-re-spec', familyId: 'fam-repoussage', name: 'Repoussage Special (REP)', type: 'S', skuBase: 'REP', technicalDescription: 'Advanced metal spinning unit for complex geometries.', createdAt: now },
+  { id: 'tpl-tr-par', familyId: 'fam-tournage', name: 'Tourne Parallèle', type: 'E', skuBase: 'TRP', technicalDescription: 'Standard parallel lathe for cylindrical machining.', createdAt: now },
+  { id: 'tpl-tr-spec', familyId: 'fam-tournage', name: 'Tourne Unique (TRR)', type: 'S', skuBase: 'TRR', technicalDescription: 'Specialized or unique lathe configuration.', createdAt: now },
+];
+
+export const SEED_MACHINE_BLUEPRINTS: MachineBlueprint[] = [
+  { id: 'bp-mech-press-standard', templateId: 'tpl-pr-man', reference: 'MP-STANDARD-V1', createdAt: now },
+  { id: 'bp-hyd-press-nc', templateId: 'tpl-pr-hyd', reference: 'HP-NC-X200', createdAt: now },
+  { id: 'bp-tourne-p-std', templateId: 'tpl-tr-par', reference: 'TRP-1500-GEN', createdAt: now },
 ];
 
 export const INITIAL_DATA = {
@@ -168,9 +183,10 @@ export const INITIAL_DATA = {
   sectors: SEED_SECTORS,
   machines: SEED_MACHINES,
   pdrTemplates: SEED_TEMPLATES,
-  blueprints: SEED_BLUEPRINTS,
+  pdrBlueprints: SEED_BLUEPRINTS,
   machineFamilies: SEED_MACHINE_FAMILIES,
   machineTemplates: SEED_MACHINE_TEMPLATES,
+  machineBlueprints: SEED_MACHINE_BLUEPRINTS,
   technicians: SEED_TECHNICIANS,
   users: SEED_USERS,
 };

@@ -11,29 +11,38 @@ export function runDatabaseSeed(force = false) {
       const machineCount = await db.machines.count();
 
       if (force || pdrFamilyCount === 0 || machineFamilyCount === 0 || machineCount === 0) {
+        console.log('[DatabaseSeeder] Initiating master data injection...');
+        
         await db.transaction('rw', [
           db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, 
-          db.machineFamilies, db.machineTemplates, 
-          db.sectors, db.machines
+          db.machineFamilies, db.machineTemplates, db.machineBlueprints,
+          db.sectors, db.machines, db.technicians, db.users
         ], async () => {
-          // Clear tables
-          await db.pdrFamilies.clear();
-          await db.pdrTemplates.clear();
-          await db.pdrBlueprints.clear();
-          await db.machineFamilies.clear();
-          await db.machineTemplates.clear();
-          await db.sectors.clear();
-          await db.machines.clear();
-
-          // Inject Master Data
-          await db.pdrFamilies.bulkAdd(INITIAL_DATA.pdrFamilies);
-          await db.machineFamilies.bulkAdd(INITIAL_DATA.machineFamilies);
-          await db.machineTemplates.bulkAdd(INITIAL_DATA.machineTemplates);
-          await db.sectors.bulkAdd(INITIAL_DATA.sectors);
-          await db.machines.bulkAdd(INITIAL_DATA.machines);
-          await db.pdrTemplates.bulkAdd(INITIAL_DATA.pdrTemplates);
-          await db.pdrBlueprints.bulkAdd(INITIAL_DATA.blueprints);
+          // Inject/Update Master Data (Using bulkPut for idempotent sync)
+          // We provide explicit IDs for most entities to ensure idempotency
+          await db.pdrFamilies.bulkPut(INITIAL_DATA.pdrFamilies);
+          await db.machineFamilies.bulkPut(INITIAL_DATA.machineFamilies);
+          await db.machineTemplates.bulkPut(INITIAL_DATA.machineTemplates);
+          await db.sectors.bulkPut(INITIAL_DATA.sectors);
+          await db.machines.bulkPut(INITIAL_DATA.machines);
+          await db.pdrTemplates.bulkPut(INITIAL_DATA.pdrTemplates);
+          await db.pdrBlueprints.bulkPut(INITIAL_DATA.pdrBlueprints);
+          
+          if (INITIAL_DATA.machineBlueprints) {
+            await db.machineBlueprints.bulkPut(INITIAL_DATA.machineBlueprints);
+          }
+          
+          if (INITIAL_DATA.technicians) {
+            await db.technicians.bulkPut(INITIAL_DATA.technicians);
+          }
+          
+          if (INITIAL_DATA.users) {
+            // Since users table uses ++id, but we provided explicit IDs in seedData, bulkPut will work
+            await db.users.bulkPut(INITIAL_DATA.users);
+          }
         });
+
+        console.log('[DatabaseSeeder] Master data successfully injected.');
 
         toast.success("System Initialized: Master Data Injected", {
             description: "Industrial parameters successfully loaded.",
