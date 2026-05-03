@@ -4,7 +4,7 @@ import { Database, Download, Upload, Trash2, Shield, Bell, Monitor, User as User
 import { db, User } from '@/core/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 import * as Dialog from '@radix-ui/react-dialog';
-import { seedDatabase } from '@/core/seed';
+import { runDatabaseSeed } from '@/core/db/useDatabaseSeeder';
 import { useDataVault } from '../hooks/useDataVault';
 
 export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?: User | null }) {
@@ -42,11 +42,9 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
 
   const handleSeedDatabase = async () => {
     setIsSeeding(true);
-    const success = await seedDatabase();
-    if (success) {
-      setSeedSuccess(true);
-      setTimeout(() => setSeedSuccess(false), 3000);
-    }
+    await runDatabaseSeed()(true);
+    setSeedSuccess(true);
+    setTimeout(() => setSeedSuccess(false), 3000);
     setIsSeeding(false);
   };
 
