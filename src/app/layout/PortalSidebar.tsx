@@ -23,14 +23,12 @@ export function PortalSidebar({ portalName, portalIcon, colorClass, borderClass,
   return (
     <aside className={cn("w-[84px] bg-[#050505] border-r border-white/10 flex flex-col items-center py-6 gap-2 shrink-0 z-40 overflow-y-auto custom-scrollbar shadow-[20px_0_40px_rgba(0,0,0,0.5)] fixed top-0 left-0 bottom-0", className)}>
       
-      {/* Titanic OS Minimal Hub Indicator */}
+      {/* App Icon / Hub Indicator */}
       <div className="flex flex-col items-center shrink-0 mt-2 mb-6 group cursor-pointer relative z-10 w-full" title={portalName}>
-         <div className="w-12 h-12 flex items-center justify-center relative overflow-hidden">
-            {/* Hexagon Outline */}
-            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full text-slate-500/30">
-              <path d="M50 5L89 27.5V72.5L50 95L11 72.5V27.5L50 5Z" stroke="currentColor" strokeWidth="2" />
-            </svg>
-            <div className="w-1 h-3 bg-slate-500 rounded-full" />
+         <div className={cn("w-12 h-12 flex items-center justify-center rounded-2xl border transition-all duration-500 shadow-lg", colorClass, borderClass)}>
+            <div className="scale-125 text-white/90 group-hover:scale-150 transition-transform duration-500">
+               {portalIcon}
+            </div>
          </div>
       </div>
 
