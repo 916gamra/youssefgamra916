@@ -52,7 +52,7 @@ export function PortalCanvas({ componentMap, user, onLogout }: { componentMap: R
                     transition={{ duration: 0.2 }}
                     className="absolute inset-0 flex flex-col overflow-x-hidden overflow-y-auto custom-scrollbar w-full"
                   >
-                    <div className="flex flex-col px-4 py-6 md:p-8">
+                    <div className="flex flex-col px-4 py-6 md:p-8 min-h-max h-full">
                       <Component tabId={currentTab.id} onLogout={onLogout} user={user} />
                     </div>
                   </motion.div>

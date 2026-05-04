@@ -19,21 +19,16 @@ export function runDatabaseSeed(force = false) {
 
       const userCount = await db.users.count();
 
-      if (force || pdrFamilyCount === 0 || machineFamilyCount === 0 || machineCount === 0) {
-        console.log('[DatabaseSeeder] Initiating master data injection...');
+      // Always force injection if force is true.
+      if (force) {
+        console.log('[DatabaseSeeder] Enforcing master data synchronization...');
         
         await db.transaction('rw', [
           db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, 
           db.machineFamilies, db.machineTemplates, db.machineBlueprints,
           db.sectors, db.machines, db.technicians, db.users
         ], async () => {
-          
-          if (force || userCount === 0) {
-            await db.users.clear(); // Ensure clean slate for security reasons
-          }
-
           // Inject/Update Master Data (Using bulkPut for idempotent sync)
-          // We provide explicit IDs for most entities to ensure idempotency
           await db.pdrFamilies.bulkPut(INITIAL_DATA.pdrFamilies);
           await db.machineFamilies.bulkPut(INITIAL_DATA.machineFamilies);
           await db.machineTemplates.bulkPut(INITIAL_DATA.machineTemplates);
@@ -51,16 +46,11 @@ export function runDatabaseSeed(force = false) {
           }
           
           if (INITIAL_DATA.users) {
-            // Since users table uses ++id, but we provided explicit IDs in seedData, bulkPut will work
             await db.users.bulkPut(INITIAL_DATA.users);
           }
         });
 
-        console.log('[DatabaseSeeder] Master data successfully injected.');
-
-        toast.success("System Initialized: Master Data Injected", {
-            description: "Industrial parameters successfully loaded.",
-        });
+        console.log('[DatabaseSeeder] Master data successfully synchronized.');
       }
     } catch (error) {
       console.error('Failed to inject master data into Dexie', error);

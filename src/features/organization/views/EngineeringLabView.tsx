@@ -174,6 +174,8 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
     return <div className="p-8 text-slate-400">Loading Engineering Lab...</div>;
   }
 
+  const isAdmin = user?.role === 'System Administrator' || user?.isSystemRoot;
+
   const getAddButtonTitle = () => {
     switch (activeTab) {
       case 'families': return 'New Family';
@@ -185,8 +187,8 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
 
   const openAddModal = () => {
     switch (activeTab) {
-      case 'families': setActiveModal('family'); break;
-      case 'templates': setActiveModal('template'); break;
+      case 'families': if (isAdmin) setActiveModal('family'); else toast.error('Only Administrators can manage Families.'); break;
+      case 'templates': if (isAdmin) setActiveModal('template'); else toast.error('Only Administrators can manage Templates.'); break;
       case 'blueprints': setActiveModal('blueprint'); break;
     }
   };
@@ -201,7 +203,7 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="w-full h-auto flex flex-col gap-6 relative z-10"
+      className="w-full h-full flex flex-col gap-6 relative z-10"
     >
       <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 shrink-0">
         <div>
@@ -295,13 +297,15 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                     <span className="hidden sm:inline">Sync Lab</span>
                   </button>
                   
-                  <button 
-                    onClick={openAddModal}
-                    className="titan-button bg-indigo-600 hover:bg-indigo-500 text-white shrink-0 !py-2.5 flex items-center justify-center gap-2 flex-1 md:flex-none"
-                  >
-                    <Plus className="w-4 h-4" />
-                    {getAddButtonTitle()}
-                  </button>
+                  { (activeTab === 'blueprints' || isAdmin) && (
+                    <button 
+                      onClick={openAddModal}
+                      className="titan-button bg-indigo-600 hover:bg-indigo-500 text-white shrink-0 !py-2.5 flex items-center justify-center gap-2 flex-1 md:flex-none"
+                    >
+                      <Plus className="w-4 h-4" />
+                      {getAddButtonTitle()}
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -327,9 +331,11 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 h-fit">
                       {filteredFamilies.map(family => (
                         <MachineLibraryCard key={family.id} className="flex flex-col group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(6,182,212,0.2)] hover:bg-indigo-500/[0.03] min-h-[140px]">
-                          <button onClick={(e) => handleDelete('family', family.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          {isAdmin && (
+                            <button onClick={(e) => handleDelete('family', family.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
                           <div className="flex items-start justify-between mb-3 pr-8">
                             <div className="flex flex-col relative group/info">
                               <div className="flex items-center gap-2">
@@ -379,9 +385,11 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                         const parentFamily = families.find(f => f.id === template.familyId);
                         return (
                           <MachineLibraryCard key={template.id} className="flex flex-col group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.2)] hover:bg-blue-500/[0.03] min-h-[160px]">
-                            <button onClick={(e) => handleDelete('template', template.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            {isAdmin && (
+                              <button onClick={(e) => handleDelete('template', template.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
                             <div className="mb-4 pr-8 flex-1">
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5">

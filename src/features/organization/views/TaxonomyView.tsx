@@ -63,9 +63,9 @@ export function TaxonomyView() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="w-full space-y-8 pb-12 px-4 relative z-10 lg:px-8"
+      className="w-full h-full flex flex-col gap-6 relative z-10 px-4 lg:px-8"
     >
-      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4 flex-shrink-0">
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-4 flex-shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
             <FolderTree className="w-8 h-8 text-amber-500" /> Taxonomy & Schematics
@@ -76,10 +76,10 @@ export function TaxonomyView() {
         </div>
       </motion.header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12">
         {/* Families Section */}
-        <motion.div variants={itemVariants} className="space-y-6">
-          <GlassCard className="!p-8 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)] border-amber-500/10">
+        <motion.div variants={itemVariants} className="flex flex-col h-full min-h-0 space-y-6">
+          <GlassCard className="!p-8 shrink-0 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)] border-amber-500/10">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent opacity-50" />
             <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
               <Archive className="w-4 h-4 text-amber-400" /> Define Part Family
@@ -107,9 +107,9 @@ export function TaxonomyView() {
             </form>
           </GlassCard>
 
-          <div className="space-y-4">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-2">Active Classifications</h3>
-            <div className="space-y-3 custom-scrollbar overflow-y-auto max-h-[400px] pr-2">
+          <div className="space-y-4 flex flex-col flex-1 min-h-0">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-2 shrink-0">Active Classifications</h3>
+            <div className="space-y-3 custom-scrollbar overflow-y-auto flex-1 min-h-0 pr-2 pb-4">
               {families?.map(f => (
                 <div key={f.id} className="p-5 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-between hover:border-amber-500/30 transition-all shadow-inner group duration-300 hover:bg-white/[0.02]">
                   <div>
@@ -136,8 +136,8 @@ export function TaxonomyView() {
         </motion.div>
 
         {/* Templates Section */}
-        <motion.div variants={itemVariants} className="space-y-6">
-          <GlassCard className="!p-8 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)] border-emerald-500/10">
+        <motion.div variants={itemVariants} className="flex flex-col h-full min-h-0 space-y-6">
+          <GlassCard className="!p-8 shrink-0 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.5)] border-emerald-500/10">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent opacity-50" />
             <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
               <Component className="w-4 h-4 text-emerald-400" /> Define Technical Template
@@ -177,11 +177,11 @@ export function TaxonomyView() {
             </form>
           </GlassCard>
 
-          <div className="space-y-4">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 pl-2">
+          <div className="space-y-4 flex flex-col flex-1 min-h-0">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 pl-2 shrink-0">
               <Tag className="w-3.5 h-3.5 text-emerald-500/50" /> Deployed Templates
             </h3>
-            <div className="space-y-3 custom-scrollbar overflow-y-auto max-h-[400px] pr-2">
+            <div className="space-y-3 custom-scrollbar overflow-y-auto flex-1 min-h-0 pr-2 pb-4">
               {templates?.map(t => {
                 const fam = families?.find(f => f.id === t.familyId);
                 return (

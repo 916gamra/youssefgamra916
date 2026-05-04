@@ -44,7 +44,7 @@ export function MachineDetailsView({ tabId }: { tabId: string }) {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="w-full h-auto flex flex-col gap-6 relative z-10 pb-12 lg:px-8 pt-4"
+      className="w-full h-full flex flex-col gap-6 relative z-10 lg:px-8 pt-4"
     >
       <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-start justify-between gap-6 shrink-0 relative">
         <div className="absolute -top-20 -left-10 w-96 h-96 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none" />
@@ -112,20 +112,21 @@ export function MachineDetailsView({ tabId }: { tabId: string }) {
       </motion.div>
 
       {/* SPARE PARTS RADAR */}
-      <motion.div variants={itemVariants} className="flex-1 mt-4">
-         <div className="flex items-center gap-3 mb-6">
+      <motion.div variants={itemVariants} className="flex-1 min-h-0 flex flex-col mt-4 pb-6">
+         <div className="flex items-center gap-3 mb-6 shrink-0">
             <Hash className="w-6 h-6 text-cyan-500" />
             <h2 className="text-2xl font-bold text-slate-100 uppercase tracking-tight">Spare Parts Radar</h2>
          </div>
 
          {machineParts.length === 0 ? (
-            <GlassCard className="p-12 flex flex-col items-center justify-center text-center border-dashed border-white/10">
+            <GlassCard className="p-12 flex flex-col items-center justify-center text-center border-dashed border-white/10 shrink-0">
                <Wrench className="w-12 h-12 text-slate-600 mb-4" />
                <p className="text-slate-400 font-bold uppercase tracking-widest">No Parts Linked</p>
                <p className="text-slate-500 text-sm mt-2">Use the Machine Registry bom configuration tool to link blueprints.</p>
             </GlassCard>
          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-3">
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-12">
                {machineParts.map(part => {
                  const partTemplate = templates.find(t => t.id === part.templateId);
                  return (
@@ -146,6 +147,7 @@ export function MachineDetailsView({ tabId }: { tabId: string }) {
                   </PdrCard>
                  );
                })}
+               </div>
             </div>
          )}
       </motion.div>

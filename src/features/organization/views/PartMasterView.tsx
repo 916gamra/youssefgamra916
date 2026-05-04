@@ -64,9 +64,9 @@ export function PartMasterView() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="w-full space-y-8 pb-12 px-4 relative z-10 h-full flex flex-col lg:px-8"
+      className="w-full h-full flex flex-col gap-6 relative z-10 lg:px-4"
     >
-      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4 flex-shrink-0">
+      <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-4 flex-shrink-0">
         <div>
           <h1 className="text-3xl font-bold text-slate-100 tracking-tight mb-1 flex items-center gap-4 uppercase">
             <Database className="w-8 h-8 text-amber-500" /> Part Master Catalog

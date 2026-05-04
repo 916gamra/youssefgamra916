@@ -106,8 +106,8 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
   };
 
   return (
-    <div className="w-full space-y-6 pb-12 lg:px-8">
-      <header className="mb-8 flex justify-between items-end">
+    <div className="w-full h-full flex flex-col gap-6 lg:px-8 relative z-10">
+      <header className="mb-8 flex justify-between items-end flex-shrink-0">
         <div>
           <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">System Settings</h1>
           <p className="text-slate-400 text-lg">Manage application preferences and local database.</p>
@@ -123,9 +123,9 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
         )}
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-4 gap-6 pb-12 relative">
         {/* Settings Navigation */}
-        <div className="space-y-2">
+        <div className="space-y-2 shrink-0">
           <button 
             onClick={() => setActiveSection('appearance')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${activeSection === 'appearance' ? 'bg-[white/5] border border-white/10 text-white' : 'hover:bg-white/5 border border-transparent text-slate-400 hover:text-white'}`}
@@ -162,7 +162,7 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
         </div>
 
         {/* Settings Content */}
-        <div className="md:col-span-3 space-y-6">
+        <div className="md:col-span-3 space-y-6 flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2 pb-4">
           {activeSection === 'appearance' && (
             <GlassCard className="space-y-6">
               <h2 className="text-[14px] font-semibold uppercase tracking-[0.05em] text-slate-400 border-b border-white/10 pb-3">

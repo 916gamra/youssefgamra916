@@ -128,7 +128,7 @@ export function MachineRegistryView() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="w-full space-y-8 pb-12 px-4 relative z-10 lg:px-8"
+      className="w-full h-full flex flex-col gap-6 relative z-10"
     >
       <motion.header variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 pt-4 flex-shrink-0">
         <div>
@@ -144,7 +144,7 @@ export function MachineRegistryView() {
         </div>
       </motion.header>
 
-      <motion.div variants={itemVariants}>
+      <motion.div variants={itemVariants} className="flex-1 min-h-0 flex flex-col">
         <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl h-full flex flex-col">
           <div className="p-8 border-b border-white/5 bg-white/[0.01] flex flex-col lg:flex-row lg:items-center justify-between gap-6 shrink-0 relative z-10">
             <div className="flex items-center gap-4">
@@ -196,7 +196,7 @@ export function MachineRegistryView() {
             </div>
           </div>
 
-          <div className="flex-1 bg-black/10 p-8">
+          <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-black/10 p-6 md:p-8">
             {filteredMachines.length === 0 ? (
               <div className="py-20 text-center border border-dashed border-white/10 rounded-3xl bg-white/[0.02]">
                 <Cpu className="w-16 h-16 text-slate-500 mx-auto mb-4 opacity-50" />
