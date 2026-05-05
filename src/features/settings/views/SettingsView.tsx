@@ -1,23 +1,18 @@
 import React, { useState, useRef } from 'react';
 import { GlassCard } from '@/shared/components/GlassCard';
-import { Database, Download, Upload, Trash2, Shield, Bell, Monitor, User as UserIcon, LogOut, Users, Plus, Edit2, X, RefreshCw, Loader2, Save } from 'lucide-react';
+import { Database, Download, Upload, Trash2, Shield, Bell, Monitor, LogOut, RefreshCw, Loader2 } from 'lucide-react';
 import { db, User } from '@/core/db';
-import { useLiveQuery } from 'dexie-react-hooks';
 import * as Dialog from '@radix-ui/react-dialog';
 import { runDatabaseSeed } from '@/core/db/useDatabaseSeeder';
 import { useDataVault } from '../hooks/useDataVault';
 
 export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?: User | null }) {
-  const [activeSection, setActiveSection] = useState<'appearance' | 'data' | 'users'>('appearance');
+  const [activeSection, setActiveSection] = useState<'appearance' | 'data'>('appearance');
   const [isClearing, setIsClearing] = useState(false);
   const [clearSuccess, setClearSuccess] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
   const [seedSuccess, setSeedSuccess] = useState(false);
   
-  const users = useLiveQuery(() => db.users.toArray());
-  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
-
   const { exportBackup, importBackup, isExporting, isImporting } = useDataVault();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -69,42 +64,6 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
     }
   };
 
-  const handleAddUser = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const name = formData.get('name') as string;
-    const role = formData.get('role') as string;
-    const pin = formData.get('pin') as string;
-    
-    await db.users.add({
-      name,
-      role,
-      pin,
-      initials: name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
-      color: ['bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500', 'bg-pink-500'][Math.floor(Math.random() * 5)]
-    });
-    setIsAddUserOpen(false);
-  };
-
-  const handleEditUser = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!editingUser?.id) return;
-    const formData = new FormData(e.currentTarget);
-    
-    await db.users.update(editingUser.id, {
-      name: formData.get('name') as string,
-      role: formData.get('role') as string,
-      pin: formData.get('pin') as string,
-    });
-    setEditingUser(null);
-  };
-
-  const handleDeleteUser = async (id: number) => {
-    const u = await db.users.get(id);
-    if (u?.isPrimary) return; // Cannot delete primary account
-    await db.users.delete(id);
-  };
-
   return (
     <div className="w-full h-full flex flex-col gap-6 lg:px-8 relative z-10">
       <header className="mb-8 flex justify-between items-end flex-shrink-0">
@@ -140,16 +99,6 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
             <Database className={`w-5 h-5 ${activeSection === 'data' ? 'text-[blue-500]' : ''}`} />
             Data Management
           </button>
-          
-          {user?.isPrimary && (
-            <button 
-              onClick={() => setActiveSection('users')}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors font-medium ${activeSection === 'users' ? 'bg-[white/5] border border-white/10 text-white' : 'hover:bg-white/5 border border-transparent text-slate-400 hover:text-white'}`}
-            >
-              <Users className={`w-5 h-5 ${activeSection === 'users' ? 'text-[blue-500]' : ''}`} />
-              User Management
-            </button>
-          )}
 
           <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 border border-transparent text-slate-400 hover:text-white font-medium transition-colors">
             <Bell className="w-5 h-5" />
@@ -312,122 +261,7 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
             </GlassCard>
           )}
 
-          {activeSection === 'users' && user?.isPrimary && (
-            <GlassCard className="space-y-6">
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <h2 className="text-[14px] font-semibold uppercase tracking-[0.05em] text-slate-400">
-                  User Management
-                </h2>
-                
-                <Dialog.Root open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
-                  <Dialog.Trigger asChild>
-                    <button className="flex items-center gap-2 bg-[blue-500] hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors">
-                      <Plus className="w-3.5 h-3.5" />
-                      Add User
-                    </button>
-                  </Dialog.Trigger>
-                  <Dialog.Portal>
-                    <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-                    <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-transparent border border-white/10 rounded-2xl p-6 z-50 shadow-2xl">
-                      <Dialog.Title className="text-lg font-semibold text-white mb-4">Add New User</Dialog.Title>
-                      <form onSubmit={handleAddUser} className="space-y-4">
-                        <div className="space-y-1.5">
-                          <label className="text-xs text-slate-400 font-medium">Full Name</label>
-                          <input required name="name" className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-xs text-slate-400 font-medium">Role</label>
-                          <input required name="role" className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-xs text-slate-400 font-medium">PIN</label>
-                          <input required name="pin" maxLength={4} className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" placeholder="1234" />
-                        </div>
-                        <div className="pt-4 flex justify-end gap-3">
-                          <Dialog.Close asChild>
-                            <button type="button" className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Cancel</button>
-                          </Dialog.Close>
-                          <button type="submit" className="bg-[blue-500] hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">Create User</button>
-                        </div>
-                      </form>
-                    </Dialog.Content>
-                  </Dialog.Portal>
-                </Dialog.Root>
-              </div>
-
-              <div className="space-y-3">
-                {users?.map((u) => (
-                  <div key={u.id} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:bg-white/[0.04] transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full ${u.color} flex items-center justify-center text-sm font-bold text-white`}>
-                        {u.initials}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-medium text-white">{u.name}</h3>
-                          {u.isPrimary && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
-                              Primary
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-slate-400">{u.role}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => setEditingUser(u)}
-                        className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      {!u.isPrimary && (
-                        <button 
-                          onClick={() => u.id && handleDeleteUser(u.id)}
-                          className="p-2 rounded-lg hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Edit User Dialog */}
-              <Dialog.Root open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
-                <Dialog.Portal>
-                  <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" />
-                  <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-transparent border border-white/10 rounded-2xl p-6 z-50 shadow-2xl">
-                    <Dialog.Title className="text-lg font-semibold text-white mb-4">Edit User</Dialog.Title>
-                    {editingUser && (
-                      <form onSubmit={handleEditUser} className="space-y-4">
-                        <div className="space-y-1.5">
-                          <label className="text-xs text-slate-400 font-medium">Full Name</label>
-                          <input required name="name" defaultValue={editingUser.name} className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-xs text-slate-400 font-medium">Role</label>
-                          <input required name="role" defaultValue={editingUser.role} className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="text-xs text-slate-400 font-medium">PIN</label>
-                          <input required name="pin" maxLength={4} defaultValue={editingUser.pin} className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[blue-500] transition-all" />
-                        </div>
-                        <div className="pt-4 flex justify-end gap-3">
-                          <Dialog.Close asChild>
-                            <button type="button" className="px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-colors">Cancel</button>
-                          </Dialog.Close>
-                          <button type="submit" className="bg-[blue-500] hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">Save Changes</button>
-                        </div>
-                      </form>
-                    )}
-                  </Dialog.Content>
-                </Dialog.Portal>
-              </Dialog.Root>
-            </GlassCard>
-          )}
+          {/* Remove activeSection === 'users' logic, as users are managed in System Config / User Management View now */}
         </div>
       </div>
     </div>

@@ -1,15 +1,17 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/core/db';
-import type { Technician, Machine, PdrBlueprint, StockItem } from '@/core/db';
+import type { Machine, PdrBlueprint, StockItem, User } from '@/core/db';
+import { useAuthSlots } from '@/features/auth/hooks/useAuthSlots';
+import { ALL_HARDCODED_SLOTS } from '@/core/config/authSlots';
 
 export function useRequisitionEngine() {
-  const technicians = useLiveQuery(() => db.technicians.toArray());
+  const authSlots = useAuthSlots();
+  const technicians = authSlots.filter(s => s.id.startsWith('TC') && s.isActive);
   const machines = useLiveQuery(() => db.machines.toArray());
   const blueprints = useLiveQuery(() => db.pdrBlueprints.toArray());
   const inventory = useLiveQuery(() => db.inventory.toArray());
 
   const isLoading = 
-    technicians === undefined || 
     machines === undefined || 
     blueprints === undefined || 
     inventory === undefined;
@@ -19,16 +21,29 @@ export function useRequisitionEngine() {
     machineId: string, 
     cartLines: Array<{ blueprintId: string, quantity: number }>
   ) => {
+    // We cannot do cross-table + local file state atomicity easily if one fails, but we'll manually check slot first.
+    const baseSlot = ALL_HARDCODED_SLOTS.find(s => s.id === technicianId);
+    const override = await db.userOverrides.get(technicianId);
+    
+    if (!baseSlot) {
+      throw new Error(`Technician slot ${technicianId} is not a valid system slot.`);
+    }
+
+    const tech = { ...baseSlot, ...override } as User;
+
+    if (!tech.isActive) {
+      throw new Error(`Technician slot ${technicianId} is inactive.`);
+    }
+
     // CRITICAL ACID LOGIC
     await db.transaction(
       'rw', 
-      [db.partRequisitions, db.partRequisitionLines, db.inventory, db.movements, db.technicians, db.machines, db.pdrBlueprints],
+      [db.partRequisitions, db.partRequisitionLines, db.inventory, db.movements, db.machines, db.pdrBlueprints],
       async () => {
-        const tech = await db.technicians.get(technicianId);
         const machine = await db.machines.get(machineId);
         
-        if (!tech || !machine) {
-          throw new Error("Technician or Machine not found. Validation failed.");
+        if (!machine) {
+          throw new Error("Machine not found. Validation failed.");
         }
 
         const reqId = crypto.randomUUID();
@@ -79,7 +94,7 @@ export function useRequisitionEngine() {
             stockId: invItem.id,
             type: 'OUT',
             quantity: line.quantity,
-            performedBy: tech.name,
+            performedBy: `${tech.name} [ID: ${tech.realBadgeId || tech.id}]`,
             notes: `Requisition (auto-deduct) | Machine: ${machine.name} [${machine.referenceCode}]`,
             timestamp: date
           });
@@ -88,7 +103,7 @@ export function useRequisitionEngine() {
   };
 
   return {
-    technicians: technicians || [],
+    technicians,
     machines: machines || [],
     blueprints: blueprints || [],
     inventory: inventory || [],

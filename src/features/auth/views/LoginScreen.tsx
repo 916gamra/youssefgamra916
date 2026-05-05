@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, ChevronLeft, ShieldCheck, Fingerprint } from 'lucide-react';
 import { cn } from '@/shared/utils';
-import { useLiveQuery } from 'dexie-react-hooks';
 import { toast } from 'sonner';
-import { db, User } from '@/core/db';
+import { User } from '@/core/db';
 import { useAuthStore } from '@/app/store/useAuthStore';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 import { useNotificationsContext } from '@/shared/context/NotificationContext';
 import { SystemBackground } from '@/shared/components/SystemBackground';
+import { useActiveUsers } from '../hooks/useAuthSlots';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -36,7 +36,7 @@ const itemVariants = {
 };
 
 export function LoginScreen() {
-  const users = useLiveQuery(() => db.users.toArray());
+  const users = useActiveUsers();
   const { login } = useAuthStore();
   const { logEvent } = useAuditTrail();
   const { addNotification } = useNotificationsContext();

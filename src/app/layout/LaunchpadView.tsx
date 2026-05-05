@@ -120,7 +120,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
       db.inventory.count(),
       db.machines.count(),
       db.pmWorkOrders.where('status').equals('PENDING').count(),
-      db.users.count()
+      db.userOverrides.count()
     ]);
     return { invCount, machinesCount, pendingOrders, usersCount };
   });

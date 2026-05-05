@@ -10,15 +10,6 @@ export function runDatabaseSeed(force = false) {
       const machineFamilyCount = await db.machineFamilies.count();
       const machineCount = await db.machines.count();
 
-      // Ensure we remove old technician users that were used for login previously.
-      const oldTechUsers = await db.users.filter(u => u.role?.includes('Technician') || u.role?.includes('Maintenance') || u.role?.includes('Souder')).toArray();
-      if (oldTechUsers.length > 0) {
-        await db.users.bulkDelete(oldTechUsers.map(u => u.id as number));
-        console.log('[DatabaseSeeder] Removed obsolete technician login accounts.');
-      }
-
-      const userCount = await db.users.count();
-
       // Always force injection if force is true.
       if (force) {
         console.log('[DatabaseSeeder] Enforcing master data synchronization...');
@@ -26,7 +17,7 @@ export function runDatabaseSeed(force = false) {
         await db.transaction('rw', [
           db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, 
           db.machineFamilies, db.machineTemplates, db.machineBlueprints,
-          db.sectors, db.machines, db.technicians, db.users
+          db.sectors, db.machines
         ], async () => {
           // Inject/Update Master Data (Using bulkPut for idempotent sync)
           await db.pdrFamilies.bulkPut(INITIAL_DATA.pdrFamilies);
@@ -39,14 +30,6 @@ export function runDatabaseSeed(force = false) {
           
           if (INITIAL_DATA.machineBlueprints) {
             await db.machineBlueprints.bulkPut(INITIAL_DATA.machineBlueprints);
-          }
-          
-          if (INITIAL_DATA.technicians) {
-            await db.technicians.bulkPut(INITIAL_DATA.technicians);
-          }
-          
-          if (INITIAL_DATA.users) {
-            await db.users.bulkPut(INITIAL_DATA.users);
           }
         });
 

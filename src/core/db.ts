@@ -194,9 +194,20 @@ export interface PmWorkOrder {
   notes?: string;
 }
 
+export interface UserOverride {
+  id: string; // The fixed slot ID (e.g. SY-ADMIN, OP-00001)
+  name?: string;
+  pin?: string;
+  color?: string;
+  isActive?: boolean;
+  realBadgeId?: string;
+  allowedPortals?: string[];
+  lastActiveAt?: string;
+}
+
 // Users (Preserving your existing User schema)
 export interface User {
-  id?: number;
+  id: string; // Changed from number to string for slot ID
   name: string;
   role: string;
   initials: string;
@@ -206,6 +217,8 @@ export interface User {
   isSystemRoot?: boolean;
   allowedPortals?: string[];
   lastActiveAt?: string;
+  realBadgeId?: string; // Physical factory badge number
+  isActive?: boolean;
 }
 
 export type AuditLogSeverity = 'INFO' | 'WARNING' | 'CRITICAL';
@@ -259,7 +272,7 @@ export class GmaoDatabase extends Dexie {
   pmWorkOrders!: Table<PmWorkOrder, string>;
 
   // System Tables
-  users!: Table<User, number>;
+  userOverrides!: Table<UserOverride, string>;
   auditLogs!: Table<AuditLog, string>;
   
   // Excel Integration Tables
@@ -269,8 +282,8 @@ export class GmaoDatabase extends Dexie {
   constructor() {
     super('CIOB_GMAO_DB');
     
-    // Schema Version 12 (Added Machine Master Data tables)
-    this.version(12).stores({
+    // Schema Version 13 (Added userOverrides)
+    this.version(13).stores({
       pdrFamilies: 'id, name',
       pdrTemplates: 'id, familyId, name, skuBase',
       pdrBlueprints: 'id, templateId, reference',
@@ -291,7 +304,7 @@ export class GmaoDatabase extends Dexie {
       pmTasks: 'id, checklistId, order',
       pmSchedules: 'id, machineId, checklistId, nextDueDate, isActive',
       pmWorkOrders: 'id, machineId, technicianId, status, scheduledDate',
-      users: '++id, name, role, isPrimary',
+      userOverrides: 'id, isActive, realBadgeId',
       auditLogs: 'id, userId, action, entityType, timestamp, severity',
       excelTemplates: 'id, portalId, name',
       excelBackups: 'id, portalId, timestamp'

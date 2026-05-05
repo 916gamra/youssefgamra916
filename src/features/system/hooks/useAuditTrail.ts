@@ -33,8 +33,14 @@ export function useAuditTrail() {
       await db.auditLogs.add(newLog);
       
       // Also update user last activity if applicable
-      if (typeof params.userId === 'number') {
-        await db.users.update(params.userId, { lastActiveAt: new Date().toISOString() });
+      if (params.userId && params.userId !== 'GUEST' && params.userId !== 'SY-ROOT') {
+        const userIdStr = String(params.userId);
+        const override = await db.userOverrides.get(userIdStr);
+        if (override) {
+          await db.userOverrides.update(userIdStr, { lastActiveAt: new Date().toISOString() });
+        } else {
+          await db.userOverrides.put({ id: userIdStr, lastActiveAt: new Date().toISOString() });
+        }
       }
       
     } catch (error) {

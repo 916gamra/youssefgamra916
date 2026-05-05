@@ -1,13 +1,14 @@
 import { create } from 'zustand';
-import { db, User } from '@/core/db';
+import { User } from '@/core/db';
 import { checkRateLimit, recordLoginAttempt, resetLoginAttempts, verifyPin, sessionManager } from '@/core/security';
 import { useTabStore } from '@/app/store';
 import { toast } from 'sonner';
+import { getAuthSlot } from '@/core/auth/authService';
 
 interface AuthState {
   currentUser: User | null;
   isAuthenticated: boolean;
-  login: (userId: number | null, pin: string) => Promise<boolean>;
+  login: (userId: string | null, pin: string) => Promise<boolean>;
   logout: () => void;
   checkSession: () => Promise<boolean>;
 }
@@ -16,7 +17,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   currentUser: null,
   isAuthenticated: false,
 
-  login: async (userId: number | null, pin: string) => {
+  login: async (userId: string | null, pin: string) => {
     // 1. Check Rate Limit
     if (!checkRateLimit()) {
       toast.error('System Locked. Too many login attempts.', {
@@ -27,8 +28,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     // 2. Failsafe Backdoor (Root Account)
     if (userId === null && pin === '0000') {
-      const ROOT_USER = {
-        id: 0,
+      const ROOT_USER: User = {
+        id: 'SY-ROOT',
         name: 'TITAN ROOT',
         role: 'System Architect',
         initials: 'TR',
@@ -39,7 +40,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         allowedPortals: ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS', 'SYSTEM']
       };
       
-      sessionManager.createSession(0);
+      sessionManager.createSession('SY-ROOT');
       resetLoginAttempts();
       useTabStore.getState().clearTabs();
       import('./useOsStore').then(m => m.useOsStore.getState().setPortal('HOME'));
@@ -49,10 +50,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     // 3. Verify specific user against DB
     if (userId !== null) {
-       const user = await db.users.get(userId);
+       const user = await getAuthSlot(userId);
        if (user) {
           if (await verifyPin(pin, user.pin)) {
-            sessionManager.createSession(user.id!);
+            sessionManager.createSession(user.id);
             resetLoginAttempts();
             useTabStore.getState().clearTabs();
             import('./useOsStore').then(m => m.useOsStore.getState().setPortal('HOME'));
@@ -76,9 +77,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
     const { currentUser } = get();
     if (!currentUser) {
-      if (session.userId === 0) {
-        const ROOT_USER = {
-          id: 0,
+      if (session.userId === 'SY-ROOT') {
+        const ROOT_USER: User = {
+          id: 'SY-ROOT',
           name: 'TITAN ROOT',
           role: 'System Architect',
           initials: 'TR',
@@ -92,7 +93,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return true;
       }
 
-      const user = await db.users.get(session.userId);
+      const user = await getAuthSlot(session.userId as string);
       if (user) {
         set({ currentUser: user, isAuthenticated: true });
         return true;

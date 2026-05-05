@@ -41,17 +41,16 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
       });
 
       await db.transaction('rw', [
-        db.users, db.machines, db.machinePartMappings, db.sectors, db.technicians, 
+        db.userOverrides, db.machines, db.machinePartMappings, db.sectors, 
         db.machineFamilies, db.machineTemplates, db.machineBlueprints,
         db.pdrBlueprints, db.pdrTemplates, db.pdrFamilies, db.inventory, db.movements,
         db.purchaseOrders, db.purchaseOrderLines, db.partRequisitions, db.partRequisitionLines,
         db.pmChecklists, db.pmTasks, db.pmSchedules, db.pmWorkOrders, db.auditLogs
       ], async () => {
-        await db.users.clear();
+        await db.userOverrides.clear();
         await db.machines.clear();
         await db.machinePartMappings.clear();
         await db.sectors.clear();
-        await db.technicians.clear();
         await db.machineFamilies.clear();
         await db.machineTemplates.clear();
         await db.machineBlueprints.clear();

@@ -146,73 +146,6 @@ export function DataExchangeView() {
     if (skippedMachines > 0) toast.info(`Skipped ${skippedMachines} already existing machines.`);
   };
 
-  // --- MODULE 2: TECHNICIANS ---
-  const TECH_COLS = [
-    { header: 'Technician Name (Required)', key: 'name', width: 30 },
-    { header: 'Assigned Sector', key: 'sector', width: 25 },
-    { header: 'Specialty', key: 'specialty', width: 25 }
-  ];
-
-  const processTechData = async (ws: ExcelJS.Worksheet) => {
-    const existingSectors = await db.sectors.toArray();
-    const existingTechs = await db.technicians.toArray();
-    
-    const sectorsMap = new Map<string, string>();
-    existingSectors.forEach(s => sectorsMap.set(s.name.toUpperCase(), s.id));
-    
-    const techsSet = new Set(existingTechs.map(t => t.name.toUpperCase()));
-
-    const newSectors = new Map<string, any>();
-    const newTechs: any[] = [];
-    let skipped = 0;
-
-    ws.eachRow((row, rowNumber) => {
-      if (rowNumber === 1) return;
-      const name = row.getCell(1).text?.trim();
-      const sectorName = row.getCell(2).text?.trim();
-      const specialty = row.getCell(3).text?.trim() || 'General';
-
-      if (!name) return;
-      if (techsSet.has(name.toUpperCase())) { skipped++; return; } // Avoid duplicate tech name
-
-      let sectorId = sectorName ? sectorsMap.get(sectorName.toUpperCase()) : undefined;
-      
-      if (sectorName && !sectorId) {
-         if (newSectors.has(sectorName.toUpperCase())) {
-            sectorId = newSectors.get(sectorName.toUpperCase()).id;
-         } else {
-            sectorId = crypto.randomUUID();
-            newSectors.set(sectorName.toUpperCase(), { id: sectorId, name: sectorName });
-         }
-      }
-
-      if (!sectorId) {
-         sectorId = sectorsMap.get('UNASSIGNED');
-         if (!sectorId) {
-           sectorId = crypto.randomUUID();
-           newSectors.set('UNASSIGNED', { id: sectorId, name: 'Unassigned' });
-         }
-      }
-
-      newTechs.push({
-        id: crypto.randomUUID(),
-        name,
-        sectorId,
-        specialty
-      });
-      techsSet.add(name.toUpperCase());
-    });
-
-    if (newTechs.length === 0) throw new Error("No new valid technicians found.");
-
-    await db.transaction('rw', db.sectors, db.technicians, async () => {
-      if (newSectors.size > 0) await db.sectors.bulkAdd(Array.from(newSectors.values()));
-      await db.technicians.bulkAdd(newTechs);
-    });
-
-    if (skipped > 0) toast.info(`Skipped ${skipped} already existing technicians.`);
-  };
-
   // --- MODULE 3: PDR CATALOG ---
   const CATALOG_COLS = [
     { header: 'Family (Required)', key: 'family', width: 25 },
@@ -474,16 +407,6 @@ export function DataExchangeView() {
       processFn: processFactoryData,
       filename: 'Factory_Master_Template.xlsx',
       color: 'bg-indigo-500'
-    },
-    {
-      id: 'techs',
-      title: 'Technical Staff',
-      desc: 'Register maintenance technicians, specializations, and assignments.',
-      icon: <Users className="w-8 h-8 text-emerald-400" />,
-      cols: TECH_COLS,
-      processFn: processTechData,
-      filename: 'Technicians_Template.xlsx',
-      color: 'bg-emerald-500'
     },
     {
       id: 'catalog',

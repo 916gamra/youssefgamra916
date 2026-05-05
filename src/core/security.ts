@@ -65,7 +65,7 @@ export const resetLoginAttempts = (deviceId: string = 'local-device') => {
 // --- SESSION MANAGEMENT ---
 export interface Session {
   sessionId: string;
-  userId: number;
+  userId: string | number;
   expiresAt: number;
   createdAt: number;
   lastActivity: number;
@@ -76,7 +76,7 @@ export interface Session {
 let activeSessionInMemory: Session | null = null;
 
 export const sessionManager = {
-  createSession(userId: number, customTimeoutMinutes?: number): Session {
+  createSession(userId: string | number, customTimeoutMinutes?: number): Session {
     // Default 30 min, or fetch from security policies
     const prefsStr = localStorage.getItem('ciob_security_prefs');
     let timeoutMinutes = 30;

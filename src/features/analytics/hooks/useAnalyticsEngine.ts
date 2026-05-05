@@ -1,11 +1,14 @@
 import { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/core/db';
+import { useAuthSlots } from '@/features/auth/hooks/useAuthSlots';
 
 export function useAnalyticsEngine() {
+  const allSlots = useAuthSlots();
+  const technicians = allSlots.filter(s => s.id.startsWith('TC'));
+  
   const inventory = useLiveQuery(() => db.inventory.toArray());
   const machines = useLiveQuery(() => db.machines.toArray());
-  const technicians = useLiveQuery(() => db.technicians.toArray());
   const requisitions = useLiveQuery(() => db.partRequisitions.toArray());
   const reqLines = useLiveQuery(() => db.partRequisitionLines.toArray());
   const blueprints = useLiveQuery(() => db.pdrBlueprints.toArray());
@@ -13,7 +16,6 @@ export function useAnalyticsEngine() {
   const isLoading = 
     inventory === undefined || 
     machines === undefined || 
-    technicians === undefined || 
     requisitions === undefined || 
     reqLines === undefined ||
     blueprints === undefined;

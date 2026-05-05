@@ -5,7 +5,7 @@ export type PortalType = 'PDR' | 'PREVENTIVE' | 'ORGANIZATION' | 'FACTORY' | 'AN
 /**
  * Roles that have administrative privileges across the entire system.
  */
-export const ADMIN_ROLES = ['Admin', 'Super Administrator', 'Manager'];
+export const ADMIN_ROLES = ['Admin', 'Super Administrator', 'Manager', 'System Root'];
 
 /**
  * Check if a user has administrative privileges.
@@ -13,7 +13,7 @@ export const ADMIN_ROLES = ['Admin', 'Super Administrator', 'Manager'];
  */
 export function isUserAdmin(user: User | null): boolean {
   if (!user) return false;
-  if (user.isPrimary) return true;
+  if (user.isPrimary || user.isSystemRoot) return true;
   return ADMIN_ROLES.includes(user.role);
 }
 

@@ -34,11 +34,10 @@ export function RequisitionHubView() {
 
   const selectedTech = useMemo(() => technicians.find(t => t.id === selectedTechId), [technicians, selectedTechId]);
   
-  // Smart Filtering: Only show machines in the same sector as the selected technician
+  // Smart Filtering: If technician had a sector, filter. Otherwise show all.
   const filteredMachines = useMemo(() => {
-    if (!selectedTech) return machines;
-    return machines.filter(m => m.sectorId === selectedTech.sectorId);
-  }, [machines, selectedTech]);
+    return machines;
+  }, [machines]);
 
   // Unified Part List: Combine Blueprints with Inventory quantity
   const availableParts = useMemo(() => {
@@ -174,8 +173,8 @@ export function RequisitionHubView() {
               </div>
 
               <div className="space-y-1.5">
-                 <label className="text-xs uppercase font-semibold text-slate-400 tracking-wider flex items-center gap-2 cursor-help" title="Machines are filtered by the selected technician's sector.">
-                   Target Machine <AlertCircle className="w-3 h-3 text-slate-400" />
+                 <label className="text-xs uppercase font-semibold text-slate-400 tracking-wider flex items-center gap-2">
+                   Target Machine
                  </label>
                  <select
                    value={selectedMachineId} onChange={e => setSelectedMachineId(e.target.value)}
