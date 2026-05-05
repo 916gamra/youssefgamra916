@@ -37,6 +37,7 @@ export function UserManagementView() {
 
   // Edit slot form state
   const [editingSlot, setEditingSlot] = useState<User | null>(null);
+  const [confirmDeactivateSlot, setConfirmDeactivateSlot] = useState<User | null>(null);
   const [editName, setEditName] = useState('');
   const [editColor, setEditColor] = useState('');
   const [editPin, setEditPin] = useState('');
@@ -143,20 +144,14 @@ export function UserManagementView() {
                               const isActivating = e.target.checked;
                               
                               if (!isActivating) {
-                                // Double check if it's the right account
-                                const confirmed = window.confirm(`Are you sure you want to deactivate ${slot.name}? This will revoke their internal tracking access.`);
-                                if (!confirmed) {
-                                  // Do nothing, just return so it stays active.
-                                  // Since this is a controlled component (checked={slot.isActive}), 
-                                  // React will naturally revert the UI when it re-renders.
-                                  return;
-                                }
+                                setConfirmDeactivateSlot(slot);
+                                return;
                               }
                               
                               try {
-                                await db.userOverrides.put({ ...slot, isActive: isActivating } as User);
-                                showSuccess('Status Updated', `Slot ${slot.id} is now ${isActivating ? 'Active' : 'Disabled'}`);
-                                if (isActivating && slot.id.startsWith('TC')) {
+                                await db.userOverrides.put({ ...slot, isActive: true } as User);
+                                showSuccess('Status Updated', `Slot ${slot.id} has been Activated`);
+                                if (slot.id.startsWith('TC')) {
                                   openEditModal(slot);
                                 }
                               } catch (err: any) {
@@ -370,6 +365,61 @@ export function UserManagementView() {
                     </button>
                   </div>
                 </form>
+              </GlassCard>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {confirmDeactivateSlot && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }} 
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              onClick={() => setConfirmDeactivateSlot(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md"
+            >
+              <GlassCard className="!p-8 overflow-hidden relative border border-rose-500/20 shadow-[0_0_50px_rgba(244,63,94,0.15)]">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center mb-6 text-rose-500 border border-rose-500/20">
+                    <AlertCircle className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Deactivate Slot?</h3>
+                  <p className="text-slate-400 text-sm mb-8 leading-relaxed">
+                    You are about to revoke system access for <strong className="text-rose-400">{confirmDeactivateSlot.name}</strong> ({confirmDeactivateSlot.id}). This action will disable their tracking capabilities until re-enabled. Are you sure you want to proceed?
+                  </p>
+                  
+                  <div className="flex gap-4 w-full">
+                    <button 
+                      onClick={() => setConfirmDeactivateSlot(null)} 
+                      className="flex-1 px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-all border border-white/5 hover:border-white/10 shrink-0"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={async () => {
+                         try {
+                           await db.userOverrides.put({ ...confirmDeactivateSlot, isActive: false } as User);
+                           showSuccess('Access Revoked', `Slot ${confirmDeactivateSlot.id} has been disabled.`);
+                         } catch (err: any) {
+                           showError('Action Failed', err.message);
+                         } finally {
+                           setConfirmDeactivateSlot(null);
+                         }
+                      }}
+                      className="flex-1 px-4 py-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold transition-all shadow-[0_0_20px_rgba(225,29,72,0.3)] shrink-0"
+                    >
+                      Confirm Deactivation
+                    </button>
+                  </div>
+                </div>
               </GlassCard>
             </motion.div>
           </div>
