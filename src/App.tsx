@@ -31,7 +31,7 @@ export default function App() {
     // Check if there is an active session before removing the splash screen
     const verify = async () => {
        try {
-         await runDatabaseSeed()(true); // Inject/sync master data always
+         await runDatabaseSeed(true)(); // Inject/sync master data always
          await checkSession();
        } finally {
          setIsSessionVerified(true);

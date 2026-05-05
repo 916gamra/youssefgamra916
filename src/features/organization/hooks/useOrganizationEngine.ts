@@ -5,6 +5,7 @@ import { db } from '@/core/db';
 import { z } from 'zod';
 import { validatePayload } from '@/core/logger';
 import { organizationRepository } from '../repositories/OrganizationRepository';
+import { INDUSTRIAL_CATALOG } from '@/core/config/industrialGenetics';
 
 export interface EnrichedMachine extends Machine {
   sectorName: string;
@@ -47,11 +48,11 @@ export function useOrganizationEngine() {
   
   // Master Data joins
   const blueprints = useLiveQuery(() => db.machineBlueprints.toArray());
-  const templates = useLiveQuery(() => db.machineTemplates.toArray());
-  const families = useLiveQuery(() => db.machineFamilies.toArray());
+  const templates = INDUSTRIAL_CATALOG.templates;
+  const families = INDUSTRIAL_CATALOG.families;
 
   const isLoading = sectors === undefined || technicians === undefined || machines === undefined || 
-                    blueprints === undefined || templates === undefined || families === undefined;
+                    blueprints === undefined;
 
   const enrichedMachines = useMemo((): EnrichedMachine[] => {
     if (!machines || !sectors || !blueprints || !templates || !families) return [];

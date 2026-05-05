@@ -42,7 +42,7 @@ export function SettingsView({ onLogout, user }: { onLogout?: () => void, user?:
 
   const handleSeedDatabase = async () => {
     setIsSeeding(true);
-    await runDatabaseSeed()(true);
+    await runDatabaseSeed(true)();
     setSeedSuccess(true);
     setTimeout(() => setSeedSuccess(false), 3000);
     setIsSeeding(false);

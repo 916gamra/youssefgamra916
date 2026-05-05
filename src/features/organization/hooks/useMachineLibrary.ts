@@ -1,21 +1,21 @@
 import { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/core/db';
+import { INDUSTRIAL_CATALOG } from '@/core/config/industrialGenetics';
 
 export function useMachineLibrary() {
-  const families = useLiveQuery(() => db.machineFamilies.toArray());
-  const templates = useLiveQuery(() => db.machineTemplates.toArray());
   const blueprints = useLiveQuery(() => db.machineBlueprints.toArray());
 
-  const isLoading = families === undefined || templates === undefined || blueprints === undefined;
+  const families = INDUSTRIAL_CATALOG.families;
+  const templates = INDUSTRIAL_CATALOG.templates;
+
+  const isLoading = blueprints === undefined;
 
   const templateCounts = useMemo(() => {
     const counts = new Map<string, number>();
-    if (templates) {
-      templates.forEach(t => {
-        counts.set(t.familyId, (counts.get(t.familyId) || 0) + 1);
-      });
-    }
+    templates.forEach(t => {
+      counts.set(t.familyId, (counts.get(t.familyId) || 0) + 1);
+    });
     return counts;
   }, [templates]);
 
@@ -30,8 +30,8 @@ export function useMachineLibrary() {
   }, [blueprints]);
 
   return {
-    families: families || [],
-    templates: templates || [],
+    families,
+    templates,
     blueprints: blueprints || [],
     templateCounts,
     blueprintCounts,
