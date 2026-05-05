@@ -42,6 +42,7 @@ export function UserManagementView() {
   const [editPin, setEditPin] = useState('');
   const [editIsActive, setEditIsActive] = useState(false);
   const [editBadgeId, setEditBadgeId] = useState('');
+  const [editAllowedPortals, setEditAllowedPortals] = useState<string[]>([]);
 
   // SECURITY GUARD: Absolute gate for non-admins
   if (!isUserAdmin(currentUser)) {
@@ -65,6 +66,7 @@ export function UserManagementView() {
     setEditPin(''); // leave blank unless changing
     setEditIsActive(slot.isActive || false);
     setEditBadgeId(slot.realBadgeId || '');
+    setEditAllowedPortals(slot.allowedPortals || []);
   };
 
   const handleUpdateSlot = async (e: React.FormEvent) => {
@@ -73,10 +75,11 @@ export function UserManagementView() {
 
     try {
       const updates: any = {
-        id: editingSlot.id, // Ensure ID is saved correctly in userOverrides
+        id: editingSlot.id,
         name: editName,
         color: editColor,
-        isActive: editIsActive
+        isActive: editIsActive,
+        allowedPortals: editingSlot.id === 'SY-ADMIN' ? AVAILABLE_PORTALS.map(p => p.id) : editAllowedPortals
       };
 
       if (editingSlot.id.startsWith('TC')) {
@@ -109,68 +112,101 @@ export function UserManagementView() {
 
     return (
       <div className="mb-12">
-        <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+        <h2 className="text-xl font-semibold text-white mb-8 flex items-center gap-3 tracking-tight">
           {prefix === 'SY' && <ShieldCheck className="w-5 h-5 text-red-500" />}
           {prefix === 'OP' && <UserCog className="w-5 h-5 text-indigo-500" />}
           {prefix === 'TC' && <UserIcon className="w-5 h-5 text-emerald-500" />}
           {title}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {slots.map(slot => (
-            <GlassCard key={slot.id} className={cn("!p-6 relative group overflow-hidden border-t-2", !slot.isActive && "opacity-50 grayscale", prefix === 'SY' && "border-t-red-500/50", prefix === 'OP' && "border-t-indigo-500/50", prefix === 'TC' && "border-t-emerald-500/50")}>
-              
-              <div className="absolute top-4 right-4 flex gap-2">
-                <button 
-                  onClick={() => openEditModal(slot)}
-                  className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors text-slate-300"
-                >
-                  <UserCog className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="flex items-center gap-4 mb-4">
-                <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-lg shrink-0", slot.color)}>
-                  {slot.initials}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-white tracking-tight">{slot.name}</h3>
-                    {slot.isActive && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+            <motion.div key={slot.id} variants={itemVariants}>
+              <GlassCard className={cn(
+                "!p-0 overflow-hidden border-t-4 transition-all duration-300 hover:shadow-2xl hover:border-white/20",
+                !slot.isActive && "opacity-60 grayscale",
+                prefix === 'SY' && "border-t-red-500",
+                prefix === 'OP' && "border-t-indigo-500",
+                prefix === 'TC' && "border-t-emerald-500"
+              )}>
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center text-white text-lg font-bold shadow-lg shrink-0", slot.color)}>
+                      {slot.initials}
+                    </div>
+                    {slot.id !== 'SY-ADMIN' && (
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                           type="checkbox" 
+                           className="sr-only peer" 
+                           checked={slot.isActive} 
+                            onChange={async (e) => {
+                              const isActivating = e.target.checked;
+                              
+                              if (!isActivating) {
+                                // Double check if it's the right account
+                                const confirmed = window.confirm(`Are you sure you want to deactivate ${slot.name}? This will revoke their internal tracking access.`);
+                                if (!confirmed) {
+                                  // Do nothing, just return so it stays active.
+                                  // Since this is a controlled component (checked={slot.isActive}), 
+                                  // React will naturally revert the UI when it re-renders.
+                                  return;
+                                }
+                              }
+                              
+                              try {
+                                await db.userOverrides.put({ ...slot, isActive: isActivating } as User);
+                                showSuccess('Status Updated', `Slot ${slot.id} is now ${isActivating ? 'Active' : 'Disabled'}`);
+                                if (isActivating && slot.id.startsWith('TC')) {
+                                  openEditModal(slot);
+                                }
+                              } catch (err: any) {
+                                showError('Sync Failure', err.message);
+                              }
+                            }}
+                        />
+                        <div className="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500" />
+                      </label>
+                    )}
                   </div>
-                  <p className="text-sm text-slate-400 font-mono">{slot.id}</p>
-                </div>
-              </div>
 
-              <div className="space-y-2 text-sm text-slate-400 mb-4">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-slate-500" />
-                  <span>{slot.role}</span>
-                </div>
-                {slot.realBadgeId && (
-                  <div className="flex items-center gap-2">
-                    <Fingerprint className="w-4 h-4 text-slate-500" />
-                    <span className="font-mono">Badge: {slot.realBadgeId}</span>
+                  <h3 className="text-lg font-bold text-white tracking-tight">{slot.name}</h3>
+                  <p className="text-xs font-mono text-slate-400 mb-4">{slot.id}</p>
+
+                  <div className="space-y-3 text-sm text-slate-400">
+                    <div className="flex items-center gap-2 bg-slate-900/50 p-2 rounded-lg border border-white/5">
+                      <ShieldCheck className="w-4 h-4 text-slate-500" />
+                      <span>{slot.role}</span>
+                    </div>
+                    {slot.realBadgeId && (
+                      <div className="flex items-center gap-2 bg-slate-900/50 p-2 rounded-lg border border-white/5">
+                        <Fingerprint className="w-4 h-4 text-slate-500" />
+                        <span className="font-mono text-xs">{slot.realBadgeId}</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </div>
 
-              <div className="flex flex-wrap gap-1 mt-4 border-t border-white/5 pt-4">
-                {slot.allowedPortals?.slice(0, 3).map(portalId => {
-                  const p = AVAILABLE_PORTALS.find(x => x.id === portalId);
-                  if (!p) return null;
-                  return (
-                    <span key={portalId} className={cn("text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-white/5", p.color)}>
-                      {p.name.split(' ')[0]}
-                    </span>
-                  );
-                })}
-                {slot.allowedPortals && slot.allowedPortals.length > 3 && (
-                  <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-white/5 text-slate-400">
-                    +{slot.allowedPortals.length - 3}
-                  </span>
-                )}
-              </div>
-            </GlassCard>
+                <div className="px-6 py-4 bg-white/5 border-t border-white/5 flex items-center justify-between">
+                   <div className="flex -space-x-2">
+                       {slot.allowedPortals?.slice(0, 3).map(portalId => {
+                        const p = AVAILABLE_PORTALS.find(x => x.id === portalId);
+                        if (!p) return null;
+                        return (
+                          <div key={portalId} className={cn("w-6 h-6 rounded-full flex items-center justify-center border border-black text-[9px] font-bold text-white", p.bg)}>
+                            {p.id.substring(0, 1)}
+                          </div>
+                        );
+                      })}
+                   </div>
+                  <button 
+                    onClick={() => openEditModal(slot)}
+                    className="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-slate-200 transition-colors"
+                  >
+                    Manage
+                  </button>
+                </div>
+              </GlassCard>
+            </motion.div>
           ))}
         </div>
       </div>
@@ -187,7 +223,7 @@ export function UserManagementView() {
       <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 shrink-0 lg:px-8">
         <div>
           <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
-            <Fingerprint className="w-8 h-8 text-indigo-500" /> Identity Slot Configuration
+            <Fingerprint className="w-8 h-8 text-slate-500" /> Identity Slot Configuration
           </h1>
           <p className="text-slate-400 text-lg">Manage stationary access slots and authentication overrides.</p>
         </div>
@@ -231,18 +267,42 @@ export function UserManagementView() {
                   </button>
                 </div>
 
-                <form onSubmit={handleUpdateSlot} className="space-y-6">
+                <form onSubmit={handleUpdateSlot} className="space-y-8">
                   
                   {editingSlot.id !== 'SY-ADMIN' && (
-                    <div className="flex items-center gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                    <div className="flex items-center gap-4 p-5 bg-white/5 rounded-2xl border border-white/5">
                       <div className="flex-1">
                         <label className="text-sm font-bold text-slate-300 uppercase tracking-widest block mb-1">Slot Status</label>
-                        <p className="text-xs text-slate-500">Enable or disable this slot.</p>
+                        <p className="text-xs text-slate-500 leading-relaxed">Enable or disable this slot.</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" checked={editIsActive} onChange={(e) => setEditIsActive(e.target.checked)} />
                         <div className="w-14 h-7 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500" />
                       </label>
+                    </div>
+                  )}
+
+                  {!editingSlot.id.startsWith('TC') && (
+                    <div className="space-y-4">
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block">Operational Engines (Portals)</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {AVAILABLE_PORTALS.map(portal => (
+                          <div key={portal.id} className={cn("p-4 rounded-xl border flex justify-between items-center", editAllowedPortals.includes(portal.id) ? "bg-white/5 border-white/10" : "bg-black/20 border-transparent")}>
+                             <span className={cn("text-xs font-bold uppercase tracking-wide", portal.color)}>{portal.name}</span>
+                             {editingSlot.id === 'SY-ADMIN' ? (
+                               <Lock className="w-4 h-4 text-slate-500" />
+                             ) : (
+                               <label className="relative inline-flex items-center cursor-pointer">
+                                 <input type="checkbox" className="sr-only peer" checked={editAllowedPortals.includes(portal.id)} onChange={(e) => {
+                                   if (e.target.checked) setEditAllowedPortals([...editAllowedPortals, portal.id]);
+                                   else setEditAllowedPortals(editAllowedPortals.filter(id => id !== portal.id));
+                                 }} />
+                                 <div className="w-10 h-5 bg-slate-800 rounded-full peer peer-checked:bg-cyan-600 transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-5" />
+                               </label>
+                             )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
 
@@ -253,24 +313,26 @@ export function UserManagementView() {
                         type="text" 
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 transition-colors"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-slate-500 transition-colors"
                         required
                       />
                     </div>
                     
-                    <div>
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Override PIN Code</label>
-                      <div className="relative">
-                        <input 
-                          type="password" 
-                          value={editPin}
-                          onChange={(e) => setEditPin(e.target.value)}
-                          placeholder="•••• (Leave blank to keep current)"
-                          className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-cyan-500/50 transition-colors pl-10"
-                        />
-                        <KeyRound className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
+                    {!editingSlot.id.startsWith('TC') && (
+                      <div>
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-2">Override PIN Code</label>
+                        <div className="relative">
+                          <input 
+                            type="password" 
+                            value={editPin}
+                            onChange={(e) => setEditPin(e.target.value)}
+                            placeholder="••••"
+                            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-slate-500 transition-colors pl-10"
+                          />
+                          <KeyRound className="w-4 h-4 text-slate-500 absolute left-4 top-1/2 -translate-y-1/2" />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {editingSlot.id.startsWith('TC') && (
@@ -281,7 +343,7 @@ export function UserManagementView() {
                         value={editBadgeId}
                         onChange={(e) => setEditBadgeId(e.target.value)}
                         placeholder="e.g., PHY-BADGE-091"
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-colors"
+                        className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:border-slate-500 transition-colors"
                       />
                     </div>
                   )}
@@ -289,7 +351,7 @@ export function UserManagementView() {
                   <div>
                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-3">Avatar Identity Color</label>
                      <div className="flex gap-3">
-                        {['bg-cyan-500', 'bg-indigo-500', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500', 'bg-rose-500'].map(color => (
+                        {['bg-cyan-500', 'bg-indigo-500', 'bg-blue-500', 'bg-emerald-500', 'bg-amber-500', 'bg-purple-500', 'bg-slate-500'].map(color => (
                         <button
                            key={color} type="button"
                            onClick={() => setEditColor(color)}
@@ -303,7 +365,7 @@ export function UserManagementView() {
                     <button type="button" onClick={() => setEditingSlot(null)} className="titan-button bg-white/5 hover:bg-white/10 text-white flex-1 flex justify-center items-center gap-2">
                        Cancel
                     </button>
-                    <button type="submit" className="titan-button bg-cyan-600 hover:bg-cyan-500 text-white flex-1 flex justify-center items-center gap-2">
+                    <button type="submit" className="titan-button bg-slate-700 hover:bg-slate-600 text-white flex-1 flex justify-center items-center gap-2">
                        <Save className="w-5 h-5" /> Save Configuration
                     </button>
                   </div>
