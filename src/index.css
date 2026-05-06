@@ -111,7 +111,7 @@
 
   /* Structural Card Component - Professional Finish */
   .titan-card {
-    @apply relative overflow-hidden rounded-xl bg-[#0f1115]/90 backdrop-blur-2xl border border-white/10 transition-all duration-300 ease-in-out hover:border-rose-500/30 hover:bg-[#15181e];
+    @apply relative overflow-hidden rounded-xl bg-[#0f1115]/90 backdrop-blur-md border border-white/10 transition-colors duration-300 ease-in-out hover:border-rose-500/30 hover:bg-[#15181e];
     box-shadow: 
       0 10px 30px -10px rgba(0, 0, 0, 0.5), 
       inset 0 1px 0 rgba(255, 255, 255, 0.05);

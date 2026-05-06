@@ -14,24 +14,16 @@ const containerVariants = {
   hidden: { opacity: 0 },
   visible: { 
     opacity: 1, 
-    transition: { 
-      staggerChildren: 0.1,
-      delayChildren: 0.3
-    } 
+    transition: { staggerChildren: 0.15, delayChildren: 0.1 } 
   }
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  hidden: { opacity: 0, y: 20 },
   visible: { 
     opacity: 1, 
     y: 0, 
-    scale: 1,
-    transition: { 
-      type: 'spring', 
-      stiffness: 100, 
-      damping: 15
-    } 
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } 
   }
 };
 
@@ -209,7 +201,7 @@ export function LoginScreen() {
                   onClick={() => setSelectedUser(user)}
                   whileHover={{ y: -5, scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex flex-col items-center p-4 w-40 rounded-2xl cursor-pointer group transition-all duration-300"
+                  className="flex flex-col items-center p-4 w-40 rounded-2xl cursor-pointer group"
                 >
                   <div className={`w-28 h-28 mb-4 rounded-full flex items-center justify-center text-4xl font-semibold text-white shadow-[0_8px_30px_rgb(0,0,0,0.3)] transition-all duration-300 group-hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] ${user.color} bg-opacity-20 border border-white/10 group-hover:border-white/30 backdrop-blur-md relative overflow-hidden`}>
                     <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent" />
@@ -234,7 +226,7 @@ export function LoginScreen() {
               
               <motion.div 
                 variants={itemVariants}
-                className={`w-24 h-24 mb-6 rounded-full flex items-center justify-center text-3xl font-semibold text-white shadow-2xl transition-all duration-300 ${selectedUser.color} bg-opacity-20 border-2 border-white/20 backdrop-blur-xl relative z-10 overflow-hidden`}
+                className={`w-24 h-24 mb-6 rounded-full flex items-center justify-center text-3xl font-semibold text-white shadow-2xl ${selectedUser.color} bg-opacity-20 border-2 border-white/20 backdrop-blur-xl relative z-10 overflow-hidden`}
               >
                 <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent" />
                 <span className="drop-shadow-sm">{selectedUser.initials}</span>

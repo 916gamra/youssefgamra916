@@ -6,12 +6,12 @@ import { motion } from 'motion/react';
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
 };
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 export function SecurityPoliciesView() {
@@ -75,9 +75,9 @@ export function SecurityPoliciesView() {
       <div className="grid grid-cols-1 gap-6 relative z-10">
         
         {/* Session Timeout */}
-        <motion.div variants={itemVariants} className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-all shadow-lg hover:shadow-xl relative overflow-hidden">
+        <motion.div variants={itemVariants} className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-colors shadow-lg hover:shadow-xl relative overflow-hidden">
           <div className="flex gap-6 items-center w-full md:w-auto mb-6 md:mb-0">
-            <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center shadow-inner group-hover:border-blue-500/30 transition-all duration-300 shrink-0">
+            <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center shadow-inner group-hover:border-blue-500/30 transition-colors duration-300 shrink-0">
                <Timer className="w-6 h-6 text-slate-400 group-hover:text-blue-400 transition-colors" />
             </div>
             <div>
@@ -102,9 +102,9 @@ export function SecurityPoliciesView() {
         </motion.div>
 
         {/* Strict Hardware Validation */}
-        <motion.div variants={itemVariants} className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-all shadow-lg hover:shadow-xl relative overflow-hidden">
+        <motion.div variants={itemVariants} className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-colors shadow-lg hover:shadow-xl relative overflow-hidden">
           <div className="flex gap-6 items-center w-full md:w-auto mb-6 md:mb-0">
-            <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center shadow-inner group-hover:border-cyan-500/30 transition-all shrink-0">
+            <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center shadow-inner group-hover:border-cyan-500/30 transition-colors shrink-0">
                <Fingerprint className="w-6 h-6 text-slate-400 group-hover:text-cyan-400 transition-colors" />
             </div>
             <div>
@@ -117,23 +117,23 @@ export function SecurityPoliciesView() {
           <button 
              onClick={() => setStrictMode(!strictMode)}
              className={cn(
-                "w-12 h-6 rounded-full border transition-all duration-300 relative outline-none active:scale-95 shadow-inner grow-0 shrink-0", 
+                "w-12 h-6 rounded-full border transition-colors relative outline-none active:scale-95 shadow-inner grow-0 shrink-0", 
                 strictMode 
                  ? "bg-blue-600 border-blue-500" 
                  : "bg-black/60 border-white/10"
               )}
           >
              <div className={cn(
-               "absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white transition-all duration-300 shadow-md", 
-               strictMode ? "left-[1.6rem] bg-white" : "left-1 bg-slate-500"
+               "absolute top-1/2 w-4 h-4 rounded-full bg-white transition-all shadow-md", 
+               strictMode ? "left-[1.6rem] bg-white -translate-y-1/2" : "left-1 bg-slate-500 -translate-y-1/2"
              )} />
           </button>
         </motion.div>
 
         {/* Developer Mode */}
-        <motion.div variants={itemVariants} className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-all shadow-lg hover:shadow-xl relative overflow-hidden cursor-pointer" onClick={() => setDevMode(!devMode)}>
+        <motion.div variants={itemVariants} className="group flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-2xl bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 transition-colors shadow-lg hover:shadow-xl relative overflow-hidden cursor-pointer" onClick={() => setDevMode(!devMode)}>
           <div className="flex gap-6 items-center w-full md:w-auto mb-6 md:mb-0">
-            <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center shadow-inner group-hover:border-amber-500/30 transition-all shrink-0">
+            <div className="w-14 h-14 rounded-2xl bg-black/40 border border-white/5 flex items-center justify-center shadow-inner group-hover:border-amber-500/30 transition-colors shrink-0">
                <Code2 className="w-6 h-6 text-slate-400 group-hover:text-amber-400 transition-colors" />
             </div>
             <div>

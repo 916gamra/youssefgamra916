@@ -14,7 +14,7 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 export function ReconciliationCenterView() {
@@ -223,9 +223,14 @@ export function ReconciliationCenterView() {
                 <th className="px-8 py-5 font-bold text-slate-500 text-[10px] uppercase tracking-widest text-right">Operations</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.03] bg-black/5">
+            <motion.tbody 
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="divide-y divide-white/[0.03] bg-black/5"
+            >
               {filteredAnomalies?.map((anomaly, idx) => (
-                <tr key={anomaly.id} className="group hover:bg-white/[0.02] transition-colors border-b border-white/[0.03] last:border-0">
+                <motion.tr variants={itemVariants} key={anomaly.id} className="group hover:bg-white/[0.02] transition-colors border-b border-white/[0.03] last:border-0">
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-3">
                       <div className={cn(
@@ -281,19 +286,19 @@ export function ReconciliationCenterView() {
                       )}
                     </div>
                   </td>
-                </tr>
+                </motion.tr>
               ))}
               {(filteredAnomalies?.length === 0 || !filteredAnomalies) && (
-                <tr className="bg-black/20">
+                <motion.tr variants={itemVariants} className="bg-black/20">
                   <td colSpan={6} className="py-32 text-center">
                     <div className="flex flex-col items-center opacity-20">
                       <ShieldCheck className="w-16 h-16 mb-4 text-emerald-500" />
                       <p className="text-lg font-bold uppercase tracking-widest text-white">No active anomalies detected</p>
                     </div>
                   </td>
-                </tr>
+                </motion.tr>
               )}
-            </tbody>
+            </motion.tbody>
           </table>
         </div>
       </GlassCard>

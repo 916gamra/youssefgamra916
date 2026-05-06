@@ -12,7 +12,7 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 export function AdvancedInventoryDashboard() {
@@ -137,8 +137,8 @@ export function AdvancedInventoryDashboard() {
         </div>
       </motion.header>
 
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
           <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl h-full flex flex-col">
             <div className="p-8 border-b border-white/5 bg-white/[0.01] flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               <div className="flex items-center gap-4">
@@ -172,9 +172,18 @@ export function AdvancedInventoryDashboard() {
                   <p className="text-lg font-bold uppercase tracking-widest text-white">No active anomalies detected</p>
                 </div>
               ) : (
-                <div className="divide-y divide-white/[0.03]">
+                <motion.div 
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="divide-y divide-white/[0.03]"
+                >
                   {filteredIssues.map((issue, idx) => (
-                    <div key={idx} className="group p-6 hover:bg-white/[0.02] transition-colors flex items-start gap-5">
+                    <motion.div 
+                      variants={itemVariants}
+                      key={idx} 
+                      className="group p-6 hover:bg-white/[0.02] transition-colors flex items-start gap-5"
+                    >
                       <div className={cn(
                         "p-3 rounded-xl border shrink-0",
                         issue.severity === 'critical' ? 'bg-red-500/10 border-red-500/20 text-red-400' :
@@ -201,15 +210,15 @@ export function AdvancedInventoryDashboard() {
                         <span className="text-[10px] font-bold text-slate-600 block uppercase tracking-widest mb-1">Status</span>
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter">UNRESOLVED</span>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               )}
             </div>
           </GlassCard>
-        </div>
+        </motion.div>
 
-        <div className="space-y-8">
+        <motion.div variants={itemVariants} className="space-y-8">
           <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-2xl rounded-3xl">
             <div className="p-6 border-b border-white/5 bg-white/[0.01]">
               <div className="flex items-center gap-3">
@@ -217,9 +226,18 @@ export function AdvancedInventoryDashboard() {
                 <h3 className="text-sm font-bold text-white uppercase tracking-tight">Resource Distribution</h3>
               </div>
             </div>
-            <div className="p-6 space-y-4">
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="p-6 space-y-4"
+            >
               {Object.entries(stats.categories).map(([category, count]) => (
-                <div key={category} className="group flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all">
+                <motion.div 
+                  variants={itemVariants}
+                  key={category} 
+                  className="group flex items-center justify-between p-4 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.04] transition-all"
+                >
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-0.5">{category}</span>
                     <span className="text-xs font-bold text-slate-300">Catalog Group</span>
@@ -228,9 +246,9 @@ export function AdvancedInventoryDashboard() {
                     <span className="text-xl font-light text-white font-mono">{count}</span>
                     <div className="w-1.5 h-6 rounded-full bg-cyan-500/20 group-hover:bg-cyan-500 transition-colors" />
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </GlassCard>
 
           <GlassCard className="p-8 border-white/5 bg-gradient-to-br from-cyan-500/5 to-transparent rounded-3xl relative overflow-hidden group">
@@ -245,8 +263,8 @@ export function AdvancedInventoryDashboard() {
             </div>
             <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-cyan-500/10 blur-[60px] rounded-full" />
           </GlassCard>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </motion.div>
   );
 }

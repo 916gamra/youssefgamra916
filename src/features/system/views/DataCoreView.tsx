@@ -11,8 +11,8 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 export function DataCoreView({ user }: { user: User | null }) {
@@ -163,159 +163,165 @@ export function DataCoreView({ user }: { user: User | null }) {
       </motion.header>
 
       {/* Stats Terminal */}
-      <motion.div variants={itemVariants} className="titan-card p-0 overflow-hidden bg-black/40 relative border-white/10 group">
-        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-          <Terminal className="w-48 h-48 text-rose-500" />
-        </div>
-        <div className="p-4 border-b border-white/5 bg-white/[0.02] flex items-center gap-3">
-           <div className="w-2 h-2 rounded-full bg-emerald-500 " />
-           <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">System Status: Online / Secure</span>
-        </div>
-        <div className="p-10 grid grid-cols-2 md:grid-cols-4 gap-10 relative z-10">
-           <div className="space-y-1">
-              <div className="text-[10px] text-[#8b9bb4] uppercase tracking-widest font-bold opacity-60">Tables</div>
-              <div className="text-3xl font-bold text-white">{dbStats.tables}</div>
-           </div>
-           <div className="space-y-1">
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold opacity-60">Records</div>
-              <div className="text-3xl font-bold text-slate-100 flex items-center gap-3">
-                {dbStats.rows} <RefreshCw className="w-5 h-5 text-slate-500/40" />
-              </div>
-           </div>
-           <div className="space-y-1">
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold opacity-60">Storage Mode</div>
-              <div className="text-xs font-bold text-emerald-400 uppercase tracking-tight mt-1 bg-emerald-500/10 px-3 py-1 rounded w-fit border border-emerald-500/20">
-                Local Database
-              </div>
-           </div>
-           <div className="space-y-1">
-              <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold opacity-60">Encryption</div>
-              <div className="text-xs font-bold text-cyan-400 uppercase tracking-tight mt-1 bg-cyan-500/10 px-3 py-1 rounded w-fit border border-cyan-500/20">
-                Standard (Ready)
-              </div>
-           </div>
+      <motion.div variants={itemVariants}>
+        <div className="titan-card p-0 overflow-hidden bg-black/40 relative border-white/10 group">
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+            <Terminal className="w-48 h-48 text-rose-500" />
+          </div>
+          <div className="p-4 border-b border-white/5 bg-white/[0.02] flex items-center gap-3">
+             <div className="w-2 h-2 rounded-full bg-emerald-500 " />
+             <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">System Status: Online / Secure</span>
+          </div>
+          <div className="p-10 grid grid-cols-2 md:grid-cols-4 gap-10 relative z-10">
+             <div className="space-y-1">
+                <div className="text-[10px] text-[#8b9bb4] uppercase tracking-widest font-bold opacity-60">Tables</div>
+                <div className="text-3xl font-bold text-white">{dbStats.tables}</div>
+             </div>
+             <div className="space-y-1">
+                <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold opacity-60">Records</div>
+                <div className="text-3xl font-bold text-slate-100 flex items-center gap-3">
+                  {dbStats.rows} <RefreshCw className="w-5 h-5 text-slate-500/40" />
+                </div>
+             </div>
+             <div className="space-y-1">
+                <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold opacity-60">Storage Mode</div>
+                <div className="text-xs font-bold text-emerald-400 uppercase tracking-tight mt-1 bg-emerald-500/10 px-3 py-1 rounded w-fit border border-emerald-500/20">
+                  Local Database
+                </div>
+             </div>
+             <div className="space-y-1">
+                <div className="text-[10px] text-slate-500 uppercase tracking-widest font-bold opacity-60">Encryption</div>
+                <div className="text-xs font-bold text-cyan-400 uppercase tracking-tight mt-1 bg-cyan-500/10 px-3 py-1 rounded w-fit border border-cyan-500/20">
+                  Standard (Ready)
+                </div>
+             </div>
+          </div>
         </div>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
         {/* Backup Card */}
-        <motion.div variants={itemVariants} className="titan-card p-10 border-rose-500/10 bg-rose-500/[0.01] hover:bg-rose-500/[0.03] relative overflow-hidden flex flex-col justify-between group h-[400px] transition-all duration-700">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-rose-500/[0.05] rounded-full blur-[100px] pointer-events-none group-hover:bg-rose-500/10 transition-all duration-1000" />
-          
-          <div className="relative z-10 mb-8">
-            <div className="w-20 h-20 rounded-[1.25rem] bg-rose-500/5 border border-rose-500/20 flex items-center justify-center mb-8 shadow-inner relative overflow-hidden group-hover:scale-110 group-hover:rotate-6 transition-all duration-700">
-               {isExporting && <div className="absolute inset-0 bg-rose-500/20 animate-pulse" />}
-               <HardDriveDownload className="w-10 h-10 text-rose-500  relative z-10" />
+        <motion.div variants={itemVariants}>
+          <div className="titan-card p-10 border-rose-500/10 bg-rose-500/[0.01] hover:bg-rose-500/[0.03] relative overflow-hidden flex flex-col justify-between group h-[400px]">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-rose-500/[0.05] rounded-full blur-[100px] pointer-events-none group-hover:bg-rose-500/10 transition-all duration-1000" />
+            
+            <div className="relative z-10 mb-8">
+              <div className="w-20 h-20 rounded-[1.25rem] bg-rose-500/5 border border-rose-500/20 flex items-center justify-center mb-8 shadow-inner relative overflow-hidden group-hover:scale-110 group-hover:rotate-6 transition-all duration-700">
+                 {isExporting && <div className="absolute inset-0 bg-rose-500/20 animate-pulse" />}
+                 <HardDriveDownload className="w-10 h-10 text-rose-500  relative z-10" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-3 tracking-tight uppercase">DATABASE EXPORT</h2>
+              <p className="text-slate-400 leading-relaxed text-xs font-medium">
+                Generate a full system backup containing all records and configurations in JSON format.
+              </p>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-3 tracking-tight uppercase">DATABASE EXPORT</h2>
-            <p className="text-slate-400 leading-relaxed text-xs font-medium">
-              Generate a full system backup containing all records and configurations in JSON format.
-            </p>
-          </div>
 
-          <div className="relative z-10">
-             <AnimatePresence>
-               {isExporting && (
-                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-6">
-                    <div className="flex justify-between text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-3">
-                       <span>Extraction Integrity</span>
-                       <span className="font-mono">{progressPercentage}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-black rounded-full overflow-hidden border border-white/5 shadow-inner">
-                      <motion.div 
-                        className="h-full bg-rose-500 shadow-[0_0_15px_#f43f5e]"
-                        initial={{ width: "0%" }}
-                        animate={{ width: `${progressPercentage}%` }}
-                        transition={{ ease: "linear", duration: 0.2 }}
-                      />
-                    </div>
-                 </motion.div>
-               )}
-             </AnimatePresence>
+            <div className="relative z-10">
+               <AnimatePresence>
+                 {isExporting && (
+                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-6">
+                      <div className="flex justify-between text-[10px] font-bold text-rose-500 uppercase tracking-widest mb-3">
+                         <span>Extraction Integrity</span>
+                         <span className="font-mono">{progressPercentage}%</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-black rounded-full overflow-hidden border border-white/5 shadow-inner">
+                        <motion.div 
+                          className="h-full bg-rose-500 shadow-[0_0_15px_#f43f5e]"
+                          initial={{ width: "0%" }}
+                          animate={{ width: `${progressPercentage}%` }}
+                          transition={{ ease: "linear", duration: 0.2 }}
+                        />
+                      </div>
+                   </motion.div>
+                 )}
+               </AnimatePresence>
 
-             <button
-                onClick={handleExport}
-                disabled={isExporting || isImporting}
-                className="w-full py-5 rounded-2xl bg-rose-500 hover:bg-rose-400 text-black font-bold uppercase tracking-widest text-xs transition-all shadow-[0_0_30px_rgba(244,63,94,0.2)] hover:shadow-[0_0_40px_rgba(244,63,94,0.4)] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 relative overflow-hidden active:scale-95 group/btn"
-              >
-                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700" />
-                {isExporting ? (
-                  <>
-                    <RefreshCw className="w-5 h-5 animate-spin" />
-                    <span>SYNCHRONIZING...</span>
-                  </>
-                ) : (
-                  <>
-                    <FileJson className="w-5 h-5" />
-                    <span>DOWNLOAD BACKUP</span>
-                  </>
-                )}
-             </button>
+               <button
+                  onClick={handleExport}
+                  disabled={isExporting || isImporting}
+                  className="w-full py-5 rounded-2xl bg-rose-500 hover:bg-rose-400 text-black font-bold uppercase tracking-widest text-xs transition-all shadow-[0_0_30px_rgba(244,63,94,0.2)] hover:shadow-[0_0_40px_rgba(244,63,94,0.4)] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 relative overflow-hidden active:scale-95 group/btn"
+                >
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700" />
+                  {isExporting ? (
+                    <>
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                      <span>SYNCHRONIZING...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileJson className="w-5 h-5" />
+                      <span>DOWNLOAD BACKUP</span>
+                    </>
+                  )}
+               </button>
+            </div>
           </div>
         </motion.div>
 
         {/* Restore Card */}
-        <motion.div variants={itemVariants} className="titan-card p-10 border-amber-500/10 bg-amber-500/[0.01] hover:bg-amber-500/[0.03] relative overflow-hidden flex flex-col justify-between group h-[400px] transition-all duration-700">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/[0.05] rounded-full blur-[100px] pointer-events-none group-hover:bg-amber-500/10 transition-all duration-1000" />
-          
-          <div className="relative z-10 mb-8">
-            <div className="w-20 h-20 rounded-[1.25rem] bg-amber-500/5 border border-amber-500/20 flex items-center justify-center mb-8 shadow-inner relative overflow-hidden group-hover:scale-110 group-hover:-rotate-6 transition-all duration-700">
-               {isImporting && <div className="absolute inset-0 bg-amber-500/20 animate-pulse" />}
-               <HardDriveUpload className="w-10 h-10 text-amber-500  relative z-10" />
+        <motion.div variants={itemVariants}>
+          <div className="titan-card p-10 border-amber-500/10 bg-amber-500/[0.01] hover:bg-amber-500/[0.03] relative overflow-hidden flex flex-col justify-between group h-[400px]">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/[0.05] rounded-full blur-[100px] pointer-events-none group-hover:bg-amber-500/10 transition-all duration-1000" />
+            
+            <div className="relative z-10 mb-8">
+              <div className="w-20 h-20 rounded-[1.25rem] bg-amber-500/5 border border-amber-500/20 flex items-center justify-center mb-8 shadow-inner relative overflow-hidden group-hover:scale-110 group-hover:-rotate-6 transition-all duration-700">
+                 {isImporting && <div className="absolute inset-0 bg-amber-500/20 animate-pulse" />}
+                 <HardDriveUpload className="w-10 h-10 text-amber-500  relative z-10" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-3 tracking-tight uppercase">DATABASE RESTORE</h2>
+              <p className="text-amber-500/80 leading-relaxed text-xs font-medium">
+                Restore database from backup file. Warning: This action will completely overwrite all existing data.
+              </p>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-3 tracking-tight uppercase">DATABASE RESTORE</h2>
-            <p className="text-amber-500/80 leading-relaxed text-xs font-medium">
-              Restore database from backup file. Warning: This action will completely overwrite all existing data.
-            </p>
-          </div>
 
-          <input 
-            type="file" 
-            accept=".json" 
-            ref={fileInputRef} 
-            onChange={handleFileChange} 
-            className="hidden" 
-          />
+            <input 
+              type="file" 
+              accept=".json" 
+              ref={fileInputRef} 
+              onChange={handleFileChange} 
+              className="hidden" 
+            />
 
-          <div className="relative z-10">
-             <AnimatePresence>
-               {isImporting && (
-                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-6">
-                    <div className="flex justify-between text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3">
-                       <span>Injection Flux</span>
-                       <span className="font-mono">{progressPercentage}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-black rounded-full overflow-hidden border border-white/5 shadow-inner">
-                      <motion.div 
-                        className="h-full bg-amber-500 shadow-[0_0_15px_#f59e0b]"
-                        initial={{ width: "0%" }}
-                        animate={{ width: `${progressPercentage}%` }}
-                        transition={{ ease: "linear", duration: 0.2 }}
-                      />
-                    </div>
-                 </motion.div>
-               )}
-             </AnimatePresence>
+            <div className="relative z-10">
+               <AnimatePresence>
+                 {isImporting && (
+                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mb-6">
+                      <div className="flex justify-between text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3">
+                         <span>Injection Flux</span>
+                         <span className="font-mono">{progressPercentage}%</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-black rounded-full overflow-hidden border border-white/5 shadow-inner">
+                        <motion.div 
+                          className="h-full bg-amber-500 shadow-[0_0_15px_#f59e0b]"
+                          initial={{ width: "0%" }}
+                          animate={{ width: `${progressPercentage}%` }}
+                          transition={{ ease: "linear", duration: 0.2 }}
+                        />
+                      </div>
+                   </motion.div>
+                 )}
+               </AnimatePresence>
 
-            <button
-              onClick={handleImportClick}
-              disabled={isImporting || isExporting}
-              className="w-full py-5 rounded-2xl bg-black/60 border border-amber-500/30 hover:bg-amber-500/10 text-amber-500 font-bold uppercase tracking-widest text-xs transition-all hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 relative overflow-hidden active:scale-95 group/bit"
-            >
-              <div className="absolute inset-0 bg-white/5 translate-x-[-100%] group-hover/bit:translate-x-[100%] transition-transform duration-700" />
-              {isImporting ? (
-                <>
-                  <RefreshCw className="w-5 h-5 animate-spin" />
-                  <span>RESTORING DATABASE...</span>
-                </>
-              ) : (
-                <>
-                  <HardDriveUpload className="w-5 h-5" />
-                  <span>UPLOAD BACKUP FILE</span>
-                </>
-              )}
-            </button>
+              <button
+                onClick={handleImportClick}
+                disabled={isImporting || isExporting}
+                className="w-full py-5 rounded-2xl bg-black/60 border border-amber-500/30 hover:bg-amber-500/10 text-amber-500 font-bold uppercase tracking-widest text-xs transition-all hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-4 relative overflow-hidden active:scale-95 group/bit"
+              >
+                <div className="absolute inset-0 bg-white/5 translate-x-[-100%] group-hover/bit:translate-x-[100%] transition-transform duration-700" />
+                {isImporting ? (
+                  <>
+                    <RefreshCw className="w-5 h-5 animate-spin" />
+                    <span>RESTORING DATABASE...</span>
+                  </>
+                ) : (
+                  <>
+                    <HardDriveUpload className="w-5 h-5" />
+                    <span>UPLOAD BACKUP FILE</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </motion.div>
 

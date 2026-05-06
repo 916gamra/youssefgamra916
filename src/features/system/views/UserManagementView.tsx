@@ -22,12 +22,12 @@ const AVAILABLE_PORTALS = [
 
 const containerVariants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+  visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 export function UserManagementView() {
@@ -113,17 +113,17 @@ export function UserManagementView() {
 
     return (
       <div className="mb-12">
-        <h2 className="text-xl font-semibold text-white mb-8 flex items-center gap-3 tracking-tight">
+        <motion.h2 variants={itemVariants} className="text-xl font-semibold text-white mb-8 flex items-center gap-3 tracking-tight">
           {prefix === 'SY' && <ShieldCheck className="w-5 h-5 text-red-500" />}
           {prefix === 'OP' && <UserCog className="w-5 h-5 text-indigo-500" />}
           {prefix === 'TC' && <UserIcon className="w-5 h-5 text-emerald-500" />}
           {title}
-        </h2>
+        </motion.h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {slots.map(slot => (
             <motion.div key={slot.id} variants={itemVariants}>
               <GlassCard className={cn(
-                "!p-0 overflow-hidden border-t-4 transition-all duration-300 hover:shadow-2xl hover:border-white/20",
+                "!p-0 overflow-hidden border-t-4 transition-colors transition-shadow duration-300 hover:shadow-2xl hover:border-white/20",
                 !slot.isActive && "opacity-60 grayscale",
                 prefix === 'SY' && "border-t-red-500",
                 prefix === 'OP' && "border-t-indigo-500",
@@ -215,14 +215,14 @@ export function UserManagementView() {
       variants={containerVariants}
       className="w-full flex flex-col pt-4 min-h-0 h-full relative z-10"
     >
-      <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 shrink-0 lg:px-8">
+      <motion.header variants={itemVariants} className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 shrink-0 lg:px-8">
         <div>
           <h1 className="text-3xl font-semibold text-slate-100 tracking-tight mb-2 flex items-center gap-3">
             <Fingerprint className="w-8 h-8 text-slate-500" /> Identity Slot Configuration
           </h1>
           <p className="text-slate-400 text-lg">Manage stationary access slots and authentication overrides.</p>
         </div>
-      </header>
+      </motion.header>
       
       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar lg:px-8 pb-12">
         {renderSlotGroup("System Administration", "SY")}

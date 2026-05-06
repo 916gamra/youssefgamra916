@@ -17,7 +17,7 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 export function StockDashboardPage({ tabId }: { tabId: string }) {
@@ -98,8 +98,8 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
         </div>
       </motion.header>
 
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
           {/* Main Registry Matrix */}
           <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)] rounded-3xl h-[600px] flex flex-col">
             
@@ -167,15 +167,18 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
                     <th className="px-5 py-3 font-mono font-bold text-slate-500 uppercase tracking-widest text-[9px]">SYS.STATE</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/[0.02]">
+                <motion.tbody 
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="divide-y divide-white/[0.02]"
+                >
                   <AnimatePresence mode="popLayout">
                     {filteredInventory.map((item, idx) => (
                       <motion.tr 
+                        variants={itemVariants}
                         key={item.id}
                         onClick={() => { setPreselectedStockId(item.id); setIsModalOpen(true); }}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: Math.min(idx * 0.01, 0.2) }}
                         className="group hover:bg-white/[0.02] cursor-pointer transition-colors"
                       >
                         <td className="px-5 py-3">
@@ -220,22 +223,22 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
                     ))}
                   </AnimatePresence>
                   {filteredInventory.length === 0 && (
-                    <tr>
+                    <motion.tr variants={itemVariants}>
                       <td colSpan={4} className="px-6 py-20 text-center">
                         <div className="flex flex-col items-center">
                           <Box className="w-8 h-8 mb-3 text-slate-700" />
                           <p className="text-[11px] font-mono uppercase tracking-widest text-slate-600">ZERO_MATCHES_FOUND</p>
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   )}
-                </tbody>
+                </motion.tbody>
               </table>
             </div>
           </GlassCard>
-        </div>
+        </motion.div>
 
-        <div className="space-y-8">
+        <motion.div variants={itemVariants} className="space-y-8">
           {/* Activity Stream Sidebar */}
           <GlassCard className="!p-0 border-white/5 overflow-hidden shadow-2xl rounded-3xl h-[600px] flex flex-col relative">
             <div className="p-6 border-b border-white/5 bg-white/[0.01] flex items-center justify-between gap-4 shrink-0 relative z-10">
@@ -246,7 +249,12 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
               <span className="text-[9px] font-mono text-cyan-400 border border-cyan-500/20 bg-cyan-500/10 px-1.5 py-0.5 rounded shadow-[0_0_10px_rgba(6,182,212,0.1)]">STREAM.TX</span>
             </div>
             
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4 relative z-10 cursor-ns-resize">
+            <motion.div 
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4 relative z-10 cursor-ns-resize"
+            >
               <AnimatePresence mode="popLayout">
                 {recentMovements.length === 0 ? (
                   <div className="py-20 text-center opacity-30">
@@ -256,9 +264,8 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
                 ) : (
                   recentMovements.map((movement, idx) => (
                     <motion.div 
+                      variants={itemVariants}
                       key={movement.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
                       className="p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors flex flex-col gap-3 group"
                     >
                       <div className="flex justify-between items-start">
@@ -306,11 +313,11 @@ export function StockDashboardPage({ tabId }: { tabId: string }) {
                   ))
                 )}
               </AnimatePresence>
-            </div>
+            </motion.div>
             <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-t from-[#0a0f18] to-transparent z-20 pointer-events-none" />
           </GlassCard>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
 
       <StockTransactionModal 
         isOpen={isModalOpen} 

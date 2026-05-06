@@ -22,8 +22,8 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 export function AuditTrailView() {
@@ -126,44 +126,52 @@ export function AuditTrailView() {
       </motion.header>
 
       {/* Stats Quick Look */}
-      <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-5">
-         <GlassCard className="p-5 bg-white/[0.06] border border-white/10 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
-                 <Activity className="w-5 h-5 text-slate-400" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+         <motion.div variants={itemVariants}>
+           <GlassCard className="h-full p-5 bg-white/[0.06] border border-white/10 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
+                   <Activity className="w-5 h-5 text-slate-400" />
+                </div>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Events</span>
               </div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Events</span>
-            </div>
-            <div className="text-3xl font-semibold text-slate-200 tabular-nums">{logs.length}</div>
-         </GlassCard>
-         <GlassCard className="p-5 bg-rose-500/[0.08] border border-rose-500/30 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
-                 <AlertOctagon className="w-5 h-5 text-rose-500" />
+              <div className="text-3xl font-semibold text-slate-200 tabular-nums">{logs.length}</div>
+           </GlassCard>
+         </motion.div>
+         <motion.div variants={itemVariants}>
+           <GlassCard className="h-full p-5 bg-rose-500/[0.08] border border-rose-500/30 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
+                   <AlertOctagon className="w-5 h-5 text-rose-500" />
+                </div>
+                <span className="text-xs font-bold text-rose-500/80 uppercase tracking-wider">Critical Alerts</span>
               </div>
-              <span className="text-xs font-bold text-rose-500/80 uppercase tracking-wider">Critical Alerts</span>
-            </div>
-            <div className="text-3xl font-semibold text-rose-500 tabular-nums">{logs.filter(l => l.severity === 'CRITICAL').length}</div>
-         </GlassCard>
-         <GlassCard className="p-5 bg-amber-500/[0.08] border border-amber-500/30 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
-             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
-                 <AlertTriangle className="w-5 h-5 text-amber-500" />
+              <div className="text-3xl font-semibold text-rose-500 tabular-nums">{logs.filter(l => l.severity === 'CRITICAL').length}</div>
+           </GlassCard>
+         </motion.div>
+         <motion.div variants={itemVariants}>
+           <GlassCard className="h-full p-5 bg-amber-500/[0.08] border border-amber-500/30 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
+               <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
+                   <AlertTriangle className="w-5 h-5 text-amber-500" />
+                </div>
+                <span className="text-xs font-bold text-amber-500/80 uppercase tracking-wider">Warnings</span>
               </div>
-              <span className="text-xs font-bold text-amber-500/80 uppercase tracking-wider">Warnings</span>
-            </div>
-            <div className="text-3xl font-semibold text-amber-500 tabular-nums">{logs.filter(l => l.severity === 'WARNING').length}</div>
-         </GlassCard>
-         <GlassCard className="p-5 bg-cyan-500/[0.08] border border-cyan-500/30 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
-             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
-                 <Info className="w-5 h-5 text-cyan-500" />
+              <div className="text-3xl font-semibold text-amber-500 tabular-nums">{logs.filter(l => l.severity === 'WARNING').length}</div>
+           </GlassCard>
+         </motion.div>
+         <motion.div variants={itemVariants}>
+           <GlassCard className="h-full p-5 bg-cyan-500/[0.08] border border-cyan-500/30 flex flex-col justify-between group rounded-2xl shadow-xl backdrop-blur-md">
+               <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 shadow-inner">
+                   <Info className="w-5 h-5 text-cyan-500" />
+                </div>
+                <span className="text-xs font-bold text-cyan-500/80 uppercase tracking-wider">Info Stream</span>
               </div>
-              <span className="text-xs font-bold text-cyan-500/80 uppercase tracking-wider">Info Stream</span>
-            </div>
-            <div className="text-3xl font-semibold text-cyan-500 tabular-nums">{logs.filter(l => l.severity === 'INFO').length}</div>
-         </GlassCard>
-      </motion.div>
+              <div className="text-3xl font-semibold text-cyan-500 tabular-nums">{logs.filter(l => l.severity === 'INFO').length}</div>
+           </GlassCard>
+         </motion.div>
+      </div>
 
       <motion.div variants={itemVariants} className="flex flex-col bg-slate-900/60 border border-white/10 rounded-3xl overflow-hidden shadow-2xl relative backdrop-blur-xl">
         <div className="p-5 border-b border-white/[0.08] bg-black/60 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shrink-0">

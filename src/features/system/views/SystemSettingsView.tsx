@@ -15,8 +15,8 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } }
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 export function SystemSettingsView({ user, onLogout }: { user: User | null, onLogout: () => void }) {
@@ -146,7 +146,7 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
         
         {/* FACTORY DATA RESET CARD */}
         <motion.div variants={itemVariants}>
-          <GlassCard className="p-8 border border-red-500/20 bg-red-950/20 flex flex-col relative overflow-hidden group hover:border-red-500/40 transition-all shadow-xl hover:shadow-2xl h-[360px]">
+          <GlassCard className="p-8 border border-red-500/20 bg-red-950/20 flex flex-col relative overflow-hidden group hover:border-red-500/40 transition-colors transition-shadow shadow-xl hover:shadow-2xl h-[360px]">
              <div className="absolute top-0 right-0 w-80 h-80 bg-red-500/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-red-500/20 transition-all duration-1000" />
              
              <div className="flex items-start gap-5 mb-6 relative z-10">
@@ -193,7 +193,7 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
 
         {/* EXPORT TO SEED CARD */}
         <motion.div variants={itemVariants}>
-          <GlassCard className="p-8 border border-emerald-500/20 bg-emerald-950/10 flex flex-col relative overflow-hidden group hover:border-emerald-500/40 transition-all shadow-xl hover:shadow-2xl h-[360px]">
+          <GlassCard className="p-8 border border-emerald-500/20 bg-emerald-950/10 flex flex-col relative overflow-hidden group hover:border-emerald-500/40 transition-colors transition-shadow shadow-xl hover:shadow-2xl h-[360px]">
              <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/[0.05] rounded-full blur-[100px] pointer-events-none group-hover:bg-emerald-500/10 transition-all duration-1000" />
              
              <div className="flex items-start gap-5 mb-6 relative z-10">
@@ -229,7 +229,7 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
 
         {/* DATA EXCHANGE REDIRECT CARD */}
         <motion.div variants={itemVariants}>
-          <GlassCard className="p-8 border border-blue-500/20 bg-blue-950/10 flex flex-col relative overflow-hidden group hover:border-blue-500/40 transition-all shadow-xl hover:shadow-2xl h-[360px]">
+          <GlassCard className="p-8 border border-blue-500/20 bg-blue-950/10 flex flex-col relative overflow-hidden group hover:border-blue-500/40 transition-colors transition-shadow shadow-xl hover:shadow-2xl h-[360px]">
              <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/[0.05] rounded-full blur-[100px] pointer-events-none group-hover:bg-blue-500/10 transition-all duration-1000" />
              
              <div className="flex items-start gap-5 mb-6 relative z-10">

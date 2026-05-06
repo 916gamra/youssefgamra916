@@ -84,29 +84,12 @@ const THEME_BG_MAP: Record<string, string> = {
 
 const containerAnim = {
   hidden: { opacity: 0 },
-  show: { 
-    opacity: 1, 
-    transition: { 
-      staggerChildren: 0.1,
-      delayChildren: 0.2
-    } 
-  }
+  show: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
 };
 
 const itemAnim = {
-  hidden: { opacity: 0, y: 40, scale: 0.9, rotateX: -10 },
-  show: { 
-    opacity: 1, 
-    y: 0, 
-    scale: 1, 
-    rotateX: 0,
-    transition: { 
-      type: 'spring', 
-      stiffness: 120, 
-      damping: 15,
-      mass: 1.2
-    } 
-  }
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 export function LaunchpadView({ user }: { user: User | null }) {
