@@ -28,6 +28,9 @@ export interface PdrBlueprint {
   unit: string; // 'Pcs', 'Kg', 'Liters'
   minThreshold: number;
   createdAt: string;
+  model?: string;
+  powerOrForce?: string;
+  technicalSpecs?: string;
 }
 
 // --- 2. Domain Interfaces (Stock Engine) ---

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Save, FolderPlus, Layers, Hash } from 'lucide-react';
 import { db } from '@/core/db';
+import { getBlueprintMatrixForTemplate, MAX_BLUEPRINTS_PER_TEMPLATE, MatrixSlot } from '@/core/config/blueprintMatrix';
 import { toast } from 'sonner';
 import { useAuditTrail } from '@/features/system/hooks/useAuditTrail';
 
@@ -12,10 +13,11 @@ interface PdrModalsProps {
   onClose: () => void;
   families: any[];
   templates: any[];
+  blueprints?: any[];
   user?: any;
 }
 
-export function PdrModals({ activeModal, onClose, families, templates, user }: PdrModalsProps) {
+export function PdrModals({ activeModal, onClose, families, templates, blueprints = [], user }: PdrModalsProps) {
   const [formData, setFormData] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { logEvent } = useAuditTrail();
@@ -68,12 +70,17 @@ export function PdrModals({ activeModal, onClose, families, templates, user }: P
         toast.success('PDR Template created');
       } else if (activeModal === 'blueprint') {
         if (!formData.templateId || !formData.reference || !formData.unit) throw new Error('Missing required fields');
+        if (!formData.model || !formData.powerOrForce || !formData.technicalSpecs) throw new Error('Model, Power/Force and Technical Specifications are mandatory for Blueprints.');
+
         await db.pdrBlueprints.add({
-          id,
+          id: formData.id, // Pre-defined ID from the matrix
           templateId: formData.templateId,
           reference: formData.reference,
           unit: formData.unit,
           minThreshold: Number(formData.minThreshold) || 0,
+          model: formData.model,
+          powerOrForce: formData.powerOrForce,
+          technicalSpecs: formData.technicalSpecs,
           createdAt,
         });
         await logEvent({
@@ -81,11 +88,11 @@ export function PdrModals({ activeModal, onClose, families, templates, user }: P
           userName: user?.name || 'Guest User',
           action: 'CREATE',
           entityType: 'PDR_BLUEPRINT',
-          entityId: id,
-          details: `Created PDR Blueprint: ${formData.reference}`,
+          entityId: formData.id,
+          details: `Activated PDR Blueprint: ${formData.reference}`,
           severity: 'INFO'
         });
-        toast.success('PDR Blueprint created');
+        toast.success('PDR Blueprint activated');
       }
 
       setFormData({});
@@ -201,13 +208,23 @@ export function PdrModals({ activeModal, onClose, families, templates, user }: P
 
             {activeModal === 'blueprint' && (() => {
               const selectedTemplate = templates.find(t => t.id === formData.templateId);
-              const templateNameLower = (selectedTemplate?.name || '').toLowerCase();
+              let activeSlot: MatrixSlot | undefined;
+              let isMaxCapacity = false;
+              let availableCount = 0;
               
-              const isMotor = templateNameLower.includes('motor') || templateNameLower.includes('engine');
-              const isCable = templateNameLower.includes('cable') || templateNameLower.includes('wire');
-              const isBearing = templateNameLower.includes('bearing');
-              const isPump = templateNameLower.includes('pump');
+              if (selectedTemplate) {
+                const existingBlueprintsCount = blueprints.filter(b => b.templateId === selectedTemplate.id).length;
+                const matrixSlots = getBlueprintMatrixForTemplate(selectedTemplate.id, selectedTemplate.skuBase);
+                activeSlot = matrixSlots[existingBlueprintsCount];
+                isMaxCapacity = existingBlueprintsCount >= MAX_BLUEPRINTS_PER_TEMPLATE;
+                availableCount = existingBlueprintsCount + 1;
+              }
 
+              // Update formData automatically when selectedTemplate changes or we got a new active slot
+              // We do this via standard React pattern by applying it effectively on submit
+              // But we can also set the display values directly
+              const displayReference = activeSlot ? activeSlot.reference : '';
+              
               return (
               <>
                 <div>
@@ -215,7 +232,21 @@ export function PdrModals({ activeModal, onClose, families, templates, user }: P
                   <select
                     required
                     value={formData.templateId || ''}
-                    onChange={e => setFormData({ ...formData, templateId: e.target.value })}
+                    onChange={e => {
+                      const newTemplateId = e.target.value;
+                      const template = templates.find(t => t.id === newTemplateId);
+                      if (template) {
+                        const existing = blueprints.filter(b => b.templateId === newTemplateId).length;
+                        const slots = getBlueprintMatrixForTemplate(template.id, template.skuBase);
+                        const slot = slots[existing];
+                        setFormData({ 
+                          ...formData, 
+                          templateId: newTemplateId, 
+                          reference: slot ? slot.reference : '', 
+                          id: slot ? slot.id : '' 
+                        });
+                      }
+                    }}
                     className="titan-input appearance-none"
                   >
                     <option value="" disabled>Select Template...</option>
@@ -224,119 +255,88 @@ export function PdrModals({ activeModal, onClose, families, templates, user }: P
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label className="titan-label">Reference / Part No.</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.reference || ''}
-                    onChange={e => setFormData({ ...formData, reference: e.target.value })}
-                    className="titan-input font-mono"
-                    placeholder="e.g., 6205-2RS"
-                  />
-                </div>
 
-                {/* DYNAMIC TEMPLATE FIELDS */}
-                <AnimatePresence>
-                  {selectedTemplate && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 pt-2 pb-2">
-                       <div className="flex items-center gap-2 mb-2">
-                          <Layers className="w-4 h-4 text-cyan-400" />
-                          <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Template Requirements: {selectedTemplate.name}</span>
-                       </div>
-                       
-                       <div className="grid grid-cols-2 gap-4">
-                         {isMotor && (
-                           <>
-                             <div>
-                               <label className="titan-label">Power (kW/HP)</label>
-                               <input type="text" className="titan-input text-xs" placeholder="e.g., 15kW" />
-                             </div>
-                             <div>
-                               <label className="titan-label">Voltage (V)</label>
-                               <input type="text" className="titan-input text-xs" placeholder="e.g., 400V 3Ph" />
-                             </div>
-                           </>
-                         )}
-                         {isCable && (
-                           <>
-                             <div>
-                               <label className="titan-label">Length (m)</label>
-                               <input type="number" className="titan-input text-xs" placeholder="e.g., 100" />
-                             </div>
-                             <div>
-                               <label className="titan-label">Gauge / Section</label>
-                               <input type="text" className="titan-input text-xs" placeholder="e.g., 3x2.5mm²" />
-                             </div>
-                           </>
-                         )}
-                         {isBearing && (
-                           <>
-                             <div>
-                               <label className="titan-label">Inner Diameter (mm)</label>
-                               <input type="number" className="titan-input text-xs" placeholder="e.g., 25" />
-                             </div>
-                             <div>
-                               <label className="titan-label">Outer Diameter (mm)</label>
-                               <input type="number" className="titan-input text-xs" placeholder="e.g., 52" />
-                             </div>
-                           </>
-                         )}
-                         {isPump && (
-                           <>
-                             <div>
-                               <label className="titan-label">Flow Rate (m³/h)</label>
-                               <input type="text" className="titan-input text-xs" placeholder="e.g., 50 m³/h" />
-                             </div>
-                             <div>
-                               <label className="titan-label">Max Head (m)</label>
-                               <input type="text" className="titan-input text-xs" placeholder="e.g., 30m" />
-                             </div>
-                           </>
-                         )}
-                         {(!isMotor && !isCable && !isBearing && !isPump) && (
-                           <>
-                             <div className="col-span-2">
-                               <label className="titan-label">Custom Specification</label>
-                               <input type="text" className="titan-input text-xs" placeholder="Key = Value (e.g., Material = SUS304)" />
-                             </div>
-                           </>
-                         )}
-                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {isMaxCapacity && selectedTemplate && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                    <p className="text-red-400 font-bold text-sm">MAX CAPACITY REACHED</p>
+                    <p className="text-red-400/80 text-xs mt-1">This template has reached its maximum configuration slots ({MAX_BLUEPRINTS_PER_TEMPLATE}/{MAX_BLUEPRINTS_PER_TEMPLATE}).</p>
+                  </div>
+                )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="titan-label">Unit</label>
-                    <select
-                      required
-                      value={formData.unit || ''}
-                      onChange={e => setFormData({ ...formData, unit: e.target.value })}
-                      className="titan-input appearance-none"
-                    >
-                      <option value="" disabled>Select...</option>
-                      <option value="Pcs">Pieces (Pcs)</option>
-                      <option value="Kg">Kilograms (Kg)</option>
-                      <option value="L">Liters (L)</option>
-                      <option value="M">Meters (M)</option>
-                      <option value="Set">Set</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="titan-label">Min Threshold</label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      value={formData.minThreshold || ''}
-                      onChange={e => setFormData({ ...formData, minThreshold: e.target.value })}
-                      className="titan-input font-mono"
-                      placeholder="0"
-                    />
-                  </div>
-                </div>
+                {selectedTemplate && !isMaxCapacity && (
+                  <>
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="titan-label !mb-0">Reference / Model Designation</label>
+                        <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Slot {availableCount} of {MAX_BLUEPRINTS_PER_TEMPLATE} Available</span>
+                      </div>
+                      <input
+                        type="text"
+                        disabled
+                        value={displayReference}
+                        className="titan-input font-mono opacity-60 bg-black/50 border-white/5 cursor-not-allowed text-cyan-400 font-bold"
+                      />
+                    </div>
+
+                    {/* DYNAMIC TEMPLATE FIELDS FOR THE STATIC SLOT */}
+                    <AnimatePresence>
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 pt-2 pb-2">
+                         <div className="flex items-center gap-2 mb-2">
+                            <Layers className="w-4 h-4 text-cyan-400" />
+                            <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Pre-Configuration: V{availableCount}</span>
+                         </div>
+                         
+                         <div className="grid grid-cols-1 gap-4">
+                           <div>
+                             <label className="titan-label">Model Designation</label>
+                             <input type="text" required value={formData.model || ''} onChange={e => setFormData({ ...formData, model: e.target.value })} className="titan-input text-xs" placeholder="e.g., Heavy Duty X1" />
+                           </div>
+                           <div className="grid grid-cols-2 gap-4">
+                             <div>
+                               <label className="titan-label">Power / Force / Size</label>
+                               <input type="text" required value={formData.powerOrForce || ''} onChange={e => setFormData({ ...formData, powerOrForce: e.target.value })} className="titan-input text-xs" placeholder="e.g., 15kW, 400T" />
+                             </div>
+                             <div>
+                               <label className="titan-label">Technical Specs</label>
+                               <input type="text" required value={formData.technicalSpecs || ''} onChange={e => setFormData({ ...formData, technicalSpecs: e.target.value })} className="titan-input text-xs" placeholder="e.g., 400V 3Ph 50Hz" />
+                             </div>
+                           </div>
+                         </div>
+                      </motion.div>
+                    </AnimatePresence>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="titan-label">Unit</label>
+                        <select
+                          required
+                          value={formData.unit || ''}
+                          onChange={e => setFormData({ ...formData, unit: e.target.value })}
+                          className="titan-input appearance-none"
+                        >
+                          <option value="" disabled>Select...</option>
+                          <option value="Pcs">Pieces (Pcs)</option>
+                          <option value="Kg">Kilograms (Kg)</option>
+                          <option value="L">Liters (L)</option>
+                          <option value="M">Meters (M)</option>
+                          <option value="Set">Set</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="titan-label">Min Threshold</label>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          value={formData.minThreshold || ''}
+                          onChange={e => setFormData({ ...formData, minThreshold: e.target.value })}
+                          className="titan-input font-mono"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </>
             )})}
 
@@ -350,7 +350,7 @@ export function PdrModals({ activeModal, onClose, families, templates, user }: P
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || (activeModal === 'blueprint' && formData.templateId && blueprints.filter(b => b.templateId === formData.templateId).length >= MAX_BLUEPRINTS_PER_TEMPLATE)}
                 className="flex-1 py-3 px-4 bg-cyan-500 hover:bg-cyan-400 text-[#050508] font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] disabled:opacity-50 disabled:shadow-none flex items-center justify-center gap-2"
               >
                 <Save className="w-5 h-5" />
