@@ -279,8 +279,14 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                       animate="visible"
                       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 h-fit"
                     >
-                      {filteredFamilies.map(family => (
-                        <motion.div variants={itemVariants} key={family.id} className="h-full">
+                      {filteredFamilies.map((family, idx) => (
+                        <motion.div 
+                          key={family.id} 
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                          className="h-full"
+                        >
                           <PdrCard className="flex flex-col group/card relative border-l-4 border-l-cyan-500 transition-all duration-500 hover:border-y-cyan-500/30 hover:border-r-cyan-500/30 hover:shadow-[0_15px_40px_-10px_rgba(6,182,212,0.2)] hover:bg-cyan-500/[0.03] min-h-[140px] h-full">
                             <button onClick={(e) => handleDelete('family', family.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
                               <Trash2 className="w-4 h-4" />
@@ -316,10 +322,16 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                       animate="visible"
                       className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 h-fit"
                     >
-                      {filteredTemplates.map(template => {
+                      {filteredTemplates.map((template, idx) => {
                         const parentFamily = families.find(f => f.id === template.familyId);
                         return (
-                          <motion.div variants={itemVariants} key={template.id} className="h-full">
+                          <motion.div 
+                            key={template.id} 
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                            className="h-full"
+                          >
                             <PdrCard className="flex flex-col group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.2)] hover:bg-indigo-500/[0.03] min-h-[160px] h-full">
                               <button onClick={(e) => handleDelete('template', template.id, e)} className="absolute top-4 right-4 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/50 hover:text-red-400 opacity-0 group-hover/card:opacity-100 transition-all z-10">
                                 <Trash2 className="w-4 h-4" />
@@ -388,7 +400,12 @@ export function PdrLibraryPage({ tabId, user }: { tabId: string, user?: User | n
                                 }}
                                 className="pb-4"
                               >
-                                  <motion.div variants={itemVariants} className="h-full">
+                                  <motion.div 
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: (virtualRow.index % 10) * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                                    className="h-full"
+                                  >
                                     <PdrCard onClick={() => openPartDetail(blueprint.id, blueprint.reference)} className="flex flex-col group overflow-hidden relative border border-white/5 transition-all duration-700 hover:border-white/20 hover:shadow-[0_20px_60px_-15px_rgba(6,182,212,0.15)] hover:bg-white/[0.02] p-0 bg-black/20 cursor-pointer rounded-2xl">
                                        {/* Animated Gradient Border Top */}
                                        <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />

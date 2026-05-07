@@ -119,6 +119,9 @@ export interface MachineBlueprint {
   templateId: string;
   reference: string; // e.g. MP-2013
   category?: string; // Optional metadata
+  model?: string;
+  powerOrForce?: string;
+  technicalSpecs?: string;
   createdAt: string;
 }
 

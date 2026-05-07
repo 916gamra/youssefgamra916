@@ -213,11 +213,12 @@ export function PdrModals({ activeModal, onClose, families, templates, blueprint
               let availableCount = 0;
               
               if (selectedTemplate) {
-                const existingBlueprintsCount = blueprints.filter(b => b.templateId === selectedTemplate.id).length;
+                const templateBlueprints = blueprints.filter(b => b.templateId === selectedTemplate.id);
+                const existingIds = new Set(templateBlueprints.map(b => b.id));
                 const matrixSlots = getBlueprintMatrixForTemplate(selectedTemplate.id, selectedTemplate.skuBase);
-                activeSlot = matrixSlots[existingBlueprintsCount];
-                isMaxCapacity = existingBlueprintsCount >= MAX_BLUEPRINTS_PER_TEMPLATE;
-                availableCount = existingBlueprintsCount + 1;
+                activeSlot = matrixSlots.find(s => !existingIds.has(s.id));
+                isMaxCapacity = templateBlueprints.length >= MAX_BLUEPRINTS_PER_TEMPLATE;
+                availableCount = activeSlot ? activeSlot.index : 0;
               }
 
               // Update formData automatically when selectedTemplate changes or we got a new active slot
@@ -236,9 +237,9 @@ export function PdrModals({ activeModal, onClose, families, templates, blueprint
                       const newTemplateId = e.target.value;
                       const template = templates.find(t => t.id === newTemplateId);
                       if (template) {
-                        const existing = blueprints.filter(b => b.templateId === newTemplateId).length;
+                        const existingIds = new Set(blueprints.filter(b => b.templateId === newTemplateId).map(b => b.id));
                         const slots = getBlueprintMatrixForTemplate(template.id, template.skuBase);
-                        const slot = slots[existing];
+                        const slot = slots.find(s => !existingIds.has(s.id));
                         setFormData({ 
                           ...formData, 
                           templateId: newTemplateId, 
@@ -267,14 +268,14 @@ export function PdrModals({ activeModal, onClose, families, templates, blueprint
                   <>
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <label className="titan-label !mb-0">Reference / Model Designation</label>
-                        <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Slot {availableCount} of {MAX_BLUEPRINTS_PER_TEMPLATE} Available</span>
+                        <label className="titan-label !mb-0">Blueprint Code (READ-ONLY)</label>
+                        <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Slot {availableCount} of {MAX_BLUEPRINTS_PER_TEMPLATE}</span>
                       </div>
                       <input
                         type="text"
                         disabled
                         value={displayReference}
-                        className="titan-input font-mono opacity-60 bg-black/50 border-white/5 cursor-not-allowed text-cyan-400 font-bold"
+                        className="titan-input font-mono opacity-60 bg-black/50 border-white/5 cursor-not-allowed text-cyan-400 text-lg text-center tracking-widest uppercase"
                       />
                     </div>
 
@@ -283,12 +284,12 @@ export function PdrModals({ activeModal, onClose, families, templates, blueprint
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4 pt-2 pb-2">
                          <div className="flex items-center gap-2 mb-2">
                             <Layers className="w-4 h-4 text-cyan-400" />
-                            <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Pre-Configuration: V{availableCount}</span>
+                            <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest">Technical Specifications</span>
                          </div>
                          
                          <div className="grid grid-cols-1 gap-4">
                            <div>
-                             <label className="titan-label">Model Designation</label>
+                             <label className="titan-label">Model Name / Designation</label>
                              <input type="text" required value={formData.model || ''} onChange={e => setFormData({ ...formData, model: e.target.value })} className="titan-input text-xs" placeholder="e.g., Heavy Duty X1" />
                            </div>
                            <div className="grid grid-cols-2 gap-4">

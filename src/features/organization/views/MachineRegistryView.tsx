@@ -41,7 +41,7 @@ export function MachineRegistryView() {
       const selectedBlueprint = blueprints.find(b => b.id === blueprintId);
       if (selectedBlueprint) {
         // Extract genetic prefix (Blueprint ref without the 00- suffix)
-        // e.g. STA1-00-V1 -> STA1
+        // e.g. STA1-00 -> STA1
         const blueprintPrefix = selectedBlueprint.reference.split('-')[0];
         
         // Find parent template and family
@@ -218,7 +218,7 @@ export function MachineRegistryView() {
                       initial={{ opacity: 0, scale: 0.98 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.98 }}
-                      transition={{ duration: 0.25, delay: idx * 0.02 }}
+                      transition={{ duration: 0.5, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
                     >
                       <GlassCard className="!p-0 relative overflow-hidden group h-full flex flex-col hover:border-indigo-500/30 transition-all duration-300">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl group-hover:bg-indigo-500/10 transition-colors pointer-events-none" />

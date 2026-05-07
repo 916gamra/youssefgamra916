@@ -10,8 +10,45 @@ export function runDatabaseSeed(force = false) {
       const machineFamilyCount = await db.machineFamilies.count();
       const machineCount = await db.machines.count();
 
+      try {
+        // ALWAYS run this cleanup to remove corrupted/old seed V1 items
+        const oldBlueprints = await db.machineBlueprints.toArray();
+        // The old bad seeded items had -V1, or they were specified manually in the oldSeedIds list.
+        const oldSeedIds = [
+          'bp-mech-press-standard', 'bp-hyd-press-nc', 'bp-tourne-p-std', 
+          'bp-scotcheuse-auto', 'bp-traitement-surf', 'bp-ravivage', 
+          'bp-transpalette', 'bp-compresseur', 'bp-pompage', 'bp-elevateur', 
+          'bp-transformateur', 'bp-visseuse', 'bp-poinconneuse', 
+          'bp-sertissage-bec', 'bp-moteur-meule'
+        ];
+        const badBlueprints = oldBlueprints.filter(b => b.reference.includes('-V1') || oldSeedIds.includes(b.id));
+        if (badBlueprints.length > 0) {
+           const badIds = badBlueprints.map(b => b.id);
+           await db.machineBlueprints.bulkDelete(badIds);
+           console.log('[DatabaseSeeder] DELETED OLD BAD BLUEPRINTS:', badIds);
+        }
+
+        const oldMachines = await db.machines.toArray();
+        const badMachines = oldMachines.filter(m => m.id.startsWith('mach-') && m.referenceCode.includes('20'));
+        if (badMachines.length > 0) {
+           const badIds = badMachines.map(m => m.id);
+           await db.machines.bulkDelete(badIds);
+           console.log('[DatabaseSeeder] DELETED OLD BAD MACHINES:', badIds);
+        }
+
+        const oldPdrBlueprints = await db.pdrBlueprints.toArray();
+        const badPdrBlueprints = oldPdrBlueprints.filter(b => b.reference && b.reference.includes('-V1'));
+        if (badPdrBlueprints.length > 0) {
+           const badIds = badPdrBlueprints.map(b => b.id);
+           await db.pdrBlueprints.bulkDelete(badIds);
+           console.log('[DatabaseSeeder] DELETED OLD BAD PDR BLUEPRINTS:', badIds);
+        }
+      } catch (err) {
+        console.error('Cleanup error:', err);
+      }
+
       // Always force injection if force is true.
-      if (force) {
+      if (force || machineCount === 0 || machineFamilyCount === 0 || pdrFamilyCount === 0) {
         console.log('[DatabaseSeeder] Enforcing master data synchronization...');
         
         await db.transaction('rw', [
@@ -24,11 +61,14 @@ export function runDatabaseSeed(force = false) {
           await db.machineFamilies.bulkPut(INITIAL_DATA.machineFamilies);
           await db.machineTemplates.bulkPut(INITIAL_DATA.machineTemplates);
           await db.sectors.bulkPut(INITIAL_DATA.sectors);
-          await db.machines.bulkPut(INITIAL_DATA.machines);
+          
+          if (machineCount === 0) {
+            await db.machines.bulkPut(INITIAL_DATA.machines);
+          }
           await db.pdrTemplates.bulkPut(INITIAL_DATA.pdrTemplates);
           await db.pdrBlueprints.bulkPut(INITIAL_DATA.pdrBlueprints);
-          
-          if (INITIAL_DATA.machineBlueprints) {
+
+          if (INITIAL_DATA.machineBlueprints && INITIAL_DATA.machineBlueprints.length > 0) {
             await db.machineBlueprints.bulkPut(INITIAL_DATA.machineBlueprints);
           }
         });

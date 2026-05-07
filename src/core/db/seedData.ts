@@ -36,11 +36,7 @@ export const SEED_TECHNICIANS: Technician[] = [
 export const SEED_USERS: User[] = [
 ];
 
-export const SEED_MACHINES: Machine[] = [
-  { id: 'mach-mech-press-2013', name: 'Mechanical Press V2013', sectorId: 'sector-emboutissage', blueprintId: 'bp-mech-press-standard', referenceCode: 'MP-2013-01' },
-  { id: 'mach-mech-press-2015', name: 'Mechanical Press V2015', sectorId: 'sector-emboutissage', blueprintId: 'bp-mech-press-standard', referenceCode: 'MP-2015-02' },
-  { id: 'mach-hyd-press-nc', name: 'Hydraulic NC Press', sectorId: 'sector-emboutissage', blueprintId: 'bp-hyd-press-nc', referenceCode: 'HP-NC-01' },
-];
+export const SEED_MACHINES: Machine[] = [];
 
 export const SEED_TEMPLATES: PdrTemplate[] = [
   { id: 'temp-mech-press', familyId: 'fam-pneumatics', name: 'Mechanical Press Template', skuBase: 'MP', createdAt: now },
@@ -263,23 +259,7 @@ export const SEED_MACHINE_TEMPLATES: MachineTemplate[] = [
   { id: 'tpl-sy-syc', familyId: 'fam-transformateur', name: 'Transformateur Electrique Specialized', type: 'S', skuBase: 'SYC', technicalDescription: 'Specialized electrical transformer.', createdAt: now },
 ];
 
-export const SEED_MACHINE_BLUEPRINTS: MachineBlueprint[] = [
-  { id: 'bp-mech-press-standard', templateId: 'tpl-pr-man', reference: 'PRM1-V1', createdAt: now },
-  { id: 'bp-hyd-press-nc', templateId: 'tpl-pr-hyd', reference: 'PRH1-X200', createdAt: now },
-  { id: 'bp-tourne-p-std', templateId: 'tpl-tr-par', reference: 'TRP1-1500', createdAt: now },
-  { id: 'bp-scotcheuse-auto', templateId: 'tpl-sc-sca', reference: 'SCA1-V1', createdAt: now },
-  { id: 'bp-traitement-surf', templateId: 'tpl-tf-tfa', reference: 'TFA1-LIGNE', createdAt: now },
-  { id: 'bp-ravivage', templateId: 'tpl-ra-rav', reference: 'RAV1-V1', createdAt: now },
-  { id: 'bp-transpalette', templateId: 'tpl-tp-trs', reference: 'TRS1-MAN', createdAt: now },
-  { id: 'bp-compresseur', templateId: 'tpl-co-com', reference: 'COM1-AIR', createdAt: now },
-  { id: 'bp-pompage', templateId: 'tpl-pm-pmi', reference: 'PMI1-EAU', createdAt: now },
-  { id: 'bp-elevateur', templateId: 'tpl-el-elv', reference: 'ELV1-V1', createdAt: now },
-  { id: 'bp-transformateur', templateId: 'tpl-sy-syc', reference: 'SYC1-220V', createdAt: now },
-  { id: 'bp-visseuse', templateId: 'tpl-vi-vis', reference: 'VIS1-PNEU', createdAt: now },
-  { id: 'bp-poinconneuse', templateId: 'tpl-pc-pcp', reference: 'PCP1-CNC', createdAt: now },
-  { id: 'bp-sertissage-bec', templateId: 'tpl-sb-sbb', reference: 'SBB1-V1', createdAt: now },
-  { id: 'bp-moteur-meule', templateId: 'tpl-me-mel', reference: 'MEL1-3000', createdAt: now },
-];
+export const SEED_MACHINE_BLUEPRINTS: MachineBlueprint[] = [];
 
 export const INITIAL_DATA = {
   pdrFamilies: SEED_PDR_FAMILIES,

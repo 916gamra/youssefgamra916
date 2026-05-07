@@ -225,6 +225,7 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
         onClose={() => setActiveModal(null)} 
         families={families} 
         templates={templates} 
+        blueprints={blueprints}
         user={user}
       />
 
@@ -327,8 +328,15 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 h-fit">
-                      {filteredFamilies.map(family => (
-                        <MachineLibraryCard key={family.id} className="flex flex-col group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(6,182,212,0.2)] hover:bg-indigo-500/[0.03] min-h-[140px]">
+                      {filteredFamilies.map((family, idx) => (
+                        <motion.div
+                          key={family.id}
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                          className="h-full"
+                        >
+                          <MachineLibraryCard className="flex flex-col group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(6,182,212,0.2)] hover:bg-indigo-500/[0.03] min-h-[140px] h-full">
                           <div className="flex items-start justify-between mb-3 pr-8">
                             <div className="flex flex-col relative group/info">
                               <div className="flex items-center gap-2">
@@ -360,6 +368,7 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                             {family.description}
                           </p>
                         </MachineLibraryCard>
+                        </motion.div>
                       ))}
                     </div>
                   )}
@@ -374,10 +383,17 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 h-fit">
-                      {filteredTemplates.map(template => {
+                      {filteredTemplates.map((template, idx) => {
                         const parentFamily = families.find(f => f.id === template.familyId);
                         return (
-                          <MachineLibraryCard key={template.id} className="flex flex-col group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.2)] hover:bg-blue-500/[0.03] min-h-[160px]">
+                          <motion.div
+                            key={template.id}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                            className="h-full"
+                          >
+                            <MachineLibraryCard className="flex flex-col group/card relative border-l-4 border-l-indigo-500 transition-all duration-500 hover:border-y-indigo-500/30 hover:border-r-indigo-500/30 hover:shadow-[0_15px_40px_-10px_rgba(99,102,241,0.2)] hover:bg-blue-500/[0.03] min-h-[160px] h-full">
                             <div className="mb-4 pr-8 flex-1">
                               <div className="flex items-center justify-between mb-1">
                                 <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5">
@@ -433,6 +449,7 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                               </div>
                             </div>
                           </MachineLibraryCard>
+                          </motion.div>
                         );
                       })}
                     </div>
@@ -473,22 +490,58 @@ export function EngineeringLabView({ tabId, user }: { tabId: string, user?: User
                                 }}
                                 className="pb-4"
                               >
-                                  <MachineLibraryCard onClick={() => openBlueprintDetail(blueprint.id, blueprint.reference)} className="flex flex-row items-center justify-between group overflow-hidden relative border border-white/5 transition-all duration-500 hover:border-y-violet-500/30 hover:border-r-violet-500/30 hover:shadow-[0_15px_40px_-10px_rgba(16,185,129,0.2)] hover:bg-violet-500/[0.03] border-l-4 border-l-violet-500 p-4 md:p-5 bg-black/5 cursor-pointer rounded-2xl">
-                                     <div className="flex items-center gap-4">
-                                       <div className="w-11 h-11 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 shadow-inner group-hover:scale-105 transition-transform">
-                                          <Hash className="w-5 h-5 text-indigo-400" />
+                                  <motion.div 
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: (virtualRow.index % 10) * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                                    className="h-full"
+                                  >
+                                    <MachineLibraryCard onClick={() => openBlueprintDetail(blueprint.id, blueprint.reference)} className="flex flex-col group overflow-hidden relative border border-white/5 transition-all duration-700 hover:border-white/20 hover:shadow-[0_20px_60px_-15px_rgba(99,102,241,0.15)] hover:bg-white/[0.02] p-0 bg-black/20 cursor-pointer rounded-2xl">
+                                     {/* Animated Gradient Border Top */}
+                                     <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
+                                     
+                                     <div className="flex flex-col md:flex-row md:items-center justify-between p-5 md:p-6 gap-6 relative z-10">
+                                       <div className="flex items-start gap-5">
+                                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500/10 to-transparent flex items-center justify-center border border-indigo-500/20 shadow-inner group-hover:scale-105 transition-all duration-500 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+                                            <Hash className="w-5 h-5 text-indigo-400" />
+                                         </div>
+                                         <div className="flex flex-col gap-1.5">
+                                            <div className="flex items-center gap-3">
+                                              <h3 className="text-lg font-mono font-bold text-white tracking-tight group-hover:text-indigo-300 transition-colors uppercase">{blueprint.reference}</h3>
+                                              {blueprint.model && (
+                                                <span className="text-[9px] uppercase tracking-widest text-indigo-400/80 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded-full">{blueprint.model}</span>
+                                              )}
+                                            </div>
+                                            <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{parentTemplate?.name || 'Standard Blueprint'}</span>
+                                            
+                                            {/* Technical details pill */}
+                                            {(blueprint.powerOrForce || blueprint.technicalSpecs) && (
+                                              <div className="flex items-center gap-3 mt-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                {blueprint.powerOrForce && (
+                                                  <span className="text-xs font-mono text-slate-300">⚡ {blueprint.powerOrForce}</span>
+                                                )}
+                                                {blueprint.technicalSpecs && (
+                                                  <>
+                                                    <span className="w-1 h-1 rounded-full bg-slate-700" />
+                                                    <span className="text-xs font-mono text-slate-300">{blueprint.technicalSpecs}</span>
+                                                  </>
+                                                )}
+                                              </div>
+                                            )}
+                                         </div>
                                        </div>
-                                       <div>
-                                          <h3 className="text-sm md:text-base font-mono font-bold text-white tracking-tight group-hover:text-indigo-400 transition-colors uppercase">{blueprint.reference}</h3>
-                                          <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{parentTemplate?.name || 'Item'}</span>
+                                       
+                                       <div className="flex gap-6 items-center md:pr-10 relative md:ml-auto">
+                                          <button onClick={(e) => handleDelete('blueprint', blueprint.id, e)} className="absolute right-0 p-2.5 rounded-xl bg-red-500/10 border border-red-500/0 hover:border-red-500/30 hover:bg-red-500/20 text-red-500/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                                            <Trash2 className="w-4 h-4" />
+                                          </button>
                                        </div>
                                      </div>
-                                     <div className="flex gap-4 md:gap-8 items-center pr-10 relative">
-                                        <button onClick={(e) => handleDelete('blueprint', blueprint.id, e)} className="absolute right-0 p-2 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all">
-                                          <Trash2 className="w-4 h-4" />
-                                        </button>
-                                     </div>
+                                     
+                                     {/* Card Background Glow */}
+                                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 via-transparent to-indigo-500/0 group-hover:from-indigo-500/[0.02] group-hover:to-transparent transition-colors duration-700 pointer-events-none" />
                                   </MachineLibraryCard>
+                                  </motion.div>
                               </div>
                             );
                          })}
