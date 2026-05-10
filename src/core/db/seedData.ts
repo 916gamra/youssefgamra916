@@ -5,33 +5,23 @@ const now = new Date().toISOString();
 // PDR Master Data
 // PDR Master Data
 export const SEED_PDR_FAMILIES: PdrFamily[] = [
-  { id: 'fam-bearings', name: 'Bearings', description: 'Roller, ball, and thrust bearings', createdAt: now },
-  { id: 'fam-belts', name: 'Belts', description: 'V-belts, timing belts, and flat belts', createdAt: now },
-  { id: 'fam-sensors', name: 'Sensors', description: 'Proximity, temperature, and pressure sensors', createdAt: now },
-  { id: 'fam-filters', name: 'Filters', description: 'Air, oil, and water filters', createdAt: now },
-  { id: 'fam-pneumatics', name: 'Pneumatics', description: 'Cylinders, valves, and fittings', createdAt: now },
+  { id: 'fam-CO', name: 'COURROIES', description: 'Power transmission belts', createdAt: now },
+  { id: 'fam-RO', name: 'ROULEMENTS', description: 'SKF Standard bearings', createdAt: now },
+  { id: 'fam-VI', name: 'VISSERIE', description: 'ISO Standard screws and bolts', createdAt: now }
 ];
 
-export const SEED_SECTORS: Sector[] = [
-  { id: 'sector-polissage', name: 'POLISSAGE', managerName: 'Mohammed Fatouh', description: 'Surface finishing and buffing hall' },
-  { id: 'sector-satinage', name: 'SATINAGE', managerName: 'Naima Belhaje', description: 'Satin finish production line' },
-  { id: 'sector-repoussage', name: 'REPOUSSAGE', managerName: 'Tarike', description: 'Metal spinning and forming sector' },
-  { id: 'sector-detourage', name: 'DETOURAGE', managerName: 'Mohsin Satt', description: 'Edge trimming and contouring station' },
-  { id: 'sector-emboutissage', name: 'EMBOUTISSAGE', managerName: 'Hasan Zaradi', description: 'Deep drawing and heavy pressing area' },
-  { id: 'sector-injection-plastic', name: 'PRESS INJECTION', managerName: 'Abde Arafie', description: 'Plastic and Bakelite injection molding facility' },
-  { id: 'sector-maintenance', name: 'MAINTENANCE CENTRAL', managerName: 'Maintenance Manager', description: 'Centralized maintenance support and engineering workshop' },
-];
+export const SEED_SECTORS: Sector[] = Array.from({ length: 15 }, (_, i) => {
+  const num = (i + 1).toString().padStart(2, '0');
+  return {
+    id: `SEC-${num}`,
+    name: `Sector ${num}`,
+    managerName: '',
+    description: '',
+    status: 'Dormant' as const
+  };
+});
 
-export const SEED_TECHNICIANS: Technician[] = [
-  { id: 'tech-youssef', name: 'Youssef Gamra', sectorId: 'sector-maintenance', specialty: 'Technician Maintenance (Grade 1)' },
-  { id: 'tech-ismail', name: 'Ismail Motmir', sectorId: 'sector-maintenance', specialty: 'Technician Maintenance (Grade 1)' },
-  { id: 'tech-rachid', name: 'Rachid', sectorId: 'sector-maintenance', specialty: 'Technician Maintenance (Grade 1)' },
-  { id: 'tech-muhammad', name: 'Muhammad', sectorId: 'sector-maintenance', specialty: 'Technician Maintenance (Grade 1)' },
-  { id: 'tech-boujama', name: 'Boujama Marid', sectorId: 'sector-maintenance', specialty: 'Technician Maintenance (Grade 1)' },
-  { id: 'tech-anas', name: 'Anas', sectorId: 'sector-maintenance', specialty: 'Maintenance (Grade 2)' },
-  { id: 'tech-brahime', name: 'Brahime', sectorId: 'sector-maintenance', specialty: 'Maintenance (Grade 2)' },
-  { id: 'tech-mouad', name: 'Mouad', sectorId: 'sector-maintenance', specialty: 'Souder (Grade 3)' },
-];
+export const SEED_TECHNICIANS: Technician[] = [];
 
 export const SEED_USERS: User[] = [
 ];
@@ -39,10 +29,18 @@ export const SEED_USERS: User[] = [
 export const SEED_MACHINES: Machine[] = [];
 
 export const SEED_TEMPLATES: PdrTemplate[] = [
-  { id: 'temp-mech-press', familyId: 'fam-pneumatics', name: 'Mechanical Press Template', skuBase: 'MP', createdAt: now },
-  { id: 'temp-hyd-press', familyId: 'fam-pneumatics', name: 'Hydraulic Press Template', skuBase: 'HP', createdAt: now },
-  { id: 'temp-ball-brg', familyId: 'fam-bearings', name: 'Deep Groove Ball Bearing', skuBase: 'DBB', createdAt: now },
-  { id: 'temp-v-belt', familyId: 'fam-belts', name: 'Classic V-Belt', skuBase: 'VBLT', createdAt: now },
+  // COURROIES
+  { id: 'temp-CO-A', familyId: 'fam-CO', name: 'Courroie Type A', skuBase: 'CO-A', createdAt: now },
+  { id: 'temp-CO-B', familyId: 'fam-CO', name: 'Courroie Type B', skuBase: 'CO-B', createdAt: now },
+  { id: 'temp-CO-SPZ', familyId: 'fam-CO', name: 'Courroie Type SPZ', skuBase: 'CO-SPZ', createdAt: now },
+  // ROULEMENTS
+  { id: 'temp-RO-B', familyId: 'fam-RO', name: 'Roulement Standard Ball 6xxx', skuBase: 'RO-B', createdAt: now },
+  { id: 'temp-RO-C', familyId: 'fam-RO', name: 'Roulement Conical 3xxxx', skuBase: 'RO-C', createdAt: now },
+  { id: 'temp-RO-T', familyId: 'fam-RO', name: 'Roulement Thrust 5xxxx', skuBase: 'RO-T', createdAt: now },
+  // VISSERIE
+  { id: 'temp-VI-BTR', familyId: 'fam-VI', name: 'Vis Allen/BTR', skuBase: 'VI-BTR', createdAt: now },
+  { id: 'temp-VI-HEX', familyId: 'fam-VI', name: 'Vis Hexagonale', skuBase: 'VI-HEX', createdAt: now },
+  { id: 'temp-VI-SST', familyId: 'fam-VI', name: 'Vis Sans Tête', skuBase: 'VI-SST', createdAt: now },
 ];
 
 export const SEED_BLUEPRINTS: PdrBlueprint[] = [

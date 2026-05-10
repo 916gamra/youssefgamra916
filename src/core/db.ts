@@ -78,11 +78,12 @@ export interface PurchaseOrderLine {
 // --- 4. Domain Interfaces (Organization & Requisition Engine) ---
 
 export interface Sector {
-  id: string; // UUID
+  id: string; // SEC-01 to SEC-15
   name: string;
   description?: string;
-  managerName?: string;
+  managerName: string;
   preventiveTechId?: string; // One assigned PM technician
+  status: 'Active' | 'Dormant';
 }
 
 export interface Technician {
@@ -117,20 +118,24 @@ export interface MachineTemplate {
 export interface MachineBlueprint {
   id: string; // UUID
   templateId: string;
-  reference: string; // e.g. MP-2013
-  category?: string; // Optional metadata
-  model?: string;
-  powerOrForce?: string;
+  reference: string; // e.g. SAT1-00
+  brand: string; // e.g. Siemens
+  model: string; // Manufacturer Model
+  powerOrForce: string; // e.g. 15 kW, 50 Tonnes
+  energySource: string; // 380v, 220v, Pneumatic, Hydraulic, Mixed
   technicalSpecs?: string;
+  category?: string; // Optional metadata
   createdAt: string;
 }
 
 export interface Machine {
   id: string; // UUID
-  name: string;
-  sectorId: string; // Foreign Key to Sector
   blueprintId: string; // Foreign Key to MachineBlueprint
-  referenceCode: string; // Serial Number / Asset ID
+  referenceCode: string; // e.g. SAT1-01
+  serialNumber: string; // Physical serial number
+  manufacturingYear: number;
+  sectorId: string; // Foreign Key to Sector
+  status: 'Active' | 'Standby' | 'Maintenance';
 }
 
 export interface MachinePartMapping {

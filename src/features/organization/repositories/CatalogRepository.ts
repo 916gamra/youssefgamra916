@@ -9,7 +9,7 @@ export interface ICatalogRepository {
   createTemplate(template: Omit<PdrTemplate, 'id' | 'createdAt'>): Promise<string>;
   
   getAllBlueprints(): Promise<PdrBlueprint[]>;
-  createBlueprint(blueprint: Omit<PdrBlueprint, 'id' | 'createdAt'>): Promise<string>;
+  createBlueprint(blueprint: Omit<PdrBlueprint, 'id' | 'createdAt'> | PdrBlueprint): Promise<string>;
 }
 
 export class CatalogRepository implements ICatalogRepository {
@@ -55,13 +55,13 @@ export class CatalogRepository implements ICatalogRepository {
     return PerformanceMonitor.measure('CatalogRepo.getAllBlueprints', () => db.pdrBlueprints.toArray());
   }
 
-  async createBlueprint(blueprint: Omit<PdrBlueprint, 'id' | 'createdAt'>): Promise<string> {
+  async createBlueprint(blueprint: Omit<PdrBlueprint, 'id' | 'createdAt'> | PdrBlueprint): Promise<string> {
     return PerformanceMonitor.measure('CatalogRepo.createBlueprint', async () => {
-      const id = crypto.randomUUID();
+      const id = 'id' in blueprint && blueprint.id ? blueprint.id : crypto.randomUUID();
       await db.transaction('rw', [db.pdrBlueprints, db.auditLogs], async () => {
         await db.pdrBlueprints.add({
-          id,
           ...blueprint,
+          id,
           createdAt: new Date().toISOString()
         });
         logger.info({ action: 'CREATE_BLUEPRINT', entityType: 'BLUEPRINT', entityId: id });

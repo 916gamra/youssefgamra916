@@ -95,7 +95,7 @@ export function useRequisitionEngine() {
             type: 'OUT',
             quantity: line.quantity,
             performedBy: `${tech.name} [ID: ${tech.realBadgeId || tech.id}]`,
-            notes: `Requisition (auto-deduct) | Machine: ${machine.name} [${machine.referenceCode}]`,
+            notes: `Requisition (auto-deduct) | Machine: ${machine.referenceCode}`,
             timestamp: date
           });
         }

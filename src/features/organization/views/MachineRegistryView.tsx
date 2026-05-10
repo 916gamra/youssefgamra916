@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GlassCard } from '@/shared/components/GlassCard';
+import { getAssetMatrixForBlueprint, MAX_ASSETS_PER_BLUEPRINT, AssetSlot } from '@/core/config/assetMatrix';
 import { Factory, Cpu, Plus, X, Search, Activity, Box, Tag, Trash2, Edit3, Save, Wrench } from 'lucide-react';
 import { useOrganizationEngine } from '../hooks/useOrganizationEngine';
 import { useMachineLibrary } from '../hooks/useMachineLibrary';
@@ -30,34 +31,32 @@ export function MachineRegistryView() {
   const [selectedMachineForBom, setSelectedMachineForBom] = useState<{ id: string, name: string } | null>(null);
 
   // Form States
-  const [name, setName] = useState('');
   const [referenceCode, setReferenceCode] = useState('');
+  const [serialNumber, setSerialNumber] = useState('');
+  const [manufacturingYear, setManufacturingYear] = useState<number>(new Date().getFullYear());
   const [sectorId, setSectorId] = useState('');
   const [blueprintId, setBlueprintId] = useState('');
+  const [activeSlot, setActiveSlot] = useState<AssetSlot | null>(null);
 
-  // Auto-generate Reference Code for new machines
+  // Auto-generate Reference Code for new machines based on Asset Matrix
   useEffect(() => {
-    if (!editingId && blueprintId && blueprints.length > 0 && templates.length > 0) {
+    if (!editingId && blueprintId && blueprints.length > 0) {
       const selectedBlueprint = blueprints.find(b => b.id === blueprintId);
       if (selectedBlueprint) {
-        // Extract genetic prefix (Blueprint ref without the 00- suffix)
-        // e.g. STA1-00 -> STA1
-        const blueprintPrefix = selectedBlueprint.reference.split('-')[0];
+        const matrixSlots = getAssetMatrixForBlueprint(blueprintId, selectedBlueprint.reference);
+        const existingMachineRefs = new Set(machines.filter(m => m.blueprintId === blueprintId).map(m => m.referenceCode));
+        const availableSlot = matrixSlots.find(slot => !existingMachineRefs.has(slot.referenceCode));
         
-        // Find parent template and family
-        const template = templates.find(t => t.id === selectedBlueprint.templateId);
-        const family = families.find(f => f.id === template?.familyId);
-        
-        // Count all existing machines sharing the SAME Family
-        // Regardless of specific template/blueprint version
-        const sameFamilyMachines = machines.filter(m => m.familyName === family?.name);
-        
-        const nextSequence = sameFamilyMachines.length + 1;
-        
-        setReferenceCode(`${blueprintPrefix}-${String(nextSequence).padStart(2, '0')}`);
+        if (availableSlot) {
+          setActiveSlot(availableSlot);
+          setReferenceCode(availableSlot.referenceCode);
+        } else {
+          setActiveSlot(null);
+          setReferenceCode('');
+        }
       }
     }
-  }, [blueprintId, editingId, blueprints, templates, machines]);
+  }, [blueprintId, editingId, blueprints, machines]);
 
   const uniqueTemplates = useMemo(() => Array.from(new Set(machines.map(m => m.templateName))).sort(), [machines]);
 
@@ -75,15 +74,18 @@ export function MachineRegistryView() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !referenceCode || !sectorId || !blueprintId) return;
+    if (!serialNumber || !referenceCode || !sectorId || !blueprintId) return;
     
     try {
       if (editingId) {
-        await updateMachine(editingId, { name, sectorId, blueprintId, referenceCode });
-        showSuccess('Machine Updated', `${name} digital twin updated.`);
+        await updateMachine(editingId, { serialNumber, manufacturingYear, sectorId, blueprintId, referenceCode });
+        showSuccess('Machine Updated', `Digital twin updated.`);
       } else {
-        await createMachine(name, sectorId, blueprintId, referenceCode);
-        showSuccess('Machine Created', `${name} added to the registry.`);
+         if (!activeSlot) {
+            throw new Error('No physical slot available for this blueprint.');
+         }
+        await createMachine(activeSlot.id, sectorId, blueprintId, referenceCode, serialNumber, manufacturingYear);
+        showSuccess('Machine Created', `${referenceCode} added to the registry.`);
       }
       
       handleClose();
@@ -94,7 +96,8 @@ export function MachineRegistryView() {
 
   const handleEdit = (machine: any) => {
     setEditingId(machine.id);
-    setName(machine.name);
+    setSerialNumber(machine.serialNumber);
+    setManufacturingYear(machine.manufacturingYear);
     setReferenceCode(machine.referenceCode);
     setSectorId(machine.sectorId);
     setBlueprintId(machine.blueprintId);
@@ -110,10 +113,12 @@ export function MachineRegistryView() {
 
   const handleClose = () => {
     setEditingId(null);
-    setName('');
+    setSerialNumber('');
+    setManufacturingYear(new Date().getFullYear());
     setReferenceCode('');
     setSectorId('');
     setBlueprintId('');
+    setActiveSlot(null);
     setIsModalOpen(false);
   };
 
@@ -325,40 +330,10 @@ export function MachineRegistryView() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-5">
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Asset Identity</label>
-                      <input 
-                        type="text" required value={name} onChange={e => setName(e.target.value)}
-                        placeholder="e.g. Turbine X-400"
-                        className="titan-input py-3"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Serial/Ref Code</label>
-                      <input 
-                        type="text" required value={referenceCode} onChange={e => setReferenceCode(e.target.value)}
-                        placeholder="e.g. SN-99-01"
-                        className="titan-input font-mono text-indigo-400 py-3"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Operational Sector</label>
-                    <select
-                      required value={sectorId} onChange={e => setSectorId(e.target.value)}
-                      className="titan-input appearance-none transition-all cursor-pointer py-3"
-                    >
-                      <option value="" disabled className="bg-[#14161f]">Select primary sector...</option>
-                      {sectors.map(s => <option key={s.id} value={s.id} className="bg-[#14161f]">{s.name}</option>)}
-                    </select>
-                  </div>
-
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Machine Model (Blueprint)</label>
                     <select
-                      required value={blueprintId} onChange={e => setBlueprintId(e.target.value)}
+                      required disabled={!!editingId} value={blueprintId} onChange={e => setBlueprintId(e.target.value)}
                       className="titan-input appearance-none transition-all cursor-pointer py-3"
                     >
                       <option value="" disabled className="bg-[#14161f]">Select machine archetype...</option>
@@ -371,6 +346,59 @@ export function MachineRegistryView() {
                           </option>
                         );
                       })}
+                    </select>
+                  </div>
+
+                  {!editingId && blueprintId && !activeSlot && (
+                    <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                      <p className="text-red-400 font-bold text-sm">NO SLOTS AVAILABLE</p>
+                      <p className="text-red-400/80 text-xs mt-1">This blueprint has reached its maximum configuration slots ({MAX_ASSETS_PER_BLUEPRINT}/{MAX_ASSETS_PER_BLUEPRINT}).</p>
+                    </div>
+                  )}
+
+                  {(editingId || activeSlot) && (
+                  <div className="grid grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Physical Serial Number</label>
+                      <input 
+                        type="text" required value={serialNumber} onChange={e => setSerialNumber(e.target.value)}
+                        placeholder="e.g. SN-99-01XYZ"
+                        className="titan-input py-3"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Manufacturing Year</label>
+                      <input 
+                        type="number" min={1900} max={2100} required value={manufacturingYear} onChange={e => setManufacturingYear(Number(e.target.value))}
+                        className="titan-input font-mono text-indigo-400 py-3"
+                      />
+                    </div>
+                  </div>
+                  )}
+
+                  {(editingId || activeSlot) && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Asset ID (READ-ONLY)</label>
+                        {!editingId && activeSlot && (
+                           <span className="text-[10px] uppercase font-bold tracking-widest text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">Slot {activeSlot.index} of {MAX_ASSETS_PER_BLUEPRINT} active</span>
+                        )}
+                      </div>
+                      <input 
+                        type="text" disabled value={referenceCode}
+                        className="titan-input font-mono text-indigo-400 py-3 opacity-60 bg-black/50 border-white/5 cursor-not-allowed text-center tracking-widest text-lg"
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Operational Sector</label>
+                    <select
+                      required value={sectorId} onChange={e => setSectorId(e.target.value)}
+                      className="titan-input appearance-none transition-all cursor-pointer py-3"
+                    >
+                      <option value="" disabled className="bg-[#14161f]">Select primary sector...</option>
+                      {sectors.filter(s => s.status === 'Active').map(s => <option key={s.id} value={s.id} className="bg-[#14161f]">{s.name}</option>)}
                     </select>
                   </div>
 

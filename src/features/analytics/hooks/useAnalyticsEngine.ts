@@ -57,7 +57,7 @@ export function useAnalyticsEngine() {
       .map(([machineId, quantity]) => {
         const machine = machines.find(m => m.id === machineId);
         return {
-          name: machine ? machine.name : 'Unknown',
+          name: machine ? machine.referenceCode : 'Unknown',
           code: machine ? machine.referenceCode : 'N/A',
           quantity
         };

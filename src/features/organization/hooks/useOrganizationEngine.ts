@@ -8,6 +8,7 @@ import { organizationRepository } from '../repositories/OrganizationRepository';
 import { INDUSTRIAL_CATALOG } from '@/core/config/industrialGenetics';
 
 export interface EnrichedMachine extends Machine {
+  name: string; // Synthesized name for UI display
   sectorName: string;
   managerName?: string;
   blueprintReference: string;
@@ -26,6 +27,7 @@ const sectorSchema = z.object({
   description: z.string().optional(),
   managerName: z.string().optional(),
   preventiveTechId: z.string().optional(),
+  status: z.enum(['Active', 'Dormant']).optional()
 });
 
 const technicianSchema = z.object({
@@ -35,10 +37,13 @@ const technicianSchema = z.object({
 });
 
 const machineSchema = z.object({
-  name: z.string().min(2).max(100),
+  id: z.string().optional(),
   sectorId: z.string().min(1, 'Sector is required'),
   blueprintId: z.string().min(1, 'Blueprint is required'),
-  referenceCode: z.string().min(2).regex(/^[A-Z0-9-\s]+$/i, 'Alphanumeric and dashes only'),
+  referenceCode: z.string().min(2),
+  serialNumber: z.string().min(1, 'Serial Number is required'),
+  manufacturingYear: z.number().int().min(1900).max(2100),
+  status: z.enum(['Active', 'Standby', 'Maintenance']).default('Active'),
 });
 
 export function useOrganizationEngine() {
@@ -77,7 +82,8 @@ export function useOrganizationEngine() {
         blueprintReference: blueprintInfo?.reference || 'Unknown Model',
         templateName: templateInfo?.name || 'Unknown Template',
         skuBase: templateInfo?.skuBase || 'UNKNOWN',
-        familyName: familyName
+        familyName: familyName,
+        name: `${templateInfo?.name || 'Unknown'} [${m.referenceCode}]`
       };
     });
   }, [machines, sectors, blueprints, templates, families]);
@@ -94,8 +100,8 @@ export function useOrganizationEngine() {
   }, [technicians, sectors]);
 
   const createSector = async (name: string, description?: string, managerName?: string, preventiveTechId?: string) => {
-    const validated = validatePayload(sectorSchema, { name, description, managerName, preventiveTechId }, 'CREATE_SECTOR');
-    return organizationRepository.createSector(validated);
+    // We shouldn't use this. The form will just call updateSector on a dormant slot.
+    throw new Error('Use updateSector to activate dormant slots.');
   };
 
   const updateSector = async (id: string, updates: Partial<Sector>) => {
@@ -104,7 +110,8 @@ export function useOrganizationEngine() {
   };
 
   const deleteSector = async (id: string) => {
-    return organizationRepository.deleteSector(id);
+    // Actually deactivating
+    return organizationRepository.updateSector(id, { name: `Sector ${id.split('-')[1]}`, description: '', managerName: '', preventiveTechId: '', status: 'Dormant' });
   };
 
   const createTechnician = async (name: string, sectorId: string, specialty?: string) => {
@@ -121,8 +128,8 @@ export function useOrganizationEngine() {
     return organizationRepository.deleteTechnician(id);
   };
 
-  const createMachine = async (name: string, sectorId: string, blueprintId: string, referenceCode: string) => {
-    const payload = { name, sectorId, blueprintId, referenceCode };
+  const createMachine = async (id: string, sectorId: string, blueprintId: string, referenceCode: string, serialNumber: string, manufacturingYear: number) => {
+    const payload = { id, sectorId, blueprintId, referenceCode, serialNumber, manufacturingYear, status: 'Active' as const };
     const validated = validatePayload(machineSchema, payload, 'CREATE_MACHINE');
     return organizationRepository.createMachine(validated);
   };

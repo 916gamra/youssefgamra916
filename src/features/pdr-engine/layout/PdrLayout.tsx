@@ -13,11 +13,13 @@ import { ProcurementView } from '@/features/procurement/views/ProcurementView';
 import { RequisitionHubView } from '@/features/requisition/views/RequisitionHubView';
 import { AdvancedInventoryDashboard } from '../views/AdvancedInventoryDashboard';
 import { ReconciliationCenterView } from '../views/ReconciliationCenterView';
-import { Activity, Wrench } from 'lucide-react';
+import { ComponentCatalogView } from '../views/ComponentCatalogView';
+import { Activity, Wrench, Sparkles } from 'lucide-react';
 
 const PDR_COMPONENTS = {
   'pdr-dashboard': StockDashboardPage,
   'inventory-list': PdrLibraryPage,
+  'component-catalog': ComponentCatalogView,
   'part-detail': PartDetail,
   'procurement': ProcurementView,
   'requisition-hub': RequisitionHubView,
@@ -52,6 +54,12 @@ export function PdrLayout({ user, onLogout }: { user: User | null, onLogout: () 
           isActive={activeTabId === 'dashboard'} 
           onClick={() => openTab({ id: 'dashboard', portalId: 'PDR', title: 'Stock Radar', component: 'pdr-dashboard' })}
           title="Stock Radar"
+        />
+        <PortalSidebarItem 
+          icon={<Sparkles />} 
+          isActive={activeTabId === 'component-catalog'} 
+          onClick={() => openTab({ id: 'component-catalog', portalId: 'PDR', title: 'Engineering Catalog', component: 'component-catalog' })}
+          title="Engineering Catalog"
         />
         <PortalSidebarItem 
           icon={<Activity />} 

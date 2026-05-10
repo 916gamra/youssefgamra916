@@ -91,7 +91,7 @@ export function DataExchangeView() {
     existingSectors.forEach(s => dbSectorsMap.set(s.name.toUpperCase(), s.id));
     
     const dbMachinesSet = new Set<string>(); // sectorId_machineName
-    existingMachines.forEach(m => dbMachinesSet.add(`${m.sectorId}_${m.name.toUpperCase()}`));
+    existingMachines.forEach(m => dbMachinesSet.add(`${m.sectorId}_${m.referenceCode.toUpperCase()}`));
 
     const newSectorsToInsert = new Map<string, any>(); // name -> object
     const newMachinesToInsert: any[] = [];
@@ -124,9 +124,8 @@ export function DataExchangeView() {
 
       newMachinesToInsert.push({
         id: crypto.randomUUID(),
-        name: machineName,
+        referenceCode: code || machineName, // use code or name
         sectorId: sectorId,
-        referenceCode: code,
         family: family,
         template: 'Standard'
       });

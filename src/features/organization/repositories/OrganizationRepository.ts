@@ -13,7 +13,7 @@ export interface IOrganizationRepository {
   deleteTechnician(id: string): Promise<void>;
 
   getAllMachines(): Promise<Machine[]>;
-  createMachine(machine: Omit<Machine, 'id'>): Promise<string>;
+  createMachine(machine: Omit<Machine, 'id'> | Machine): Promise<string>;
   updateMachine(id: string, updates: Partial<Machine>): Promise<void>;
   deleteMachine(id: string): Promise<void>;
 }
@@ -103,9 +103,9 @@ export class OrganizationRepository implements IOrganizationRepository {
     return PerformanceMonitor.measure('OrganizationRepo.getAllMachines', () => db.machines.toArray());
   }
 
-  async createMachine(machine: Omit<Machine, 'id'>): Promise<string> {
+  async createMachine(machine: Omit<Machine, 'id'> | Machine): Promise<string> {
     return PerformanceMonitor.measure('OrganizationRepo.createMachine', async () => {
-      const id = crypto.randomUUID();
+      const id = 'id' in machine && machine.id ? machine.id : crypto.randomUUID();
       await db.transaction('rw', [db.machines, db.sectors, db.auditLogs], async () => {
         const sector = await db.sectors.get(machine.sectorId);
         if (!sector) throw new Error('Sector not found.');
@@ -113,7 +113,7 @@ export class OrganizationRepository implements IOrganizationRepository {
         const existingCode = await db.machines.where('referenceCode').equals(machine.referenceCode).first();
         if (existingCode) throw new Error('Machine Code already exists.');
 
-        await db.machines.add({ id, ...machine });
+        await db.machines.add({ ...machine, id });
         logger.info({ action: 'CREATE_MACHINE', entityType: 'MACHINE', entityId: id, details: machine });
       });
       return id;

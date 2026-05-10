@@ -66,7 +66,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
         entityType: 'PM_SCHEDULE',
         entityId: newSchedule.id,
         details: { 
-          machineName: machines?.find(m => m.id === machineId)?.name,
+          machineName: machines?.find(m => m.id === machineId)?.referenceCode,
           checklistName: checklists?.find(c => c.id === checklistId)?.name,
           frequency: frequencyDays
         },
@@ -172,7 +172,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
     }
   };
 
-  const getMachineName = (id: string) => machines?.find(m => m.id === id)?.name || 'Unknown Machine';
+  const getMachineName = (id: string) => machines?.find(m => m.id === id)?.referenceCode || 'Unknown Machine';
   const getChecklistName = (id: string) => checklists?.find(c => c.id === id)?.name || 'Unknown Protocol';
 
   const isDataReady = (machines?.length ?? 0) > 0 && (checklists?.length ?? 0) > 0;
@@ -239,7 +239,7 @@ export function SchedulesView({ user }: SchedulesViewProps) {
                       className="w-full titan-input py-3 !bg-black/40"
                     >
                       <option value="" disabled>Select target system...</option>
-                      {machines?.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                      {machines?.map(m => <option key={m.id} value={m.id}>{m.referenceCode}</option>)}
                     </select>
                   </div>
                   

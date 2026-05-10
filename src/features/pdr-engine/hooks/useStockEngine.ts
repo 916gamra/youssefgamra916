@@ -44,11 +44,16 @@ export function useStockEngine() {
   const lowStockItems = useMemo(() => enrichedInventory.filter(item => item.isLowStock), [enrichedInventory]);
   const outOfStockItems = useMemo(() => enrichedInventory.filter(item => item.isOutOfStock), [enrichedInventory]);
 
+  const addStock = async (item: Omit<StockItem, 'id' | 'updatedAt'>) => {
+    return (await import('../repositories/InventoryRepository')).inventoryRepository.create(item);
+  };
+
   return {
     inventory: enrichedInventory,
     movements: movements || [],
     lowStockItems,
     outOfStockItems,
-    isLoading
+    isLoading,
+    addStock
   };
 }

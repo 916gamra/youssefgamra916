@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Network, Plus, Trash2, Edit3, Save, X, Search, Activity, Users, Cpu } from 'lucide-react';
 import { useOrganizationEngine } from '../hooks/useOrganizationEngine';
+import { useAuthSlots } from '@/features/auth/hooks/useAuthSlots';
 import { useNotifications } from '@/shared/hooks/useNotifications';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { cn } from '@/shared/utils';
@@ -17,7 +18,10 @@ const itemVariants = {
 };
 
 export function SectorRegistryView() {
-  const { sectors, machines, technicians, createSector, updateSector, deleteSector } = useOrganizationEngine();
+  const { sectors, machines, createSector, updateSector, deleteSector } = useOrganizationEngine();
+  const allStaff = useAuthSlots();
+  const activeTechnicians = allStaff.filter(s => s.isActive && (s.id.startsWith('TC') || s.id.startsWith('OP')));
+  
   const { showSuccess, showError } = useNotifications();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,7 +34,11 @@ export function SectorRegistryView() {
   const [managerName, setManagerName] = useState('');
   const [preventiveTechId, setPreventiveTechId] = useState('');
 
-  const filteredSectors = sectors.filter(s => 
+  const activeSectors = sectors.filter(s => s.status === 'Active');
+  const availableSlots = sectors.filter(s => s.status === 'Dormant');
+  const availableSlot = availableSlots.length > 0 ? availableSlots[0] : null;
+
+  const filteredSectors = activeSectors.filter(s => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
     (s.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (s.managerName || '').toLowerCase().includes(searchTerm.toLowerCase())
@@ -44,8 +52,11 @@ export function SectorRegistryView() {
         await updateSector(editingId, { name, description, managerName, preventiveTechId });
         showSuccess('Zone Updated', `${name} parameters adjusted.`);
       } else {
-        await createSector(name, description, managerName, preventiveTechId);
-        showSuccess('Zone Initialized', `${name} is active.`);
+        if (!availableSlot) {
+            throw new Error('All 15 Sector lots are already active.');
+        }
+        await updateSector(availableSlot.id, { name, description, managerName, preventiveTechId, status: 'Active' });
+        showSuccess('Zone Activated', `${name} is active.`);
       }
       handleCancel();
     } catch (err: any) {
@@ -64,10 +75,9 @@ export function SectorRegistryView() {
 
   const handleDelete = async (id: string, name: string) => {
     const hasMachines = machines.some(m => m.sectorId === id);
-    const hasTechs = technicians.some(t => t.sectorId === id);
     
-    if (hasMachines || hasTechs) {
-      showError('Constraint Violation', 'Cannot delete zone containing active machines or personnel. Reassign them first.');
+    if (hasMachines) {
+      showError('Constraint Violation', 'Cannot delete zone containing active machines. Reassign them first.');
       return;
     }
 
@@ -106,9 +116,10 @@ export function SectorRegistryView() {
         </div>
         
         <div className="flex flex-wrap items-center gap-3">
-          <StatCompact icon={<Network className="w-4 h-4 text-indigo-500" />} label="Zones" value={sectors.length.toString()} />
+          <StatCompact icon={<Network className="w-4 h-4 text-indigo-500" />} label="Active Zones" value={activeSectors.length.toString()} />
+          <StatCompact icon={<Network className="w-4 h-4 text-slate-500" />} label="Dormant Slots" value={availableSlots.length.toString()} />
           <StatCompact icon={<Cpu className="w-4 h-4 text-cyan-500" />} label="Machines" value={machines.length.toString()} />
-          <StatCompact icon={<Users className="w-4 h-4 text-emerald-500" />} label="Personnel" value={technicians.length.toString()} />
+          <StatCompact icon={<Users className="w-4 h-4 text-emerald-500" />} label="Personnel" value={activeTechnicians.length.toString()} />
         </div>
       </motion.header>
       
@@ -155,7 +166,7 @@ export function SectorRegistryView() {
               <div className="p-8 relative">
                 <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent" />
                 <h2 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-indigo-400" /> {editingId ? 'Reconfigure Zone Parameters' : 'Deploy New Zone'}
+                  <Activity className="w-4 h-4 text-indigo-400" /> {editingId ? `Reconfigure ${editingId}` : `Activate Slot [${availableSlot?.id}]`}
                 </h2>
                 
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -192,8 +203,8 @@ export function SectorRegistryView() {
                         className="titan-input py-3 appearance-none"
                       >
                         <option value="">No specific technician (Generalist Pool)</option>
-                        {technicians.filter(t => t.sectorId === editingId || !editingId).map(t => (
-                          <option key={t.id} value={t.id}>{t.name} ({t.specialty || 'Generalist'})</option>
+                        {activeTechnicians.map(t => (
+                          <option key={t.id} value={t.id}>{t.name} ({t.role || 'Generalist'})</option>
                         ))}
                       </select>
                     </div>
@@ -232,7 +243,7 @@ export function SectorRegistryView() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <AnimatePresence mode="popLayout">
                 {filteredSectors.map((sector) => {
-                  const zoneTechs = technicians.filter(t => t.sectorId === sector.id).length;
+                  const zoneTechs = activeTechnicians.filter(t => t.id === sector.preventiveTechId).length;
                   const zoneMachines = machines.filter(m => m.sectorId === sector.id).length;
                   
                   return (

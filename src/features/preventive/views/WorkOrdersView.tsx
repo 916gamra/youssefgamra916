@@ -104,7 +104,7 @@ export function WorkOrdersView({ user }: WorkOrdersViewProps) {
     }
   };
 
-  const getMachineName = (id: string) => machines?.find(m => m.id === id)?.name || 'Unknown Machine';
+  const getMachineName = (id: string) => machines?.find(m => m.id === id)?.referenceCode || 'Unknown Machine';
   const getChecklistName = (id: string) => checklists?.find(c => c.id === id)?.name || 'Unknown Protocol';
 
   const pendingOrders = workOrders?.filter(o => o.status === 'PENDING' || o.status === 'IN_PROGRESS') || [];

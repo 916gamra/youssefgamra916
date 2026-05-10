@@ -25,7 +25,8 @@ export const SY_ADMIN_SLOT: AuthSlot = {
 
 // 2. Level: Operational (Global State Modifiers)
 export const OPERATIONAL_SLOTS: AuthSlot[] = Array.from({ length: 5 }, (_, i) => {
-  const ID = `OP-0000${i + 1}`;
+  const numStr = (i + 1).toString().padStart(2, '0');
+  const ID = `OP-${numStr}`;
   return {
     id: ID,
     type: 'OPERATIONAL',
@@ -41,7 +42,7 @@ export const OPERATIONAL_SLOTS: AuthSlot[] = Array.from({ length: 5 }, (_, i) =>
 
 // 3. Level: Technicians (Execution level, tracked with Badge)
 export const TECHNICIAN_SLOTS: AuthSlot[] = Array.from({ length: 10 }, (_, i) => {
-  const numStr = (i + 1).toString().padStart(5, '0');
+  const numStr = (i + 1).toString().padStart(2, '0');
   const ID = `TC-${numStr}`;
   return {
     id: ID,

@@ -92,15 +92,16 @@ export function MachineModals({ activeModal, onClose, families, templates, bluep
         toast.success('Machine Template created');
       } else if (activeModal === 'blueprint') {
         if (!formData.templateId || !formData.reference) throw new Error('Missing required fields');
-        if (!formData.model || !formData.powerOrForce || !formData.technicalSpecs) throw new Error('Model, Power/Force and Technical Specifications are mandatory for Blueprints.');
+        if (!formData.brand || !formData.model || !formData.powerOrForce || !formData.energySource) throw new Error('Brand, Model, Power/Force and Energy Source are mandatory for Blueprints.');
 
         await db.machineBlueprints.add({
           id: formData.id,
           templateId: formData.templateId,
           reference: formData.reference,
+          brand: formData.brand,
           model: formData.model,
           powerOrForce: formData.powerOrForce,
-          technicalSpecs: formData.technicalSpecs,
+          energySource: formData.energySource,
           createdAt,
         });
         await logEvent({
@@ -369,18 +370,31 @@ export function MachineModals({ activeModal, onClose, families, templates, bluep
                          </div>
                          
                          <div className="grid grid-cols-1 gap-4">
-                           <div>
-                             <label className="titan-label">Model Name / Designation</label>
-                             <input type="text" required value={formData.model || ''} onChange={e => setFormData({ ...formData, model: e.target.value })} className="titan-input text-xs" placeholder="e.g., Heavy Duty X1" />
+                           <div className="grid grid-cols-2 gap-4">
+                             <div>
+                               <label className="titan-label">Brand / Constructeur</label>
+                               <input type="text" required value={formData.brand || ''} onChange={e => setFormData({ ...formData, brand: e.target.value })} className="titan-input text-xs" placeholder="e.g., Siemens, Atlas Copco" />
+                             </div>
+                             <div>
+                               <label className="titan-label">Manufacturer Model</label>
+                               <input type="text" required value={formData.model || ''} onChange={e => setFormData({ ...formData, model: e.target.value })} className="titan-input text-xs" placeholder="e.g., G11FF" />
+                             </div>
                            </div>
                            <div className="grid grid-cols-2 gap-4">
                              <div>
-                               <label className="titan-label">Power / Force / Size</label>
-                               <input type="text" required value={formData.powerOrForce || ''} onChange={e => setFormData({ ...formData, powerOrForce: e.target.value })} className="titan-input text-xs" placeholder="e.g., 15kW, 400T" />
+                               <label className="titan-label">Main Power (Value)</label>
+                               <input type="text" required value={formData.powerOrForce || ''} onChange={e => setFormData({ ...formData, powerOrForce: e.target.value })} className="titan-input text-xs" placeholder="e.g., 50 Tonnes, 15 kW" />
                              </div>
                              <div>
-                               <label className="titan-label">Technical Specs</label>
-                               <input type="text" required value={formData.technicalSpecs || ''} onChange={e => setFormData({ ...formData, technicalSpecs: e.target.value })} className="titan-input text-xs" placeholder="e.g., 400V 3Ph 50Hz" />
+                               <label className="titan-label">Energy Source</label>
+                               <select required value={formData.energySource || ''} onChange={e => setFormData({ ...formData, energySource: e.target.value })} className="titan-input text-xs appearance-none">
+                                 <option value="" disabled>Select Energy...</option>
+                                 <option value="380V">380V (Triphase)</option>
+                                 <option value="220V">220V (Monophase)</option>
+                                 <option value="Pneumatic">Pneumatic</option>
+                                 <option value="Hydraulic">Hydraulic</option>
+                                 <option value="Mixed">Mixed</option>
+                               </select>
                              </div>
                            </div>
                          </div>
