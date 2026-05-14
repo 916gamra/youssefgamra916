@@ -20,7 +20,7 @@ const itemVariants = {
 };
 
 export function MachineRegistryView() {
-  const { machines, sectors, families, createMachine, updateMachine, deleteMachine } = useOrganizationEngine();
+  const { machines, sectors, technicians, families, createMachine, updateMachine, deleteMachine } = useOrganizationEngine();
   const { blueprints, templates } = useMachineLibrary();
   const { showSuccess, showError } = useNotifications();
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +35,7 @@ export function MachineRegistryView() {
   const [serialNumber, setSerialNumber] = useState('');
   const [manufacturingYear, setManufacturingYear] = useState<number>(new Date().getFullYear());
   const [sectorId, setSectorId] = useState('');
+  const [technicianId, setTechnicianId] = useState('');
   const [blueprintId, setBlueprintId] = useState('');
   const [activeSlot, setActiveSlot] = useState<AssetSlot | null>(null);
 
@@ -74,17 +75,17 @@ export function MachineRegistryView() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!serialNumber || !referenceCode || !sectorId || !blueprintId) return;
+    if (!serialNumber || !referenceCode || !sectorId || !technicianId || !blueprintId) return;
     
     try {
       if (editingId) {
-        await updateMachine(editingId, { serialNumber, manufacturingYear, sectorId, blueprintId, referenceCode });
+        await updateMachine(editingId, { serialNumber, manufacturingYear, sectorId, technicianId, blueprintId, referenceCode });
         showSuccess('Machine Updated', `Digital twin updated.`);
       } else {
          if (!activeSlot) {
             throw new Error('No physical slot available for this blueprint.');
          }
-        await createMachine(activeSlot.id, sectorId, blueprintId, referenceCode, serialNumber, manufacturingYear);
+        await createMachine(activeSlot.id, sectorId, technicianId, blueprintId, referenceCode, serialNumber, manufacturingYear);
         showSuccess('Machine Created', `${referenceCode} added to the registry.`);
       }
       
@@ -100,6 +101,7 @@ export function MachineRegistryView() {
     setManufacturingYear(machine.manufacturingYear);
     setReferenceCode(machine.referenceCode);
     setSectorId(machine.sectorId);
+    setTechnicianId(machine.technicianId || '');
     setBlueprintId(machine.blueprintId);
     setIsModalOpen(true);
   };
@@ -117,6 +119,7 @@ export function MachineRegistryView() {
     setManufacturingYear(new Date().getFullYear());
     setReferenceCode('');
     setSectorId('');
+    setTechnicianId('');
     setBlueprintId('');
     setActiveSlot(null);
     setIsModalOpen(false);
@@ -391,15 +394,28 @@ export function MachineRegistryView() {
                     </div>
                   )}
 
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Operational Sector</label>
-                    <select
-                      required value={sectorId} onChange={e => setSectorId(e.target.value)}
-                      className="titan-input appearance-none transition-all cursor-pointer py-3"
-                    >
-                      <option value="" disabled className="bg-[#14161f]">Select primary sector...</option>
-                      {sectors.filter(s => s.status === 'Active').map(s => <option key={s.id} value={s.id} className="bg-[#14161f]">{s.name}</option>)}
-                    </select>
+                  <div className="grid grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">Operational Sector</label>
+                      <select
+                        required value={sectorId} onChange={e => setSectorId(e.target.value)}
+                        className="titan-input appearance-none transition-all cursor-pointer py-3"
+                      >
+                        <option value="" disabled className="bg-[#14161f]">Select primary sector...</option>
+                        {sectors.filter(s => s.status === 'Active').map(s => <option key={s.id} value={s.id} className="bg-[#14161f]">{s.name}</option>)}
+                      </select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase font-bold text-slate-400 tracking-widest ml-1">PM Technician Owner</label>
+                      <select
+                        required value={technicianId} onChange={e => setTechnicianId(e.target.value)}
+                        className="titan-input appearance-none transition-all cursor-pointer py-3"
+                      >
+                        <option value="" disabled className="bg-[#14161f]">Select responsible tech...</option>
+                        {technicians.map(t => <option key={t.id} value={t.id} className="bg-[#14161f]">{t.name}</option>)}
+                      </select>
+                    </div>
                   </div>
 
                   <div className="pt-6 flex justify-end gap-3">

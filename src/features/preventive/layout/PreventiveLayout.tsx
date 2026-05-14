@@ -6,16 +6,14 @@ import { PortalSidebar } from '@/app/layout/PortalSidebar';
 import { PortalSidebarItem } from '@/shared/components/PortalSidebarItem';
 import type { User } from '@/core/db';
 
-import { PreventiveDashboard } from '../views/PreventiveDashboard';
-import { ChecklistsView } from '../views/ChecklistsView';
-import { SchedulesView } from '../views/SchedulesView';
-import { WorkOrdersView } from '../views/WorkOrdersView';
+import { PreventiveRadarView } from '../views/PreventiveRadarView';
+import { TaskCatalogView } from '../views/TaskCatalogView';
+import { MachineRegistryView } from '../views/MachineRegistryView';
 
 const PREVENTIVE_COMPONENTS = {
-  'pm-dashboard': PreventiveDashboard,
-  'pm-checklists': ChecklistsView,
-  'pm-schedules': SchedulesView,
-  'pm-work-orders': WorkOrdersView,
+  'pm-radar': PreventiveRadarView,
+  'pm-task-catalog': TaskCatalogView,
+  'pm-machine-registry': MachineRegistryView,
 };
 
 export function PreventiveLayout({ user, onLogout }: { user: User | null, onLogout: () => void }) {
@@ -26,7 +24,7 @@ export function PreventiveLayout({ user, onLogout }: { user: User | null, onLogo
 
   useEffect(() => {
     if (!currentTab) {
-      openTab({ id: 'pm-dashboard', portalId: 'PREVENTIVE', title: 'Maintenance KPI', component: 'pm-dashboard' });
+      openTab({ id: 'pm-radar', portalId: 'PREVENTIVE', title: 'Preventive Radar', component: 'pm-radar' });
     }
   }, [currentTab, openTab]);
 
@@ -41,30 +39,23 @@ export function PreventiveLayout({ user, onLogout }: { user: User | null, onLogo
       >
         <PortalSidebarItem 
           icon={<LayoutDashboard />} 
-          isActive={activeTabId === 'pm-dashboard'} 
-          onClick={() => openTab({ id: 'pm-dashboard', portalId: 'PREVENTIVE', title: 'Maintenance KPI', component: 'pm-dashboard' })}
-          title="Maintenance KPI"
+          isActive={activeTabId === 'pm-radar'} 
+          onClick={() => openTab({ id: 'pm-radar', portalId: 'PREVENTIVE', title: 'Preventive Radar', component: 'pm-radar' })}
+          title="Preventive Radar"
           colorClass="text-emerald-400"
         />
         <PortalSidebarItem 
           icon={<KanbanSquare />} 
-          isActive={activeTabId === 'pm-checklists'} 
-          onClick={() => openTab({ id: 'pm-checklists', portalId: 'PREVENTIVE', title: 'Standard Protocols', component: 'pm-checklists' })}
-          title="Protocols Lib"
+          isActive={activeTabId === 'pm-task-catalog'} 
+          onClick={() => openTab({ id: 'pm-task-catalog', portalId: 'PREVENTIVE', title: 'Tasks Catalog', component: 'pm-task-catalog' })}
+          title="Tasks Catalog"
           colorClass="text-emerald-400"
         />
         <PortalSidebarItem 
           icon={<CalendarClock />} 
-          isActive={activeTabId === 'pm-schedules'} 
-          onClick={() => openTab({ id: 'pm-schedules', portalId: 'PREVENTIVE', title: 'PM Schedules', component: 'pm-schedules' })}
-          title="PM Scheduler"
-          colorClass="text-emerald-400"
-        />
-        <PortalSidebarItem 
-          icon={<HardHat />} 
-          isActive={activeTabId === 'pm-work-orders'} 
-          onClick={() => openTab({ id: 'pm-work-orders', portalId: 'PREVENTIVE', title: 'Work Orders', component: 'pm-work-orders' })}
-          title="Work Orders"
+          isActive={activeTabId === 'pm-machine-registry'} 
+          onClick={() => openTab({ id: 'pm-machine-registry', portalId: 'PREVENTIVE', title: 'Machine Registry', component: 'pm-machine-registry' })}
+          title="Machine Registry"
           colorClass="text-emerald-400"
         />
       </PortalSidebar>

@@ -102,7 +102,7 @@ export function LaunchpadView({ user }: { user: User | null }) {
     const [invCount, machinesCount, pendingOrders, usersCount] = await Promise.all([
       db.inventory.count(),
       db.machines.count(),
-      db.pmWorkOrders.where('status').equals('PENDING').count(),
+      db.taskExecutions.where('status').equals('PENDING').count(),
       db.userOverrides.count()
     ]);
     return { invCount, machinesCount, pendingOrders, usersCount };

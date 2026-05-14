@@ -135,6 +135,7 @@ export interface Machine {
   serialNumber: string; // Physical serial number
   manufacturingYear: number;
   sectorId: string; // Foreign Key to Sector
+  technicianId?: string; // Foreign Key to Technician for monthly sweep
   status: 'Active' | 'Standby' | 'Maintenance';
 }
 
@@ -162,47 +163,55 @@ export interface PartRequisitionLine {
   quantity: number;
 }
 
-// --- 5. Domain Interfaces (Preventive Maintenance Engine) ---
+// --- 5. Domain Interfaces (Preventive Maintenance Engine - Inheritance Pattern) ---
 
-export interface PmChecklist {
+export type TaskFamily = 'MEC' | 'ELE' | 'HYD' | 'PNU' | 'ELN';
+export type TaskFrequencyType = 'TIME' | 'COUNTER';
+
+// The "Knowledge Base" Task Definition
+export interface PreventiveTask {
   id: string; // UUID
-  name: string;
-  description?: string;
-  targetMachineFamily?: string; // Optional: restrict this checklist to a specific family of machines
+  title: string;
+  family: TaskFamily;
+  targetTemplateId?: string; // Optional link to a PdrTemplate (e.g. 'Hydraulic Pump' template)
+  frequencyType: TaskFrequencyType;
+  frequencyValue: number; // e.g. 30 (days) or 10000 (cycles)
+  linkedBlueprintIds: string[]; // Linked PdrBlueprints required for this task (e.g. specific filters/oil)
   createdAt: string;
 }
 
-export interface PmTask {
+// Tasks assigned to a Machine Blueprint (Model Inheritance)
+export interface BlueprintTask {
   id: string; // UUID
-  checklistId: string; // Foreign Key to PmChecklist
-  order: number; // For sorting tasks logically
-  taskDescription: string;
-  isCritical: boolean; // Must pass or work order fails
-  requiredPartTemplateId?: string; // Optional: link to a PDR Template if parts are usually consumed
+  machineBlueprintId: string; // Foreign Key to MachineBlueprint
+  taskId: string; // Foreign Key to PreventiveTask
+  isEnabled: boolean; // default true
+  addedAt: string;
 }
 
-export interface PmSchedule {
+// Tasks assigned or overridden on a specific Machine Instance
+export interface MachineTask {
   id: string; // UUID
   machineId: string; // Foreign Key to Machine
-  checklistId: string; // Foreign Key to PmChecklist
-  frequencyDays: number; // e.g., 30 for monthly, 7 for weekly
-  lastPerformedAt?: string;
-  nextDueDate: string;
-  isActive: boolean;
+  taskId: string; // Foreign Key to PreventiveTask
+  isInherited: boolean; // true if it cascaded from BlueprintTask
+  isEnabled: boolean; // allow toggling inherited tasks for a specific unit
+  addedAt: string;
 }
 
 export type WorkOrderStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'MISSED';
 
-export interface PmWorkOrder {
+// Log of task executions
+export interface TaskExecution {
   id: string; // UUID
-  scheduleId?: string; // If generated from a schedule
-  machineId: string; 
-  checklistId: string;
-  technicianId?: string; // Assigned to or claimed by
+  machineId: string;
+  taskId: string;
   status: WorkOrderStatus;
   scheduledDate: string;
-  completedDate?: string;
+  executedAt?: string;
+  doneBy?: string; // Technician ID
   notes?: string;
+  durationMinutes?: number;
 }
 
 export interface UserOverride {
@@ -277,10 +286,10 @@ export class GmaoDatabase extends Dexie {
   partRequisitionLines!: Table<PartRequisitionLine, string>;
 
   // Preventive Maintenance Tables
-  pmChecklists!: Table<PmChecklist, string>;
-  pmTasks!: Table<PmTask, string>;
-  pmSchedules!: Table<PmSchedule, string>;
-  pmWorkOrders!: Table<PmWorkOrder, string>;
+  preventiveTasks!: Table<PreventiveTask, string>;
+  blueprintTasks!: Table<BlueprintTask, string>;
+  machineTasks!: Table<MachineTask, string>;
+  taskExecutions!: Table<TaskExecution, string>;
 
   // System Tables
   userOverrides!: Table<UserOverride, string>;
@@ -293,8 +302,8 @@ export class GmaoDatabase extends Dexie {
   constructor() {
     super('CIOB_GMAO_DB');
     
-    // Schema Version 13 (Added userOverrides)
-    this.version(13).stores({
+    // Schema Version 14 (Preventive Maintenance Inheritance Update)
+    this.version(14).stores({
       pdrFamilies: 'id, name',
       pdrTemplates: 'id, familyId, name, skuBase',
       pdrBlueprints: 'id, templateId, reference',
@@ -307,14 +316,14 @@ export class GmaoDatabase extends Dexie {
       purchaseOrderLines: 'id, orderId, blueprintId',
       sectors: 'id, name',
       technicians: 'id, name, sectorId',
-      machines: 'id, name, sectorId',
+      machines: 'id, blueprintId, sectorId, technicianId',
       machinePartMappings: 'id, machineId, blueprintId',
       partRequisitions: 'id, technicianId, machineId, status, requestDate',
       partRequisitionLines: 'id, requisitionId, blueprintId',
-      pmChecklists: 'id, name',
-      pmTasks: 'id, checklistId, order',
-      pmSchedules: 'id, machineId, checklistId, nextDueDate, isActive',
-      pmWorkOrders: 'id, machineId, technicianId, status, scheduledDate',
+      preventiveTasks: 'id, family, targetTemplateId',
+      blueprintTasks: 'id, machineBlueprintId, taskId',
+      machineTasks: 'id, machineId, taskId',
+      taskExecutions: 'id, machineId, taskId, status, scheduledDate',
       userOverrides: 'id, isActive, realBadgeId',
       auditLogs: 'id, userId, action, entityType, timestamp, severity',
       excelTemplates: 'id, portalId, name',

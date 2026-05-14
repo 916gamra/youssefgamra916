@@ -43,12 +43,32 @@ export function ComponentCatalogView() {
   const { inventory, addStock } = useStockEngine();
 
   const filteredFamilies = useMemo(() => {
-    return PDR_FAMILIES.filter(f => 
-      (selectedFamily === null || f.id === selectedFamily) &&
-      (f.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-       PDR_TEMPLATES.some(t => t.familyId === f.id && t.name.toLowerCase().includes(searchTerm.toLowerCase())))
-    );
-  }, [searchTerm, selectedFamily]);
+    if (!searchTerm) {
+      return PDR_FAMILIES.filter(f => selectedFamily === null || f.id === selectedFamily);
+    }
+    
+    const term = searchTerm.toLowerCase();
+    
+    // Find blueprints that match the search term
+    const matchedTemplates = new Set<string>();
+    blueprints.forEach(bp => {
+      if (bp.id.toLowerCase().includes(term) || bp.reference.toLowerCase().includes(term)) {
+        matchedTemplates.add(bp.templateId);
+      }
+    });
+
+    return PDR_FAMILIES.filter(f => {
+      if (selectedFamily !== null && f.id !== selectedFamily) return false;
+      
+      const familyNameMatch = f.name.toLowerCase().includes(term);
+      const templateMatch = PDR_TEMPLATES.some(t => 
+        t.familyId === f.id && 
+        (t.name.toLowerCase().includes(term) || t.code.toLowerCase().includes(term) || matchedTemplates.has(t.id))
+      );
+      
+      return familyNameMatch || templateMatch;
+    });
+  }, [searchTerm, selectedFamily, blueprints]);
 
   const toggleFamily = (id: string) => {
     setSelectedFamily(selectedFamily === id ? null : id);

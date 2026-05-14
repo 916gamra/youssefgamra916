@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { DownloadCloud, UploadCloud, Database, Users, Factory, Package, AlertTriangle, RefreshCw } from 'lucide-react';
+import { DownloadCloud, UploadCloud, Database, Users, Factory, Package, AlertTriangle, RefreshCw, HardDrive } from 'lucide-react';
 import ExcelJS from 'exceljs';
 import { db } from '@/core/db';
 import { toast } from 'sonner';
 import { measureOperation, logger } from '@/core/logger';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { motion } from 'motion/react';
+import { generatePdrSlotId } from '@/core/config/pdrMatrix';
+import { saveAs } from 'file-saver';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -166,10 +168,13 @@ export function DataExchangeView() {
      ]);
 
      const fMap = new Map<string, string>(); dbFamilies.forEach(f => fMap.set(f.name.toUpperCase(), f.id));
-     const tMap = new Map<string, string>(); dbTemplates.forEach(t => tMap.set(`${t.familyId}_${t.name.toUpperCase()}`, t.id));
+     const tMap = new Map<string, any>(); dbTemplates.forEach(t => tMap.set(`${t.familyId}_${t.name.toUpperCase()}`, t));
      const bpMap = new Map<string, any>(); dbBlueprints.forEach(b => bpMap.set(b.reference.toUpperCase(), b));
      const machineMap = new Map<string, string>(); dbMachines.forEach(m => machineMap.set(m.referenceCode?.toUpperCase() || '', m.id));
      const existingMappings = new Set(dbMappings.map(m => `${m.machineId}_${m.blueprintId}`));
+     
+     // 999 Slot Tracking
+     const existingBpIds = new Set(dbBlueprints.map(b => b.id));
 
      const newFamilies = new Map<string, any>();
      const newTemplates = new Map<string, any>();
@@ -208,13 +213,19 @@ export function DataExchangeView() {
 
         // Template resolution
         const tKey = `${familyId}_${templateRow.toUpperCase()}`;
-        let templateId = tMap.get(tKey);
-        if (!templateId) {
-           if (newTemplates.has(tKey)) templateId = newTemplates.get(tKey).id;
-           else {
-             templateId = crypto.randomUUID();
-             newTemplates.set(tKey, { id: templateId, familyId, name: templateRow, skuBase: templateRow.substring(0, 5).toUpperCase(), createdAt: new Date().toISOString() });
-           }
+        let templateId: string;
+        let templateCode: string;
+        
+        if (tMap.has(tKey)) {
+           templateId = tMap.get(tKey).id;
+           templateCode = tMap.get(tKey).skuBase || tMap.get(tKey).code || 'GEN';
+        } else if (newTemplates.has(tKey)) {
+           templateId = newTemplates.get(tKey).id;
+           templateCode = newTemplates.get(tKey).skuBase;
+        } else {
+           templateId = crypto.randomUUID();
+           templateCode = templateRow.substring(0, 5).toUpperCase().replace(/[^A-Z0-9]/g, '');
+           newTemplates.set(tKey, { id: templateId, familyId, name: templateRow, skuBase: templateCode, createdAt: new Date().toISOString() });
         }
 
         let blueprintId;
@@ -231,7 +242,23 @@ export function DataExchangeView() {
            });
            updatedRef++;
         } else {
-           blueprintId = crypto.randomUUID();
+           // Locate next 999 slot
+           let nextSlotIndex = 1;
+           while(nextSlotIndex <= 999) {
+             const candidateId = generatePdrSlotId(templateCode, nextSlotIndex);
+             if (!existingBpIds.has(candidateId)) {
+               blueprintId = candidateId;
+               break;
+             }
+             nextSlotIndex++;
+           }
+           
+           if (!blueprintId) {
+             throw new Error(`Master Catalog Overflow: Template ${templateCode} has exhausted all 999 available slots.`);
+           }
+
+           existingBpIds.add(blueprintId); // Locally mark slot as filled
+           
            newBlueprints.push({
              id: blueprintId,
              templateId,
@@ -429,6 +456,19 @@ export function DataExchangeView() {
     }
   ];
 
+  const handleSnapshotDownload = async () => {
+    setIsProcessing(true);
+    try {
+      const blob = await (db as any).export();
+      saveAs(blob, `BDR_Nexus_Snapshot_${new Date().toISOString().slice(0,10)}.json`);
+      toast.success("Snapshot Exported", { description: "You can load this offline or in Windows Electron." });
+    } catch(err: any) {
+       toast.error("Snapshot Failed", { description: err.message });
+    } finally {
+       setIsProcessing(false);
+    }
+  };
+
   return (
     <motion.div 
       variants={containerVariants}
@@ -447,6 +487,14 @@ export function DataExchangeView() {
             <strong> Note: You must upload the Master PDR Catalog before injecting Inventory.</strong>
           </p>
         </div>
+        
+        <button 
+          onClick={handleSnapshotDownload}
+          disabled={isProcessing}
+          className="px-5 py-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 font-bold uppercase tracking-widest text-xs flex items-center gap-2 hover:bg-blue-500/20 transition-all shadow-[0_0_15px_rgba(59,130,246,0.1)]"
+        >
+          <HardDrive className="w-5 h-5" /> Export DB Snapshot
+        </button>
       </motion.header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -45,7 +45,7 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
         db.machineFamilies, db.machineTemplates, db.machineBlueprints,
         db.pdrBlueprints, db.pdrTemplates, db.pdrFamilies, db.inventory, db.movements,
         db.purchaseOrders, db.purchaseOrderLines, db.partRequisitions, db.partRequisitionLines,
-        db.pmChecklists, db.pmTasks, db.pmSchedules, db.pmWorkOrders, db.auditLogs
+        db.preventiveTasks, db.blueprintTasks, db.machineTasks, db.taskExecutions, db.auditLogs
       ], async () => {
         await db.userOverrides.clear();
         await db.machines.clear();
@@ -63,10 +63,10 @@ export function SystemSettingsView({ user, onLogout }: { user: User | null, onLo
         await db.purchaseOrderLines.clear();
         await db.partRequisitions.clear();
         await db.partRequisitionLines.clear();
-        await db.pmChecklists.clear();
-        await db.pmTasks.clear();
-        await db.pmSchedules.clear();
-        await db.pmWorkOrders.clear();
+        await db.preventiveTasks.clear();
+        await db.blueprintTasks.clear();
+        await db.machineTasks.clear();
+        await db.taskExecutions.clear();
         await db.auditLogs.clear();
       });
 

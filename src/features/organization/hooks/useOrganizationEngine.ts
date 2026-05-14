@@ -39,6 +39,7 @@ const technicianSchema = z.object({
 const machineSchema = z.object({
   id: z.string().optional(),
   sectorId: z.string().min(1, 'Sector is required'),
+  technicianId: z.string().min(1, 'Technician Owner is required'),
   blueprintId: z.string().min(1, 'Blueprint is required'),
   referenceCode: z.string().min(2),
   serialNumber: z.string().min(1, 'Serial Number is required'),
@@ -128,8 +129,8 @@ export function useOrganizationEngine() {
     return organizationRepository.deleteTechnician(id);
   };
 
-  const createMachine = async (id: string, sectorId: string, blueprintId: string, referenceCode: string, serialNumber: string, manufacturingYear: number) => {
-    const payload = { id, sectorId, blueprintId, referenceCode, serialNumber, manufacturingYear, status: 'Active' as const };
+  const createMachine = async (id: string, sectorId: string, technicianId: string, blueprintId: string, referenceCode: string, serialNumber: string, manufacturingYear: number) => {
+    const payload = { id, sectorId, technicianId, blueprintId, referenceCode, serialNumber, manufacturingYear, status: 'Active' as const };
     const validated = validatePayload(machineSchema, payload, 'CREATE_MACHINE');
     return organizationRepository.createMachine(validated);
   };
