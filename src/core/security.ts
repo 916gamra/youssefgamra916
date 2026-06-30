@@ -101,12 +101,21 @@ export const sessionManager = {
       lastActivity: now
     };
     
+    if (typeof window !== 'undefined') {
+      (window as any)._currentUserId = userId;
+    }
+    
     activeSessionInMemory = session;
     return session;
   },
 
   validateSession(): Session | null {
-    if (!activeSessionInMemory) return null;
+    if (!activeSessionInMemory) {
+      if (typeof window !== 'undefined') {
+        (window as any)._currentUserId = undefined;
+      }
+      return null;
+    }
 
     try {
       const session = activeSessionInMemory;
@@ -114,6 +123,9 @@ export const sessionManager = {
 
       // Check if expired
       if (now > session.expiresAt) {
+        if (typeof window !== 'undefined') {
+          (window as any)._currentUserId = undefined;
+        }
         activeSessionInMemory = null;
         return null;
       }
@@ -130,6 +142,10 @@ export const sessionManager = {
       session.expiresAt = now + timeoutMinutes * 60 * 1000;
       activeSessionInMemory = session;
       
+      if (typeof window !== 'undefined') {
+        (window as any)._currentUserId = session.userId;
+      }
+      
       return session;
     } catch (e) {
       return null;
@@ -138,5 +154,8 @@ export const sessionManager = {
 
   destroySession() {
     activeSessionInMemory = null;
+    if (typeof window !== 'undefined') {
+      (window as any)._currentUserId = undefined;
+    }
   }
 };

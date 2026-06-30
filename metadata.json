@@ -1,6 +1,6 @@
 {
-  "name": "CIOB GMAO v17.0",
-  "description": "TITANIC OS: An industrial-grade maintenance & procurement OS featuring the Titan design system, offline-first PDR Engine, and Shield Ops PM module.",
+  "name": "BDR Nexus",
+  "description": "BDR Nexus: An industrial-grade maintenance & procurement OS featuring the Titan design system, offline-first PDR Engine, and Shield Ops PM module.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

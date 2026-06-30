@@ -2,11 +2,13 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { GlassCard } from '@/shared/components/GlassCard';
 import { getAssetMatrixForBlueprint, MAX_ASSETS_PER_BLUEPRINT, AssetSlot } from '@/core/config/assetMatrix';
-import { Factory, Cpu, Plus, X, Search, Activity, Box, Tag, Trash2, Edit3, Save, Wrench } from 'lucide-react';
+import { Factory, Cpu, Plus, X, Search, Activity, Box, Tag, Trash2, Edit3, Save, Wrench, QrCode, Upload } from 'lucide-react';
 import { useOrganizationEngine } from '../hooks/useOrganizationEngine';
 import { useMachineLibrary } from '../hooks/useMachineLibrary';
 import { useNotifications } from '@/shared/hooks/useNotifications';
 import { MachineBomModal } from '../components/MachineBomModal';
+import { MachineDigitalIdModal } from '../components/MachineDigitalIdModal';
+import { SmartImporterModal } from '../components/SmartImporterModal';
 import { cn } from '@/shared/utils';
 
 const containerVariants = {
@@ -27,8 +29,10 @@ export function MachineRegistryView() {
   const [filterSector, setFilterSector] = useState('ALL');
   const [filterTemplate, setFilterTemplate] = useState('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImporterOpen, setIsImporterOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedMachineForBom, setSelectedMachineForBom] = useState<{ id: string, name: string } | null>(null);
+  const [selectedMachineForQr, setSelectedMachineForQr] = useState<any | null>(null);
 
   // Form States
   const [referenceCode, setReferenceCode] = useState('');
@@ -196,6 +200,12 @@ export function MachineRegistryView() {
                 ))}
               </select>
               <button 
+                onClick={() => setIsImporterOpen(true)}
+                className="titan-button titan-button-outline text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 shrink-0 !py-2.5 gap-2"
+              >
+                 <Upload className="w-4 h-4" /> Smart Import
+              </button>
+              <button 
                 onClick={() => setIsModalOpen(true)}
                 className="titan-button titan-button-primary bg-indigo-500 hover:bg-indigo-400 text-white shadow-[0_0_15px_rgba(99,102,241,0.3)] shrink-0 !py-2.5"
               >
@@ -237,6 +247,13 @@ export function MachineRegistryView() {
                               {machine.referenceCode}
                             </span>
                             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 backdrop-blur-md border border-white/10 p-1 rounded-lg">
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); setSelectedMachineForQr(machine); }}
+                                className="p-1.5 rounded-md hover:bg-emerald-500/20 text-emerald-400 transition-colors"
+                                title="Digital ID & QR Card"
+                              >
+                                <QrCode className="w-3.5 h-3.5" />
+                              </button>
                               <button 
                                 onClick={(e) => { e.stopPropagation(); setSelectedMachineForBom({ id: machine.id, name: machine.name }); }}
                                 className="p-1.5 rounded-md hover:bg-indigo-500/20 text-indigo-400 transition-colors"
@@ -440,6 +457,21 @@ export function MachineRegistryView() {
             machineName={selectedMachineForBom.name}
             onClose={() => setSelectedMachineForBom(null)}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {selectedMachineForQr && (
+          <MachineDigitalIdModal
+            machine={selectedMachineForQr}
+            onClose={() => setSelectedMachineForQr(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isImporterOpen && (
+          <SmartImporterModal onClose={() => setIsImporterOpen(false)} />
         )}
       </AnimatePresence>
 

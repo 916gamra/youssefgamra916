@@ -36,6 +36,9 @@ export function runDatabaseSeed(force = false) {
            console.log('[DatabaseSeeder] DELETED OLD BAD MACHINES:', badIds);
         }
 
+        // Cleanup old bad families
+        await db.machineFamilies.bulkDelete(['fam-repoussage', 'fam-tournage', 'fam-trp']);
+
         const oldPdrBlueprints = await db.pdrBlueprints.toArray();
         const badPdrBlueprints = oldPdrBlueprints.filter(b => b.reference && b.reference.includes('-V1'));
         if (badPdrBlueprints.length > 0) {
@@ -47,14 +50,14 @@ export function runDatabaseSeed(force = false) {
         console.error('Cleanup error:', err);
       }
 
-      // Always force injection if force is true.
+       // Always force injection if force is true.
       if (force || machineCount === 0 || machineFamilyCount === 0 || pdrFamilyCount === 0) {
         console.log('[DatabaseSeeder] Enforcing master data synchronization...');
         
         await db.transaction('rw', [
           db.pdrFamilies, db.pdrTemplates, db.pdrBlueprints, 
           db.machineFamilies, db.machineTemplates, db.machineBlueprints,
-          db.sectors, db.machines
+          db.sectors, db.machines, db.standardActions, db.standardComponents
         ], async () => {
           // Inject/Update Master Data (Using bulkPut for idempotent sync)
           await db.pdrFamilies.bulkPut(INITIAL_DATA.pdrFamilies);
@@ -70,6 +73,37 @@ export function runDatabaseSeed(force = false) {
 
           if (INITIAL_DATA.machineBlueprints && INITIAL_DATA.machineBlueprints.length > 0) {
             await db.machineBlueprints.bulkPut(INITIAL_DATA.machineBlueprints);
+          }
+
+          // Seed default Actions Catalog if empty
+          const actionCount = await db.standardActions.count();
+          if (actionCount === 0) {
+            const defaultActions = [
+              { id: 'act-ctrl', name: 'Control (فحص ومراقبة)', type: 'PREV', description: 'Scheduled visual and physical operational status sweep', createdAt: new Date().toISOString() },
+              { id: 'act-clean', name: 'Cleaning (تنظيف وتطهير)', type: 'PREV', description: 'Removal of grease, dust, and industrial blockages', createdAt: new Date().toISOString() },
+              { id: 'act-lub', name: 'Lubrication (تزييت وتشحيم)', type: 'PREV', description: 'Ensuring fluid efficiency across moving metallic interfaces', createdAt: new Date().toISOString() },
+              { id: 'act-prev-rep', name: 'Preventive Replacement (استبدال دوري)', type: 'PREV', description: 'Model-scheduled swap-out of expiring elements', createdAt: new Date().toISOString() },
+              { id: 'act-repair', name: 'Repair (عملية إصلاح)', type: 'CORR', description: 'Restoration of defective component to optimal operational baseline', createdAt: new Date().toISOString() },
+              { id: 'act-emerg-rep', name: 'Emergency Replacement (استبدال طارئ)', type: 'CORR', description: 'Immediate reactive swap-out of fully ruptured organs', createdAt: new Date().toISOString() },
+              { id: 'act-trouble', name: 'Troubleshooting (تشخيص الأعطال)', type: 'CORR', description: 'Technical analysis and sequence diagnostics on mechanical faults', createdAt: new Date().toISOString() },
+              { id: 'act-adjust', name: 'Adjustment (ضبط ومعايرة)', type: 'BOTH', description: 'Fine-tuning of physical positioning, voltage thresholds, or hydraulic flow', createdAt: new Date().toISOString() },
+              { id: 'act-montage', name: 'Montage (تركيب وتجهيز)', type: 'BOTH', description: 'Initial or complete structural installation of components on machines', createdAt: new Date().toISOString() }
+            ];
+            await db.standardActions.bulkPut(defaultActions as any);
+          }
+
+          // Seed default Components if empty
+          const compCount = await db.standardComponents.count();
+          if (compCount === 0) {
+            const defaultComps = [
+              { id: 'comp-pump-hyd', name: 'Pompe Hydraulique (مضخة هيدروليكية)', family: 'HYD', taskIds: [], linkedPartTemplateIds: [], criticality: 'HIGH', createdAt: new Date().toISOString() },
+              { id: 'comp-mot-elec', name: 'Moteur Électrique (محرك كهربائي)', family: 'ELE', taskIds: [], linkedPartTemplateIds: [], criticality: 'HIGH', createdAt: new Date().toISOString() },
+              { id: 'comp-roulement', name: 'Roulement (محمل كروي)', family: 'MEC', taskIds: [], linkedPartTemplateIds: [], criticality: 'MEDIUM', createdAt: new Date().toISOString() },
+              { id: 'comp-v-belt', name: 'Courroie V-Belt (سير متحرك)', family: 'MEC', taskIds: [], linkedPartTemplateIds: [], criticality: 'LOW', createdAt: new Date().toISOString() },
+              { id: 'comp-distrib-hyd', name: 'Distributeur Hydraulique (موزع هيدروليكي)', family: 'HYD', taskIds: [], linkedPartTemplateIds: [], criticality: 'CRITICAL', createdAt: new Date().toISOString() },
+              { id: 'comp-disjoncteur', name: 'Disjoncteur (قاطع كهربائي)', family: 'ELE', taskIds: [], linkedPartTemplateIds: [], criticality: 'CRITICAL', createdAt: new Date().toISOString() }
+            ];
+            await db.standardComponents.bulkPut(defaultComps as any);
           }
         });
 

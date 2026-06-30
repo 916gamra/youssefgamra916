@@ -5,7 +5,7 @@ export interface AssetSlot {
   index: number;
 }
 
-export const MAX_ASSETS_PER_BLUEPRINT = 99;
+export const MAX_ASSETS_PER_BLUEPRINT = 999;
 
 export const getAssetMatrixForBlueprint = (blueprintId: string, blueprintReference: string): AssetSlot[] => {
   // Extract base prefix like "SAT1", "MP", etc. from blueprint reference

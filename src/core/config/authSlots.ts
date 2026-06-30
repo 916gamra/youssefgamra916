@@ -23,6 +23,19 @@ export const SY_ADMIN_SLOT: AuthSlot = {
   allowedPortals: ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS']
 };
 
+export const SYSTEM_ADMIN_SANDBOX_SLOT: AuthSlot = {
+  id: 'SYSTEM-ADMIN-SANDBOX',
+  type: 'SY_ADMIN',
+  name: 'System Admin Sandbox',
+  role: 'Super Sandbox Root (v17.5)',
+  initials: 'SX',
+  color: 'bg-gradient-to-r from-purple-600 via-indigo-600 to-indigo-700 border border-purple-400/30',
+  pin: '7777',
+  isSystemRoot: true,
+  isActive: true,
+  allowedPortals: ['PDR', 'PREVENTIVE', 'ORGANIZATION', 'FACTORY', 'ANALYTICS', 'SETTINGS']
+};
+
 // 2. Level: Operational (Global State Modifiers)
 export const OPERATIONAL_SLOTS: AuthSlot[] = Array.from({ length: 5 }, (_, i) => {
   const numStr = (i + 1).toString().padStart(2, '0');
@@ -60,6 +73,7 @@ export const TECHNICIAN_SLOTS: AuthSlot[] = Array.from({ length: 10 }, (_, i) =>
 
 export const ALL_HARDCODED_SLOTS: AuthSlot[] = [
   SY_ADMIN_SLOT,
+  SYSTEM_ADMIN_SANDBOX_SLOT,
   ...OPERATIONAL_SLOTS,
   ...TECHNICIAN_SLOTS
 ];

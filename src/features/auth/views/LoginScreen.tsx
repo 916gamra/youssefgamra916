@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, ChevronLeft, ShieldCheck, Fingerprint } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ShieldCheck, Fingerprint, TestTubeDiagonal } from 'lucide-react';
 import { cn } from '@/shared/utils';
 import { toast } from 'sonner';
 import { User } from '@/core/db';
@@ -29,7 +29,7 @@ const itemVariants = {
 
 export function LoginScreen() {
   const users = useActiveUsers();
-  const { login } = useAuthStore();
+  const { login, loginSandbox } = useAuthStore();
   const { logEvent } = useAuditTrail();
   const { addNotification } = useNotificationsContext();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -37,6 +37,37 @@ export function LoginScreen() {
   const [time, setTime] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const [isSandboxMode, setIsSandboxMode] = useState(() => {
+    return typeof window !== 'undefined' ? localStorage.getItem('BDR_NEXUS_SANDBOX_MODE') === 'true' : false;
+  });
+
+  const handleToggleSandbox = (val: boolean) => {
+    setIsSandboxMode(val);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('BDR_NEXUS_SANDBOX_MODE', val ? 'true' : 'false');
+      window.location.reload(); // Force full reload to reset Dexie database proxy
+    }
+  };
+
+  const handleSandboxLogin = async (id: string, name: string) => {
+    setIsLoading(true);
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const success = await loginSandbox(id);
+    if (success) {
+      toast.success(`Sandbox Identity Assumed: ${name}`);
+      addNotification({
+        type: 'warning',
+        title: 'Simulation Core Engaged',
+        message: `Sandbox profile loaded for ${name}`,
+        source: 'Factory Engine',
+        portal: 'SYSTEM'
+      });
+    } else {
+      toast.error('Sandbox login failed.');
+    }
+    setIsLoading(false);
+  };
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -184,34 +215,119 @@ export function LoginScreen() {
           <p className="text-sm text-slate-400 mt-4 font-mono tracking-widest uppercase">{formatDate(time)}</p>
         </motion.div>
 
+        {!selectedUser && (
+          <div className="flex flex-col items-center mb-10 relative z-10 w-full max-w-sm">
+             <div className="flex items-center justify-between w-full bg-black/40 border border-white/5 rounded-full p-1.5 backdrop-blur-md shadow-2xl">
+               <span className={cn("text-[10px] sm:text-xs font-black tracking-widest uppercase transition-colors duration-300 w-1/3 text-center", !isSandboxMode ? "text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.8)]" : "text-white/30")}>Production</span>
+               <button
+                 onClick={() => handleToggleSandbox(!isSandboxMode)}
+                 className={cn(
+                   "relative w-16 h-8 rounded-full transition-colors duration-300 shadow-inner flex items-center px-1 shrink-0",
+                   isSandboxMode ? "bg-purple-900 border border-purple-500/50" : "bg-cyan-900 border border-cyan-500/50"
+                 )}
+               >
+                  <div 
+                    className={cn(
+                      "w-6 h-6 rounded-full bg-white transition-transform duration-300 shadow-[0_0_15px_rgba(255,255,255,0.9)]", 
+                      isSandboxMode ? "translate-x-8" : "translate-x-0"
+                    )} 
+                  />
+               </button>
+               <span className={cn("text-[10px] sm:text-xs font-black tracking-widest uppercase transition-colors duration-300 flex items-center justify-center gap-1.5 w-1/3 text-center", isSandboxMode ? "text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.8)]" : "text-white/30")}>
+                 <TestTubeDiagonal className="hidden sm:block w-3 h-3" />
+                 Sandbox
+               </span>
+             </div>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
-          {!selectedUser ? (
+          {isSandboxMode && !selectedUser ? (
+            <motion.div 
+              key="sandbox-list"
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              className="flex flex-col items-center w-full max-w-2xl gap-4 relative z-10"
+            >
+              <div className="text-center mb-4">
+                <h3 className="text-purple-400 font-bold uppercase tracking-widest text-[10px] sm:text-xs flex items-center justify-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span>
+                  Quick-Select Virtual Identity Panel
+                </h3>
+                <p className="text-white/40 text-[10px] mt-2 max-w-sm mx-auto uppercase">One-click login to hardcoded, fully populated simulation states. No password required.</p>
+              </div>
+              
+              <div className="flex justify-center w-full px-4">
+                {[
+                  { id: 'SYSTEM-ADMIN-SANDBOX', name: 'System Admin Sandbox', color: 'bg-purple-600', badge: 'bg-purple-500/20 text-purple-300 border-purple-500/30', role: 'Super Sandbox Root (v17.5)' }
+                ].map(ident => (
+                  <motion.button
+                    key={ident.id}
+                    variants={itemVariants}
+                    onClick={() => handleSandboxLogin(ident.id, ident.name)}
+                    disabled={isLoading}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center text-left gap-4 p-4 w-full max-w-sm rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-md group relative overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/0 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className={cn("w-12 h-12 shrink-0 rounded-full flex items-center justify-center text-lg font-bold text-white shadow-lg", ident.color)}>
+                      {ident.name.substring(0,2).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-white font-semibold flex items-center text-sm group-hover:text-purple-300 transition-colors">{ident.name}</h4>
+                      <p className="text-[10px] text-white/50 truncate block mt-0.5 uppercase tracking-wide">{ident.role}</p>
+                    </div>
+                    <div className={cn("px-2.5 py-1 text-[8px] font-bold uppercase tracking-widest rounded-full border hidden md:block", ident.badge)}>
+                      {ident.id}
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            </motion.div>
+          ) : !isSandboxMode && !selectedUser ? (
             <motion.div 
               key="user-list"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
               exit="hidden"
-              className="flex flex-wrap justify-center gap-6 w-full"
+              className="flex flex-col items-center w-full max-w-2xl gap-4 relative z-10"
             >
-              {users?.map((user) => (
-                <motion.div
-                  key={user.id}
-                  variants={itemVariants}
-                  onClick={() => setSelectedUser(user)}
-                  whileHover={{ y: -5, scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="flex flex-col items-center p-4 w-40 rounded-2xl cursor-pointer group"
-                >
-                  <div className={`w-28 h-28 mb-4 rounded-full flex items-center justify-center text-4xl font-semibold text-white shadow-[0_8px_30px_rgb(0,0,0,0.3)] transition-all duration-300 group-hover:shadow-[0_15px_40px_rgba(0,0,0,0.4)] ${user.color} bg-opacity-20 border border-white/10 group-hover:border-white/30 backdrop-blur-md relative overflow-hidden`}>
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black/20 to-transparent" />
-                    <span className="drop-shadow-sm">{user.initials}</span>
-                  </div>
-                  <div className="text-center w-full">
-                    <h2 className="text-sm font-medium text-white/90 tracking-wide truncate group-hover:text-white transition-colors">{user.name}</h2>
-                  </div>
-                </motion.div>
-              ))}
+              <div className="text-center mb-4">
+                <h3 className="text-cyan-400 font-bold uppercase tracking-widest text-[10px] sm:text-xs flex items-center justify-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
+                  Factory Production Identities
+                </h3>
+                <p className="text-white/40 text-[10px] mt-2 max-w-sm mx-auto uppercase">Select an authorized profile to enter the live factory environment.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full px-4 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                {users?.filter(u => u.id !== 'SYSTEM-ADMIN-SANDBOX').map((user) => (
+                  <motion.button
+                    key={user.id}
+                    variants={itemVariants}
+                    onClick={() => setSelectedUser(user)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center text-left gap-4 p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors backdrop-blur-md group relative overflow-hidden min-h-[80px]"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/0 via-cyan-500/0 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className={cn("w-12 h-12 shrink-0 rounded-full flex items-center justify-center text-lg font-bold text-white shadow-lg", user.color)}>
+                      {user.initials || user.name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-white font-semibold flex items-center text-sm group-hover:text-cyan-300 transition-colors">{user.name}</h4>
+                      <p className="text-[10px] text-white/50 truncate block mt-0.5 uppercase tracking-wide">{user.role}</p>
+                    </div>
+                    <div className="px-2.5 py-1 text-[8px] font-bold uppercase tracking-widest rounded-full border hidden md:block bg-cyan-500/10 text-cyan-400 border-cyan-500/20 group-hover:bg-cyan-500/20 transition-colors">
+                      {user.id}
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
             </motion.div>
           ) : (
           <motion.div 
@@ -232,7 +348,23 @@ export function LoginScreen() {
                 <span className="drop-shadow-sm">{selectedUser.initials}</span>
               </motion.div>
               
-              <motion.h2 variants={itemVariants} className="text-2xl font-medium text-white tracking-tight mb-8 relative z-10 text-center drop-shadow-md">{selectedUser.name}</motion.h2>
+              <motion.h2 variants={itemVariants} className="text-2xl font-medium text-white tracking-tight mb-2 relative z-10 text-center drop-shadow-md">{selectedUser.name}</motion.h2>
+              
+              <motion.div variants={itemVariants} className="mb-6 relative z-10 text-center">
+                {selectedUser.id === 'SYSTEM-ADMIN-SANDBOX' ? (
+                  <span className="inline-block text-[10px] font-bold text-purple-400 bg-purple-950/40 border border-purple-800/40 px-3 py-1 rounded-full uppercase tracking-widest">
+                    SANDBOX PIN: 7777 (المحاكي)
+                  </span>
+                ) : selectedUser.id === 'SY-ADMIN' ? (
+                  <span className="inline-block text-[10px] font-bold text-rose-400 bg-rose-950/40 border border-rose-800/40 px-3 py-1 rounded-full uppercase tracking-widest">
+                    ROOT PIN: 0000
+                  </span>
+                ) : (
+                  <span className="inline-block text-[10px] font-bold text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1 rounded-full uppercase tracking-widest">
+                    OPERATOR PIN: 1234
+                  </span>
+                )}
+              </motion.div>
 
               <form onSubmit={handleLogin} className="w-full relative z-10 flex flex-col items-center">
                 <motion.div variants={itemVariants} className="relative flex items-center w-56 group mb-4">

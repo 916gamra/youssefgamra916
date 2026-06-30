@@ -77,14 +77,25 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
   // System Initialization Signal (with session check to prevent duplicates)
   useEffect(() => {
     const sessionInitialized = sessionStorage.getItem('os_signal_init');
+    const isSandboxMode = localStorage.getItem('BDR_NEXUS_SANDBOX_MODE') === 'true';
     if (!sessionInitialized && user) {
-      addNotification({
-        type: 'info',
-        title: 'System Interface Active',
-        message: `Welcome to Titanic OS. All secure protocols are now operational for ${user.name}.`,
-        source: 'Kernel',
-        portal: 'SYSTEM'
-      });
+      if (isSandboxMode) {
+        addNotification({
+          type: 'warning',
+          title: 'System Sandbox Core Active 🧠',
+          message: 'Welcome to the deep simulation environment. Ciob Maroc factory mutations, active technician squad, and critical inventory alerts are live & isolated.',
+          source: 'Sandbox',
+          portal: 'SYSTEM'
+        });
+      } else {
+        addNotification({
+          type: 'info',
+          title: 'System Interface Active',
+          message: `Welcome to Titanic OS. All secure protocols are now operational for ${user.name}.`,
+          source: 'Kernel',
+          portal: 'SYSTEM'
+        });
+      }
       sessionStorage.setItem('os_signal_init', 'true');
     }
   }, [user, addNotification]);
@@ -191,7 +202,14 @@ export function DesktopLayout({ user, onLogout }: { user: User | null, onLogout:
         </span>
         <span className="text-white/60 font-semibold shrink-0">USER: {user ? user.name : 'GUEST'}</span>
         <span className="ml-auto opacity-50 shrink-0 hidden md:inline">SYNC: SECURE</span>
-        <span className="text-white/30 truncate shrink-0 ml-auto md:ml-0">V17.0.5 <span className="hidden lg:inline">- ENTERPRISE EDITION</span></span>
+        {localStorage.getItem('BDR_NEXUS_SANDBOX_MODE') === 'true' ? (
+          <span className="text-purple-400 font-bold shrink-0 ml-auto md:ml-0 flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></span>
+            V17.5 - SYSTEM SANDBOX (المحاكي)
+          </span>
+        ) : (
+          <span className="text-white/30 truncate shrink-0 ml-auto md:ml-0">V17.0.5 <span className="hidden lg:inline">- ENTERPRISE EDITION</span></span>
+        )}
       </footer>
     </div>
   );

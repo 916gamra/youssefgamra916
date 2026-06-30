@@ -4,11 +4,13 @@ import { checkRateLimit, recordLoginAttempt, resetLoginAttempts, verifyPin, sess
 import { useTabStore } from '@/app/store';
 import { toast } from 'sonner';
 import { getAuthSlot } from '@/core/auth/authService';
+import { checkAndSeedSandbox } from '@/core/db/sandboxSeed';
 
 interface AuthState {
   currentUser: User | null;
   isAuthenticated: boolean;
   login: (userId: string | null, pin: string) => Promise<boolean>;
+  loginSandbox: (userId: string) => Promise<boolean>;
   logout: () => void;
   checkSession: () => Promise<boolean>;
 }
@@ -16,6 +18,20 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   currentUser: null,
   isAuthenticated: false,
+
+  loginSandbox: async (userId: string) => {
+    const user = await getAuthSlot(userId);
+    if (user) {
+       sessionManager.createSession(user.id);
+       await checkAndSeedSandbox();
+       resetLoginAttempts();
+       useTabStore.getState().clearTabs();
+       import('./useOsStore').then(m => m.useOsStore.getState().setPortal('HOME'));
+       set({ currentUser: user, isAuthenticated: true });
+       return true;
+    }
+    return false;
+  },
 
   login: async (userId: string | null, pin: string) => {
     // 1. Check Rate Limit
@@ -54,6 +70,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
        if (user) {
           if (await verifyPin(pin, user.pin)) {
             sessionManager.createSession(user.id);
+            if (user.id === 'SYSTEM-ADMIN-SANDBOX') {
+              await checkAndSeedSandbox();
+            }
             resetLoginAttempts();
             useTabStore.getState().clearTabs();
             import('./useOsStore').then(m => m.useOsStore.getState().setPortal('HOME'));
@@ -95,6 +114,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       const user = await getAuthSlot(session.userId as string);
       if (user) {
+        if (user.id === 'SYSTEM-ADMIN-SANDBOX') {
+          await checkAndSeedSandbox();
+        }
         set({ currentUser: user, isAuthenticated: true });
         return true;
       } else {

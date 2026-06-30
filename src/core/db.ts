@@ -125,6 +125,7 @@ export interface MachineBlueprint {
   energySource: string; // 380v, 220v, Pneumatic, Hydraulic, Mixed
   technicalSpecs?: string;
   category?: string; // Optional metadata
+  componentIds?: string[];
   createdAt: string;
 }
 
@@ -180,6 +181,25 @@ export interface PreventiveTask {
   createdAt: string;
 }
 
+// Standard Modular Component
+export interface StandardComponent {
+  id: string; // UUID
+  name: string;
+  family: TaskFamily;
+  taskIds: string[]; // Linked PreventiveTask IDs
+  linkedPartTemplateIds?: string[]; // Linked PdrTemplate IDs (the DNA parts)
+  criticality?: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  createdAt: string;
+}
+
+export interface StandardAction {
+  id: string; // UUID
+  name: string; // e.g. Control, Cleaning, Lubrication, Repair, etc.
+  type: 'PREV' | 'CORR' | 'BOTH';
+  description?: string;
+  createdAt: string;
+}
+
 // Tasks assigned to a Machine Blueprint (Model Inheritance)
 export interface BlueprintTask {
   id: string; // UUID
@@ -212,6 +232,13 @@ export interface TaskExecution {
   doneBy?: string; // Technician ID
   notes?: string;
   durationMinutes?: number;
+  overriddenByAdmin?: boolean;
+  adminUserId?: string;
+  adminUserName?: string;
+  componentCondition?: 'EXCELLENT' | 'WATCHFUL' | 'CRITICAL';
+  componentId?: string; // Standard Component ID
+  actionId?: string;    // Standard Action ID
+  serviceType?: "PREV" | "CORR";
 }
 
 export interface UserOverride {
@@ -290,6 +317,8 @@ export class GmaoDatabase extends Dexie {
   blueprintTasks!: Table<BlueprintTask, string>;
   machineTasks!: Table<MachineTask, string>;
   taskExecutions!: Table<TaskExecution, string>;
+  standardComponents!: Table<StandardComponent, string>;
+  standardActions!: Table<StandardAction, string>;
 
   // System Tables
   userOverrides!: Table<UserOverride, string>;
@@ -299,8 +328,8 @@ export class GmaoDatabase extends Dexie {
   excelTemplates!: Table<ExcelTemplate, string>;
   excelBackups!: Table<ExcelBackup, string>;
 
-  constructor() {
-    super('CIOB_GMAO_DB');
+  constructor(name: string = 'CIOB_GMAO_DB') {
+    super(name);
     
     // Schema Version 14 (Preventive Maintenance Inheritance Update)
     this.version(14).stores({
@@ -329,7 +358,46 @@ export class GmaoDatabase extends Dexie {
       excelTemplates: 'id, portalId, name',
       excelBackups: 'id, portalId, timestamp'
     });
+
+    // Schema Version 15 (Standard Modular Component Assembly)
+    this.version(15).stores({
+      standardComponents: 'id, name, family'
+    });
+
+    // Schema Version 16 (Component Anatomy & Action Taxonomy v17.4)
+    this.version(16).stores({
+      standardComponents: 'id, name, family, criticality',
+      standardActions: 'id, name, type'
+    });
+
+    // Schema Version 17 (Unified Service Entry Links tracking)
+    this.version(17).stores({
+      taskExecutions: 'id, machineId, taskId, status, scheduledDate, componentId, actionId, serviceType'
+    });
   }
 }
 
-export const db = new GmaoDatabase();
+const mainDb = new GmaoDatabase('CIOB_GMAO_DB');
+const sandboxDb = new GmaoDatabase('CIOB_GMAO_SANDBOX_DB');
+
+const getIsSandbox = () => {
+    if (typeof window === 'undefined') return false;
+    return window.localStorage.getItem('BDR_NEXUS_SANDBOX_MODE') === 'true';
+};
+
+export const db = new Proxy(mainDb, {
+  get(target, prop, receiver) {
+    const isSandbox = getIsSandbox();
+    const activeDb = isSandbox ? sandboxDb : mainDb;
+    const value = Reflect.get(activeDb, prop, receiver);
+    if (typeof value === 'function') {
+      return value.bind(activeDb);
+    }
+    return value;
+  },
+  set(target, prop, value, receiver) {
+    const isSandbox = getIsSandbox();
+    const activeDb = isSandbox ? sandboxDb : mainDb;
+    return Reflect.set(activeDb, prop, value, activeDb);
+  }
+}) as any as GmaoDatabase;
